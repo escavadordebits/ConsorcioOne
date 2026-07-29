@@ -1,0 +1,24 @@
+.DS_Store
+node_modules/
+.vscode/
+.idea/
+dist/
+build/
+
+# Specification files & Documents
+*.pdf
+*.xlsb
+*.xlsx
+*.xls
+*.doc
+*.docx
+
+# Audio files
+*.opus
+*.wav
+*.mp3
+*.m4a
+*.ogg
+*.flac
+*.aac
+*.wma
