@@ -1,5 +1,31 @@
+import { auth, db, onAuthStateChanged, signOut, collection, getDocs, doc, setDoc, deleteDoc, getDoc, addDoc } from './firebase-setup.js';
+
+let currentUserRole = 'CLIENTE'; // MOCK
+
 // ConsórcioOne - Lógica do Portal e CRM
 document.addEventListener('DOMContentLoaded', () => {
+
+
+  // --- FUNÇÃO DE CONFIRMAÇÃO GENÉRICA ---
+  let currentConfirmCallback = null;
+  const showConfirm = (message, title, onConfirm) => {
+    elements.confirmTitle.textContent = title || 'Confirmar';
+    elements.confirmMessage.textContent = message;
+    currentConfirmCallback = onConfirm;
+    elements.confirmModal.classList.add('active');
+  };
+
+  elements.btnConfirmCancel.addEventListener('click', () => {
+    elements.confirmModal.classList.remove('active');
+    currentConfirmCallback = null;
+  });
+
+  elements.btnConfirmOk.addEventListener('click', () => {
+    elements.confirmModal.classList.remove('active');
+    if (currentConfirmCallback) currentConfirmCallback();
+    currentConfirmCallback = null;
+  });
+
   // --- ESTADO GLOBAL DO APLICATIVO ---
   let state = {
     categoria: 'AUTOMOVEL', // AUTOMOVEL, IMOVEL, SERVICO, ELETRO
@@ -62,12 +88,24 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Carregar dados salvos do localStorage se existirem
-  const savedLeads = localStorage.getItem('consorcio_one_leads');
-  if (savedLeads) {
-    state.leads = JSON.parse(savedLeads);
-  } else {
-    localStorage.setItem('consorcio_one_leads', JSON.stringify(state.leads));
-  }
+  
+  // Async load leads from Firestore
+  const loadLeads = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'leads'));
+      const firestoreLeads = [];
+      querySnapshot.forEach((doc) => {
+        firestoreLeads.push({ id: doc.id, ...doc.data() });
+      });
+      if (firestoreLeads.length > 0) {
+        state.leads = firestoreLeads;
+      }
+      renderKanban();
+    }); catch (e) {
+      console.error("Error loading leads", e);
+    }
+  };
+
 
   // --- PARAMETRIZAÇÃO DAS ADMINISTRADORAS ---
   const admRules = {
@@ -140,7 +178,22 @@ document.addEventListener('DOMContentLoaded', () => {
     leadDetailsBox: document.getElementById('lead-details-box'),
     leadPanelChatList: document.getElementById('lead-panel-chat-list'),
     leadPanelDocsBox: document.getElementById('lead-panel-docs-box'),
-    leadPanelDeleteBtn: document.getElementById('lead-panel-delete-btn')
+    leadPanelDeleteBtn: document.getElementById('lead-panel-delete-btn'),
+    leadPanelEditBtn: document.getElementById('lead-panel-edit-btn'),
+    editLeadModal: document.getElementById('edit-lead-modal'),
+    closeEditModalBtn: document.getElementById('close-edit-modal'),
+    formEditLead: document.getElementById('form-edit-lead'),
+    btnCancelEdit: document.getElementById('btn-cancel-edit'),
+    btnAdmin: document.getElementById('btn-admin'),
+    adminUsersModal: document.getElementById('admin-users-modal'),
+    closeAdminModalBtn: document.getElementById('close-admin-modal'),
+    formAddUser: document.getElementById('form-add-user'),
+    usersTableBody: document.getElementById('users-table-body'),
+    confirmModal: document.getElementById('confirm-modal'),
+    confirmTitle: document.getElementById('confirm-title'),
+    confirmMessage: document.getElementById('confirm-message'),
+    btnConfirmOk: document.getElementById('btn-confirm-ok'),
+    btnConfirmCancel: document.getElementById('btn-confirm-cancel')
   };
 
   // --- CONFIGURAÇÃO INICIAL DO SIMULADOR ---
@@ -316,6 +369,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const adm = elements.selectedAdmField.value;
     const parcela = parseFloat(elements.preCadastroModal.getAttribute('data-parcela'));
     
+    // Obter array de tipos de consórcios selecionados
+    const tiposConsorcio = formData.getAll('tipo_consorcio');
+    
     // Criar um novo Lead no estado
     const newLead = {
       id: `lead-${Date.now()}`,
@@ -327,7 +383,8 @@ document.addEventListener('DOMContentLoaded', () => {
       rendaMensal: parseFloat(formData.get('renda')) || 3000,
       status: 'NOVO',
       origem: 'WEB',
-      categoriaBem: state.categoria,
+      tiposConsorcio: tiposConsorcio, // Array multi-seleção
+      categoriaBem: state.categoria, // Mantém a categoria principal da simulação
       valorCredito: state.credito,
       prazoMeses: state.prazo,
       administradora: adm,
@@ -340,7 +397,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     state.leads.push(newLead);
-    localStorage.setItem('consorcio_one_leads', JSON.stringify(state.leads));
+    
+      // sync to firestore
+      try {
+        if (state.leadCorrente) {
+           setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
+        } else {
+           // when adding new or updating multiple
+           state.leads.forEach(l => {
+              if(l.id) setDoc(doc(db, 'leads', l.id), l);
+           });
+        }
+      } catch (e) { console.error(e); }
+
     
     // Fechar modal e renderizar CRM atualizado
     closePreCadastro();
@@ -530,7 +599,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const lead = state.leads.find(l => l.id === id);
       if (lead && lead.status !== key) {
         lead.status = key;
-        localStorage.setItem('consorcio_one_leads', JSON.stringify(state.leads));
+        
+      // sync to firestore
+      try {
+        if (state.leadCorrente) {
+           setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
+        } else {
+           // when adding new or updating multiple
+           state.leads.forEach(l => {
+              if(l.id) setDoc(doc(db, 'leads', l.id), l);
+           });
+        }
+      } catch (e) { console.error(e); }
+
         renderKanban();
       }
     });
@@ -548,6 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="detail-row"><span class="detail-label">CPF/CNPJ:</span><span class="detail-value">${lead.cpfCnpj || 'N/A'}</span></div>
       <div class="detail-row"><span class="detail-label">Renda declarada:</span><span class="detail-value">${formatCurrency(lead.rendaMensal)}</span></div>
       <div class="detail-row"><span class="detail-label">Administradora:</span><span class="detail-value">${lead.administradora}</span></div>
+      <div class="detail-row"><span class="detail-label">Tipos de Consórcio:</span><span class="detail-value">${(lead.tiposConsorcio && lead.tiposConsorcio.length > 0) ? lead.tiposConsorcio.join(', ') : (lead.categoriaBem || 'N/A')}</span></div>
       <div class="detail-row"><span class="detail-label">Crédito Simulado:</span><span class="detail-value">${formatCurrency(lead.valorCredito)}</span></div>
       <div class="detail-row"><span class="detail-label">Plano/Prazo:</span><span class="detail-value">${lead.prazoMeses} meses</span></div>
       <div class="detail-row"><span class="detail-label">Parcela Estimada:</span><span class="detail-valueHighlight" style="color:var(--accent); font-weight:700;">${formatCurrency(lead.valorParcela)}</span></div>
@@ -582,7 +664,19 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'doc-cpf', tipo: 'CPF', nome: 'documento_identidade.pdf', status: 'PENDENTE', ocrLog: null },
         { id: 'doc-renda', tipo: 'COMPROVANTE_RENDA', nome: 'extrato_bancario.jpg', status: 'PENDENTE', ocrLog: null }
       ];
-      localStorage.setItem('consorcio_one_leads', JSON.stringify(state.leads));
+      
+      // sync to firestore
+      try {
+        if (state.leadCorrente) {
+           setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
+        } else {
+           // when adding new or updating multiple
+           state.leads.forEach(l => {
+              if(l.id) setDoc(doc(db, 'leads', l.id), l);
+           });
+        }
+      } catch (e) { console.error(e); }
+
     }
     
     lead.documentos.forEach(doc => {
@@ -635,11 +729,88 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       };
       
-      localStorage.setItem('consorcio_one_leads', JSON.stringify(state.leads));
+      
+      // sync to firestore
+      try {
+        if (state.leadCorrente) {
+           setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
+        } else {
+           // when adding new or updating multiple
+           state.leads.forEach(l => {
+              if(l.id) setDoc(doc(db, 'leads', l.id), l);
+           });
+        }
+      } catch (e) { console.error(e); }
+
       renderLeadDocuments(lead);
       alert(`OCR Processado com sucesso para ${doc.tipo}! Dados validados de acordo com o CPF cadastrado.`);
     }, 1500);
   };
+
+  
+  // --- LÓGICA DE EDIÇÃO ---
+  elements.leadPanelEditBtn.addEventListener('click', () => {
+    if (!state.leadCorrente) return;
+    
+    // Preencher o formulário
+    const l = state.leadCorrente;
+    document.getElementById('edit-lead-id').value = l.id;
+    document.getElementById('edit-nome').value = l.nomeCompleto || '';
+    document.getElementById('edit-cpf').value = l.cpfCnpj || '';
+    document.getElementById('edit-email').value = l.email || '';
+    document.getElementById('edit-tel').value = l.telefone || '';
+    document.getElementById('edit-renda').value = l.rendaMensal || '';
+    
+    // Checkboxes
+    const checkboxes = document.querySelectorAll('input[name="edit_tipo_consorcio"]');
+    checkboxes.forEach(cb => cb.checked = false);
+    if (l.tiposConsorcio) {
+      l.tiposConsorcio.forEach(tc => {
+        const cb = document.querySelector(`input[name="edit_tipo_consorcio"][value="${tc}"]`);
+        if (cb) cb.checked = true;
+      });
+    } else if (l.categoriaBem) {
+      const cb = document.querySelector(`input[name="edit_tipo_consorcio"][value="${l.categoriaBem}"]`);
+      if (cb) cb.checked = true;
+    }
+    
+    elements.editLeadModal.classList.add('active');
+  });
+
+  const closeEditModal = () => {
+    elements.editLeadModal.classList.remove('active');
+    elements.formEditLead.reset();
+  };
+
+  elements.closeEditModalBtn.addEventListener('click', closeEditModal);
+  elements.btnCancelEdit.addEventListener('click', closeEditModal);
+
+  elements.formEditLead.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(elements.formEditLead);
+    const leadId = document.getElementById('edit-lead-id').value;
+    
+    const leadIndex = state.leads.findIndex(l => l.id === leadId);
+    if (leadIndex > -1) {
+      state.leads[leadIndex].nomeCompleto = formData.get('nome');
+      state.leads[leadIndex].cpfCnpj = formData.get('cpf');
+      state.leads[leadIndex].email = formData.get('email');
+      state.leads[leadIndex].telefone = formData.get('telefone');
+      state.leads[leadIndex].rendaMensal = parseFloat(formData.get('renda'));
+      state.leads[leadIndex].tiposConsorcio = formData.getAll('edit_tipo_consorcio');
+      
+      // Salvar no firestore
+      try {
+        setDoc(doc(db, 'leads', leadId), state.leads[leadIndex]);
+      } catch (e) { console.error(e); }
+      
+      // Atualizar interface
+      openLeadDetails(state.leads[leadIndex]);
+      renderKanban();
+      closeEditModal();
+      alert('Lead atualizado com sucesso!');
+    }
+  });
 
   elements.closeLeadPanelBtn.addEventListener('click', () => {
     elements.leadPanel.classList.remove('active');
@@ -648,13 +819,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   elements.leadPanelDeleteBtn.addEventListener('click', () => {
     if (!state.leadCorrente) return;
-    if (confirm(`Tem certeza que deseja excluir o lead ${state.leadCorrente.nomeCompleto}?`)) {
+    showConfirm(`Tem certeza que deseja excluir o lead ${state.leadCorrente.nomeCompleto}?`, 'Excluir Lead', () => {
       state.leads = state.leads.filter(l => l.id !== state.leadCorrente.id);
-      localStorage.setItem('consorcio_one_leads', JSON.stringify(state.leads));
+      
+      // sync to firestore
+      try {
+        if (state.leadCorrente) {
+           setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
+        } else {
+           // when adding new or updating multiple
+           state.leads.forEach(l => {
+              if(l.id) setDoc(doc(db, 'leads', l.id), l);
+           });
+        }
+      } catch (e) { console.error(e); }
+
       elements.leadPanel.classList.remove('active');
       state.leadCorrente = null;
       renderKanban();
-    }
+    });
   });
 
   // --- NAVEGAÇÃO ENTRE ABAS ---
@@ -674,6 +857,135 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Inicializar o simulador ao carregar
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = 'index.html'; // Redireciona se não logado
+      return;
+    }
+    
+    document.getElementById('user-display-name').textContent = user.email;
+    
+    // Obter o role do usuario no Firestore
+    try {
+      // Import query and where from firebase-setup.js - assuming they are exported
+      // Note: we might need to add them to import if they are not. They were added in my script.
+      const q = window.fbQuery ? window.fbQuery(collection(db, 'users'), window.fbWhere("email", "==", user.email)) : null;
+      // Let's rely on standard SDK since I did export query and where.
+      
+      const { query, where } = await import('./firebase-setup.js');
+      const qRef = query(collection(db, 'users'), where("email", "==", user.email));
+      const querySnapshot = await getDocs(qRef);
+      
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        currentUserRole = userDoc.data().role;
+      } else {
+        // Se não existir, define como ADM para desenvolvimento
+        currentUserRole = 'ADM'; 
+        await setDoc(doc(db, 'users', user.uid), { role: 'ADM', email: user.email });
+      }
+    } catch (e) {
+      console.error("Erro ao pegar role", e);
+      currentUserRole = 'ADM'; // Fallback
+    }
+
+    if (currentUserRole === 'ADM') {
+      document.getElementById('toggle-crm').style.display = 'block';
+      document.getElementById('btn-admin').style.display = 'block';
+    } else if (currentUserRole === 'OPERADOR') {
+      document.getElementById('toggle-crm').style.display = 'block';
+      document.getElementById('btn-admin').style.display = 'none';
+    } else {
+      document.getElementById('toggle-crm').style.display = 'none';
+      document.getElementById('btn-admin').style.display = 'none';
+      // Força a visualização do portal se for cliente
+      document.getElementById('toggle-portal').click();
+    }
+    
+    // Carrega os leads
+    loadLeads();
+  });
+
+  
+  // --- LÓGICA DE GERENCIAMENTO DE USUÁRIOS (ADM) ---
+  const loadUsers = async () => {
+    try {
+      const snapshot = await getDocs(collection(db, 'users'));
+      elements.usersTableBody.innerHTML = '';
+      
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        if (!data.email) return;
+        
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid var(--border-color)';
+        tr.innerHTML = `
+          <td style="padding: 0.5rem;">${data.email}</td>
+          <td style="padding: 0.5rem;">${data.role}</td>
+          <td style="padding: 0.5rem;">
+            <button class="btn btn-secondary btn-sm delete-user-btn" data-id="${docSnap.id}" style="padding:0.2rem 0.5rem; font-size:0.75rem; border-color:#ef4444; color:#ef4444;">Excluir</button>
+          </td>
+        `;
+        elements.usersTableBody.appendChild(tr);
+      });
+      
+      // Bind delete buttons
+      document.querySelectorAll('.delete-user-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.target.getAttribute('data-id');
+          showConfirm('Tem certeza que deseja remover o acesso deste usuário?', 'Remover Acesso', async () => {
+            try {
+              await deleteDoc(doc(db, 'users', id));
+              loadUsers();
+            } catch(err) { console.error(err); }
+          });
+        });
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  if (elements.btnAdmin) {
+    elements.btnAdmin.addEventListener('click', () => {
+      elements.adminUsersModal.classList.add('active');
+      loadUsers();
+    });
+    
+    elements.closeAdminModalBtn.addEventListener('click', () => {
+      elements.adminUsersModal.classList.remove('active');
+    });
+    
+    elements.formAddUser.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('new-user-email').value;
+      const role = document.getElementById('new-user-role').value;
+      
+      try {
+        // Find if user already exists
+        const { query, where } = await import('./firebase-setup.js');
+        const qRef = query(collection(db, 'users'), where("email", "==", email));
+        const snap = await getDocs(qRef);
+        
+        if (!snap.empty) {
+           // Update
+           await setDoc(doc(db, 'users', snap.docs[0].id), { email, role }, { merge: true });
+        } else {
+           // Add new
+           await addDoc(collection(db, 'users'), { email, role });
+        }
+        
+        document.getElementById('new-user-email').value = '';
+        loadUsers();
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  }
+
+  document.getElementById('btn-logout').addEventListener('click', () => {
+    signOut(auth);
+  });
   updateSimulatorLimits();
   renderSimulations();
 });
