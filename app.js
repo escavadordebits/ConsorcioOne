@@ -6,26 +6,6 @@ let currentUserRole = 'CLIENTE'; // MOCK
 document.addEventListener('DOMContentLoaded', () => {
 
 
-  // --- FUNÇÃO DE CONFIRMAÇÃO GENÉRICA ---
-  let currentConfirmCallback = null;
-  const showConfirm = (message, title, onConfirm) => {
-    elements.confirmTitle.textContent = title || 'Confirmar';
-    elements.confirmMessage.textContent = message;
-    currentConfirmCallback = onConfirm;
-    elements.confirmModal.classList.add('active');
-  };
-
-  elements.btnConfirmCancel.addEventListener('click', () => {
-    elements.confirmModal.classList.remove('active');
-    currentConfirmCallback = null;
-  });
-
-  elements.btnConfirmOk.addEventListener('click', () => {
-    elements.confirmModal.classList.remove('active');
-    if (currentConfirmCallback) currentConfirmCallback();
-    currentConfirmCallback = null;
-  });
-
   // --- ESTADO GLOBAL DO APLICATIVO ---
   let state = {
     categoria: 'AUTOMOVEL', // AUTOMOVEL, IMOVEL, SERVICO, ELETRO
@@ -101,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.leads = firestoreLeads;
       }
       renderKanban();
-    }); catch (e) {
+    } catch (e) {
       console.error("Error loading leads", e);
     }
   };
@@ -193,8 +173,49 @@ document.addEventListener('DOMContentLoaded', () => {
     confirmTitle: document.getElementById('confirm-title'),
     confirmMessage: document.getElementById('confirm-message'),
     btnConfirmOk: document.getElementById('btn-confirm-ok'),
-    btnConfirmCancel: document.getElementById('btn-confirm-cancel')
+    btnConfirmCancel: document.getElementById('btn-confirm-cancel'),
+    alertModal: document.getElementById('alert-modal'),
+    alertTitle: document.getElementById('alert-title'),
+    alertMessage: document.getElementById('alert-message'),
+    btnAlertOk: document.getElementById('btn-alert-ok')
   };
+
+
+  // --- FUNÇÃO DE CONFIRMAÇÃO GENÉRICA ---
+  let currentConfirmCallback = null;
+  const showConfirm = (message, title, onConfirm) => {
+    elements.confirmTitle.textContent = title || 'Confirmar';
+    elements.confirmMessage.textContent = message;
+    currentConfirmCallback = onConfirm;
+    elements.confirmModal.classList.add('active');
+  };
+
+  elements.btnConfirmCancel.addEventListener('click', () => {
+    elements.confirmModal.classList.remove('active');
+    currentConfirmCallback = null;
+  });
+
+  elements.btnConfirmOk.addEventListener('click', () => {
+    elements.confirmModal.classList.remove('active');
+    if (currentConfirmCallback) currentConfirmCallback();
+    currentConfirmCallback = null;
+  });
+
+
+  // --- FUNÇÃO DE ALERTA GENÉRICA ---
+  let currentAlertCallback = null;
+  const showAlert = (message, title, onOk) => {
+    elements.alertTitle.textContent = title || 'Aviso';
+    elements.alertMessage.textContent = message;
+    currentAlertCallback = onOk;
+    elements.alertModal.classList.add('active');
+  };
+
+  elements.btnAlertOk.addEventListener('click', () => {
+    elements.alertModal.classList.remove('active');
+    if (currentAlertCallback) currentAlertCallback();
+    currentAlertCallback = null;
+  });
 
   // --- CONFIGURAÇÃO INICIAL DO SIMULADOR ---
   const updateSimulatorLimits = () => {
@@ -415,7 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closePreCadastro();
     renderKanban();
     
-    alert('Simulação salva com sucesso! Um consultor entrará em contato em breve.');
+    showAlert('Simulação salva com sucesso! Um consultor entrará em contato em breve.', 'Sucesso');
   });
 
   // --- CHATBOT WIDGET (MOCK IA) ---
@@ -808,7 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
       openLeadDetails(state.leads[leadIndex]);
       renderKanban();
       closeEditModal();
-      alert('Lead atualizado com sucesso!');
+      showAlert('Lead atualizado com sucesso!', 'Sucesso');
     }
   });
 
