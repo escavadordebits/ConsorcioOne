@@ -331,23 +331,13 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="stat-val">${res.taxaTotal.toFixed(1)}% total</span>
         </div>
         <div>
-          <button class="btn btn-primary btn-sm w-full select-plan-btn" data-adm="${res.nome}" data-parcela="${res.parcela.toFixed(2)}">
+          <button class="btn btn-primary btn-sm w-full select-plan-btn" onclick="window.openPreCadastro('${res.nome}', ${res.parcela})">
             Solicitar Proposta
           </button>
         </div>
       `;
       
       elements.comparisonContainer.appendChild(card);
-    });
-
-    // Registrar eventos para os botões do plano
-    document.querySelectorAll('.select-plan-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const adm = e.currentTarget.getAttribute('data-adm');
-        const parcela = parseFloat(e.currentTarget.getAttribute('data-parcela'));
-        console.log('Clicou em solicitar proposta', adm, parcela);
-        openPreCadastro(adm, parcela);
-      });
     });
   };
 
@@ -382,6 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.preCadastroModal.setAttribute('data-parcela', parcela);
     elements.preCadastroModal.classList.add('active');
   };
+  window.openPreCadastro = openPreCadastro;
 
   const closePreCadastro = () => {
     elements.preCadastroModal.classList.remove('active');
