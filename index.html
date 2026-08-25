@@ -179,14 +179,14 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(5px);
-      color: white;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(3px);
+      color: rgba(255, 255, 255, 0.9);
       border: none;
-      width: 50px;
-      height: 50px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -196,15 +196,16 @@
     }
     
     .carousel-btn:hover {
-      background: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
     }
     
     .prev-btn {
-      left: 20px;
+      left: 8px;
     }
     
     .next-btn {
-      right: 20px;
+      right: 8px;
     }
     
     .carousel-indicators {
@@ -378,6 +379,94 @@
 
   </main>
 
+  <!-- SEÇÃO DE FAQ -->
+  <section class="faq-section" style="padding: 5rem 2rem; max-width: 800px; margin: 0 auto;">
+    <h2 style="font-family: var(--font-title); font-size: 2rem; margin-bottom: 2rem; text-align: center;">Perguntas Frequentes</h2>
+    
+    <div class="faq-container" style="display: flex; flex-direction: column; gap: 1rem;">
+      
+      <div class="faq-item" style="border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card); overflow: hidden;">
+        <div class="faq-question" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; font-weight: 600; font-size: 1.1rem; cursor: pointer;">
+          1. Posso usar a minha carta de crédito de imóvel para comprar um carro e vice-versa?
+          <span class="faq-icon" style="color: var(--brand-blue); font-weight: bold; font-size: 1.5rem; transition: transform 0.3s ease;">+</span>
+        </div>
+        <div class="faq-answer" style="padding: 0 1.5rem; max-height: 0; overflow: hidden; transition: all 0.3s ease; color: var(--text-muted); line-height: 1.6;">
+          <p style="padding-bottom: 1.5rem;"><em>Não, e isso é uma vantagem estratégica.</em> Cada carta de crédito é específica para sua categoria (imóvel, veículo, serviços). Isso protege seu investimento e garante que você use o recurso exatamente como planejou. <strong>Quer saber como escolher a carta ideal para seu objetivo? Simule agora no nosso site e descubra o plano perfeito para você.</strong></p>
+        </div>
+      </div>
+
+      <div class="faq-item" style="border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card); overflow: hidden;">
+        <div class="faq-question" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; font-weight: 600; font-size: 1.1rem; cursor: pointer;">
+          2. É possível usar parte do meu FGTS para usar como lance?
+          <span class="faq-icon" style="color: var(--brand-blue); font-weight: bold; font-size: 1.5rem; transition: transform 0.3s ease;">+</span>
+        </div>
+        <div class="faq-answer" style="padding: 0 1.5rem; max-height: 0; overflow: hidden; transition: all 0.3s ease; color: var(--text-muted); line-height: 1.6;">
+          <p style="padding-bottom: 1.5rem;"><em>Sim, e essa é uma das maiores vantagens do consórcio imobiliário.</em> Você pode usar seu FGTS como lance livre para aumentar drasticamente suas chances de contemplação antecipada. Transforme seu saldo parado em poder de compra acelerado. <strong>Quer saber quanto você pode ofertar? Fale com um especialista e potencialize seu FGTS hoje mesmo.</strong></p>
+        </div>
+      </div>
+
+      <div class="faq-item" style="border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card); overflow: hidden;">
+        <div class="faq-question" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; font-weight: 600; font-size: 1.1rem; cursor: pointer;">
+          3. A pessoa que mora fora do Brasil pode entrar num consórcio normalmente?
+          <span class="faq-icon" style="color: var(--brand-blue); font-weight: bold; font-size: 1.5rem; transition: transform 0.3s ease;">+</span>
+        </div>
+        <div class="faq-answer" style="padding: 0 1.5rem; max-height: 0; overflow: hidden; transition: all 0.3s ease; color: var(--text-muted); line-height: 1.6;">
+          <p style="padding-bottom: 1.5rem;"><em>Sim, brasileiros no exterior podem participar normalmente.</em> Basta ter CPF ativo e conta bancária no Brasil. É a forma mais inteligente de investir no Brasil sem burocracia de financiamento tradicional. <strong>Mora fora e quer investir no Brasil? Comece agora e construa patrimônio com segurança.</strong></p>
+        </div>
+      </div>
+
+      <div class="faq-item" style="border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card); overflow: hidden;">
+        <div class="faq-question" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; font-weight: 600; font-size: 1.1rem; cursor: pointer;">
+          4. Ao ser contemplado eu tenho quanto tempo para usar a minha carta de crédito?
+          <span class="faq-icon" style="color: var(--brand-blue); font-weight: bold; font-size: 1.5rem; transition: transform 0.3s ease;">+</span>
+        </div>
+        <div class="faq-answer" style="padding: 0 1.5rem; max-height: 0; overflow: hidden; transition: all 0.3s ease; color: var(--text-muted); line-height: 1.6;">
+          <p style="padding-bottom: 1.5rem;"><em>Você tem entre 90 e 180 dias</em>, dependendo da administradora, mas o crédito fica corrigido até o uso. Isso significa que seu dinheiro rende enquanto você busca o negócio perfeito. <strong>Quer planejar sua compra com tranquilidade? Conheça nossos prazos flexíveis e faça o melhor negócio.</strong></p>
+        </div>
+      </div>
+
+      <div class="faq-item" style="border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card); overflow: hidden;">
+        <div class="faq-question" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; font-weight: 600; font-size: 1.1rem; cursor: pointer;">
+          5. Posso comprar um imóvel no leilão com minha carta contemplada?
+          <span class="faq-icon" style="color: var(--brand-blue); font-weight: bold; font-size: 1.5rem; transition: transform 0.3s ease;">+</span>
+        </div>
+        <div class="faq-answer" style="padding: 0 1.5rem; max-height: 0; overflow: hidden; transition: all 0.3s ease; color: var(--text-muted); line-height: 1.6;">
+          <p style="padding-bottom: 1.5rem;"><em>Sim, em muitos casos é possível e pode ser um excelente negócio.</em> A carta de crédito funciona como pagamento à vista, mas exige análise da administradora e compatibilidade com o edital do leilão. <strong>Quer oportunidades exclusivas em leilões? Acesse nossa assessoria especializada e maximize seu retorno.</strong></p>
+        </div>
+      </div>
+
+      <div class="faq-item" style="border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card); overflow: hidden;">
+        <div class="faq-question" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; font-weight: 600; font-size: 1.1rem; cursor: pointer;">
+          6. Qual a diferença de consórcio com adesão para o sem adesão?
+          <span class="faq-icon" style="color: var(--brand-blue); font-weight: bold; font-size: 1.5rem; transition: transform 0.3s ease;">+</span>
+        </div>
+        <div class="faq-answer" style="padding: 0 1.5rem; max-height: 0; overflow: hidden; transition: all 0.3s ease; color: var(--text-muted); line-height: 1.6;">
+          <p style="padding-bottom: 1.5rem;"><em>Consórcios com "adesão" cobram taxa inicial adicional</em>, enquanto os sem adesão o único valor a ser pago na contratação é a primeira parcela. A diferença está na estrutura de custos iniciais. <strong>Quer o melhor custo-benefício? Compare nossos planos e escolha o que cabe no seu bolso.</strong></p>
+        </div>
+      </div>
+
+      <div class="faq-item" style="border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card); overflow: hidden;">
+        <div class="faq-question" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; font-weight: 600; font-size: 1.1rem; cursor: pointer;">
+          7. Quero contemplar rápido, consigo fazer um planejamento para que isso aconteça? De que forma?
+          <span class="faq-icon" style="color: var(--brand-blue); font-weight: bold; font-size: 1.5rem; transition: transform 0.3s ease;">+</span>
+        </div>
+        <div class="faq-answer" style="padding: 0 1.5rem; max-height: 0; overflow: hidden; transition: all 0.3s ease; color: var(--text-muted); line-height: 1.6;">
+          <p style="padding-bottom: 1.5rem;"><em>Sim, com estratégia certa você pode antecipar sua contemplação.</em> Use lances (livre ou embutido), aporte recursos do FGTS, ou escolha grupos com menor concorrência. <strong>Quer um plano personalizado para contemplar rápido? Fale com nossos consultores e trace sua estratégia vencedora hoje mesmo.</strong></p>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- CHAMADA PARA AÇÃO (CTA) FINAL -->
+    <div style="margin-top: 3rem; text-align: center; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(99, 102, 241, 0.05)); padding: 2.5rem; border-radius: 16px; border: 1px solid rgba(99, 102, 241, 0.2);">
+      <h3 style="font-family: var(--font-title); font-size: 1.5rem; margin-bottom: 1rem;">Não deixe suas dúvidas impedirem seu sonho.</h3>
+      <p style="color: var(--text-muted); margin-bottom: 2rem;">Temos o plano ideal para você contemplar rápido e com as melhores condições do mercado.</p>
+      <button class="btn-login" style="margin: 0 auto; padding: 1rem 2rem; font-size: 1.1rem;">
+        Clique aqui e fale com um especialista agora
+      </button>
+    </div>
+  </section>
+
   <!-- RODAPÉ -->
   <footer style="margin-top: 4rem;">
     <div class="container">
@@ -539,6 +628,24 @@
           });
         } else {
           track.scrollTo({ left: slides[slides.length - 1].offsetLeft, behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Lógica do FAQ
+    document.querySelectorAll('.faq-question').forEach(question => {
+      question.addEventListener('click', () => {
+        const answer = question.nextElementSibling;
+        const icon = question.querySelector('.faq-icon');
+        const isOpen = answer.style.maxHeight && answer.style.maxHeight !== '0px';
+        
+        // Fechar todos
+        document.querySelectorAll('.faq-answer').forEach(ans => ans.style.maxHeight = '0px');
+        document.querySelectorAll('.faq-icon').forEach(icn => { icn.style.transform = 'rotate(0deg)'; });
+        
+        if (!isOpen) {
+          answer.style.maxHeight = answer.scrollHeight + 'px';
+          icon.style.transform = 'rotate(45deg)';
         }
       });
     });
