@@ -1,9 +1,9 @@
-import { auth, db, onAuthStateChanged, signOut, collection, getDocs, doc, setDoc, deleteDoc, getDoc, addDoc } from './firebase-setup.js?v=20240817_1';
+import { auth, db, onAuthStateChanged, signOut, collection, getDocs, doc, setDoc, deleteDoc, getDoc, addDoc, query, where } from './firebase-setup.js?v=20240817_1';
 
 let currentUserRole = 'CLIENTE'; // MOCK
 
 // ConsórcioOne - Lógica do Portal e CRM
-document.addEventListener('DOMContentLoaded', () => {
+const initApp = () => {
 
 
   // --- ESTADO GLOBAL DO APLICATIVO ---
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         valorParcela: 1569.44,
         created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // Ontem
         chatHistory: [
-          { remetente: 'IA', conteudo: 'Olá! Sou o assistente virtual da ConsórcioOne. Qual o seu objetivo hoje?' },
+          { remetente: 'IA', conteudo: 'Olá! Sou o assistente virtual de consórcios. Qual o seu objetivo hoje?' },
           { remetente: 'CLIENTE', conteudo: 'Gostaria de ver planos de consórcio para um carro no valor de 100 mil reais.' },
           { remetente: 'IA', conteudo: 'Perfeito! Para um crédito de R$ 100.000,00, qual o prazo de pagamento ideal para você (ex: 36, 48, 60 ou 72 meses)?' },
           { remetente: 'CLIENTE', conteudo: 'Pode ser em 72 meses por favor.' },
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         valorParcela: 2255.56,
         created_at: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(), // 4 horas atrás
         chatHistory: [
-          { remetente: 'IA', conteudo: 'Olá! Sou o assistente da ConsórcioOne. Qual o seu objetivo?' },
+          { remetente: 'IA', conteudo: 'Olá! Sou o assistente de consórcios. Qual o seu objetivo?' },
           { remetente: 'CLIENTE', conteudo: 'Quero comprar meu primeiro apartamento de uns 350 mil' }
         ],
         documentos: []
@@ -159,8 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
     closeLeadPanelBtn: document.getElementById('close-lead-panel'),
     leadPanelName: document.getElementById('lead-panel-name'),
     leadDetailsBox: document.getElementById('lead-details-box'),
-    leadPanelChatList: document.getElementById('lead-panel-chat-list'),
     leadPanelDocsBox: document.getElementById('lead-panel-docs-box'),
+    btnAnexarDoc: document.getElementById('btn-anexar-doc'),
+    leadDocUploadInput: document.getElementById('lead-doc-upload-input'),
     leadPanelDeleteBtn: document.getElementById('lead-panel-delete-btn'),
     leadPanelEditBtn: document.getElementById('lead-panel-edit-btn'),
     editLeadModal: document.getElementById('edit-lead-modal'),
@@ -180,7 +181,15 @@ document.addEventListener('DOMContentLoaded', () => {
     alertModal: document.getElementById('alert-modal'),
     alertTitle: document.getElementById('alert-title'),
     alertMessage: document.getElementById('alert-message'),
-    btnAlertOk: document.getElementById('btn-alert-ok')
+    btnAlertOk: document.getElementById('btn-alert-ok'),
+
+    // Elementos de Branding / Logo
+    customLogoImg: document.getElementById('custom-logo-img'),
+    defaultLogoIcon: document.getElementById('default-logo-icon'),
+    btnUploadLogo: document.getElementById('btn-upload-logo'),
+    btnUploadLogoText: document.getElementById('btn-upload-logo-text'),
+    btnRemoveLogo: document.getElementById('btn-remove-logo'),
+    inputUploadLogo: document.getElementById('input-upload-logo')
   };
 
 
@@ -439,8 +448,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- CHATBOT WIDGET (MOCK IA) ---
   const botAnswers = {
-    'ola': 'Olá! Sou o assistente virtual da ConsórcioOne. Estou aqui para tirar suas dúvidas e te ajudar a simular o consórcio perfeito. Qual o seu objetivo de compra hoje (ex: Carro, Casa, Serviços)?',
-    'oi': 'Olá! Sou o assistente virtual da ConsórcioOne. Estou aqui para tirar suas dúvidas e te ajudar a simular o consórcio perfeito. Qual o seu objetivo de compra hoje (ex: Carro, Casa, Serviços)?',
+    'ola': 'Olá! Sou o assistente virtual de consórcios. Estou aqui para tirar suas dúvidas e te ajudar a simular o consórcio perfeito. Qual o seu objetivo de compra hoje (ex: Carro, Casa, Serviços)?',
+    'oi': 'Olá! Sou o assistente virtual de consórcios. Estou aqui para tirar suas dúvidas e te ajudar a simular o consórcio perfeito. Qual o seu objetivo de compra hoje (ex: Carro, Casa, Serviços)?',
     'como funciona': 'O consórcio é um grupo de pessoas que poupam juntas para adquirir um bem. Mensalmente ocorrem assembleias onde cotistas são sorteados ou oferecem lances para retirar a Carta de Crédito. Não há juros, apenas uma taxa de administração diluída nas parcelas.',
     'consorcio': 'Consórcio é a compra planejada de bens sem juros. Você entra em um grupo e paga parcelas mensais. Pode ter acesso ao crédito por sorteio ou oferecendo um lance (que funciona como uma antecipação de parcelas).',
     'taxa': 'No consórcio não há cobrança de juros! Nós cobramos apenas uma Taxa de Administração (que varia entre 12% e 15% dependendo da administradora) e o Fundo de Reserva (em torno de 1% a 2%). Isso torna o consórcio até 60% mais barato que um financiamento convencional!',
@@ -529,12 +538,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1200);
   };
 
+  // --- INTEGRAÇÃO COM WHATSAPP ---
+  const WHATSAPP_PHONE = '5521992283451';
+  const openWhatsAppChat = () => {
+    const defaultMsg = encodeURIComponent('Olá! Gostaria de falar sobre consórcios e tirar dúvidas.');
+    window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${defaultMsg}`, '_blank');
+  };
+
   elements.chatTrigger.addEventListener('click', () => {
-    elements.chatWindow.classList.toggle('active');
-    // Enviar mensagem de boas-vindas se estiver vazio
-    if (elements.chatMessages.children.length === 0) {
-      addChatMessage('IA', 'Olá! Sou o assistente inteligente da ConsórcioOne. Posso ajudar você a escolher e simular seu consórcio sem juros. Qual bem você deseja adquirir (Carro, Imóvel, Eletro ou Serviços)?');
-    }
+    openWhatsAppChat();
   });
 
   elements.chatClose.addEventListener('click', () => {
@@ -655,91 +667,97 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="detail-row"><span class="detail-label">Origem do Lead:</span><span class="detail-value">${lead.origem}</span></div>
     `;
     
-    // Renderizar histórico de conversas do chat
-    elements.leadPanelChatList.innerHTML = '';
-    if (lead.chatHistory && lead.chatHistory.length > 0) {
-      lead.chatHistory.forEach(msg => {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `history-chat-msg ${msg.remetente === 'CLIENTE' ? 'client' : 'ia'}`;
-        msgDiv.textContent = msg.conteudo;
-        elements.leadPanelChatList.appendChild(msgDiv);
-      });
-    } else {
-      elements.leadPanelChatList.innerHTML = '<div style="font-size:0.8rem;color:var(--text-muted);">Nenhuma mensagem de conversa registrada.</div>';
-    }
-    
     // Renderizar seção de documentos / OCR
     renderLeadDocuments(lead);
     
     elements.leadPanel.classList.add('active');
   };
 
+  // Sincronizar alterações de lead no Firestore
+  const syncLeadUpdate = async (lead) => {
+    try {
+      if (lead && lead.id) {
+        await setDoc(doc(db, 'leads', lead.id), lead, { merge: true });
+      }
+    } catch (e) {
+      console.error('Erro ao sincronizar lead no Firestore:', e);
+    }
+  };
+
   const renderLeadDocuments = (lead) => {
+    if (!elements.leadPanelDocsBox) return;
     elements.leadPanelDocsBox.innerHTML = '';
     
-    // Documentos pré-definidos se a lista estiver vazia para demonstrar OCR
-    if (lead.documentos.length === 0) {
+    // Garantir lista de documentos
+    if (!lead.documentos || lead.documentos.length === 0) {
       lead.documentos = [
-        { id: 'doc-cpf', tipo: 'CPF', nome: 'documento_identidade.pdf', status: 'PENDENTE', ocrLog: null },
-        { id: 'doc-renda', tipo: 'COMPROVANTE_RENDA', nome: 'extrato_bancario.jpg', status: 'PENDENTE', ocrLog: null }
+        { id: 'doc-cpf', tipo: 'CPF / IDENTIDADE', nome: 'documento_identidade.pdf', status: 'PENDENTE', ocrLog: null },
+        { id: 'doc-renda', tipo: 'COMPROVANTE DE RENDA', nome: 'extrato_bancario.jpg', status: 'PENDENTE', ocrLog: null }
       ];
-      
-      // sync to firestore
-      try {
-        if (state.leadCorrente) {
-           setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
-        } else {
-           // when adding new or updating multiple
-           state.leads.forEach(l => {
-              if(l.id) setDoc(doc(db, 'leads', l.id), l);
-           });
-        }
-      } catch (e) { console.error(e); }
-
+      syncLeadUpdate(lead);
     }
     
-    lead.documentos.forEach(doc => {
+    lead.documentos.forEach(docItem => {
       const docDiv = document.createElement('div');
       docDiv.className = 'doc-box';
       docDiv.style.marginBottom = '0.5rem';
       
-      const badgeClass = doc.status === 'APROVADO' ? 'success' : 'pending';
-      const badgeLabel = doc.status === 'APROVADO' ? 'Aprovado' : 'Validar OCR';
+      const isApproved = docItem.status === 'APROVADO';
+      const badgeClass = isApproved ? 'success' : 'pending';
+      const badgeLabel = isApproved ? '✓ Aprovado' : 'Validar OCR';
       
       docDiv.innerHTML = `
-        <div>
-          <div class="doc-name">${doc.nome}</div>
-          <div style="font-size:0.7rem; color:var(--text-muted);">${doc.tipo}</div>
+        <div style="flex: 1; min-width: 0; margin-right: 0.5rem;">
+          <div class="doc-name" style="word-break: break-all;">${docItem.nome}</div>
+          <div style="font-size:0.7rem; color:var(--text-muted); display:flex; align-items:center; gap:0.5rem; margin-top:2px;">
+            <span>${docItem.tipo || 'DOCUMENTO'}</span>
+            ${docItem.uploadedAt ? `<span style="font-size:0.65rem;">• ${new Date(docItem.uploadedAt).toLocaleDateString('pt-BR')}</span>` : ''}
+          </div>
         </div>
-        <button class="btn btn-secondary btn-sm doc-status-badge ${badgeClass}" data-doc-id="${doc.id}">
-          ${badgeLabel}
-        </button>
+        <div style="display: flex; align-items: center; gap: 0.4rem;">
+          <button class="btn btn-secondary btn-sm doc-status-badge ${badgeClass}" data-doc-id="${docItem.id}" ${isApproved ? 'disabled style="cursor:default; opacity:0.9;"' : ''}>
+            ${badgeLabel}
+          </button>
+          <button class="btn btn-secondary btn-sm delete-doc-btn" data-doc-id="${docItem.id}" title="Remover documento" style="padding: 0.2rem 0.45rem; font-size: 0.8rem; border-color: #ef4444; color: #ef4444; border-radius: 4px; line-height: 1;">
+            &times;
+          </button>
+        </div>
       `;
       
-      // Ação de validação OCR Mock
-      const btn = docDiv.querySelector('.doc-status-badge');
-      if (doc.status === 'PENDENTE') {
-        btn.addEventListener('click', () => {
-          triggerMockOCR(lead, doc.id);
+      // Ação de validação OCR
+      const btnOcr = docDiv.querySelector('.doc-status-badge');
+      if (!isApproved) {
+        btnOcr.addEventListener('click', () => {
+          triggerMockOCR(lead, docItem.id);
         });
       }
+
+      // Ação de excluir documento anexado
+      const btnDel = docDiv.querySelector('.delete-doc-btn');
+      btnDel.addEventListener('click', () => {
+        lead.documentos = lead.documentos.filter(d => d.id !== docItem.id);
+        syncLeadUpdate(lead);
+        renderLeadDocuments(lead);
+      });
       
       elements.leadPanelDocsBox.appendChild(docDiv);
     });
   };
 
   const triggerMockOCR = (lead, docId) => {
-    const doc = lead.documentos.find(d => d.id === docId);
-    if (!doc) return;
+    const docItem = lead.documentos.find(d => d.id === docId);
+    if (!docItem) return;
     
     // Alterar botão para simulando carregamento
     const btn = elements.leadPanelDocsBox.querySelector(`[data-doc-id="${docId}"]`);
-    btn.textContent = 'Processando...';
-    btn.disabled = true;
+    if (btn) {
+      btn.textContent = 'Processando...';
+      btn.disabled = true;
+    }
     
-    setTimeout(() => {
-      doc.status = 'APROVADO';
-      doc.ocrLog = {
+    setTimeout(async () => {
+      docItem.status = 'APROVADO';
+      docItem.ocrLog = {
         processed_at: new Date().toISOString(),
         confidenceScore: 0.985,
         fieldsExtracted: {
@@ -748,23 +766,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       };
       
-      
-      // sync to firestore
-      try {
-        if (state.leadCorrente) {
-           setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
-        } else {
-           // when adding new or updating multiple
-           state.leads.forEach(l => {
-              if(l.id) setDoc(doc(db, 'leads', l.id), l);
-           });
-        }
-      } catch (e) { console.error(e); }
-
+      // Sincronizar com Firestore
+      await syncLeadUpdate(lead);
       renderLeadDocuments(lead);
-      alert(`OCR Processado com sucesso para ${doc.tipo}! Dados validados de acordo com o CPF cadastrado.`);
-    }, 1500);
+      showAlert(`OCR processado com sucesso para "${docItem.nome}"! Os dados foram validados de acordo com o cadastro do lead.`, 'Validação Concluída');
+    }, 1200);
   };
+
+  // Configuração do input de anexar documento
+  if (elements.leadDocUploadInput) {
+    elements.leadDocUploadInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file || !state.leadCorrente) return;
+
+      const newDoc = {
+        id: 'doc-' + Date.now(),
+        tipo: file.type.includes('pdf') ? 'DOCUMENTO (PDF)' : 'COMPROVANTE (IMAGEM)',
+        nome: file.name,
+        status: 'PENDENTE',
+        uploadedAt: new Date().toISOString(),
+        ocrLog: null
+      };
+
+      if (!state.leadCorrente.documentos) {
+        state.leadCorrente.documentos = [];
+      }
+      state.leadCorrente.documentos.push(newDoc);
+      syncLeadUpdate(state.leadCorrente);
+      renderLeadDocuments(state.leadCorrente);
+      showAlert(`Documento "${file.name}" anexado com sucesso! Agora você pode clicar em "Validar OCR".`, 'Documento Anexado');
+      e.target.value = '';
+    });
+  }
 
   
   // --- LÓGICA DE EDIÇÃO ---
@@ -886,12 +919,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Obter o role do usuario no Firestore
     try {
-      // Import query and where from firebase-setup.js - assuming they are exported
-      // Note: we might need to add them to import if they are not. They were added in my script.
-      const q = window.fbQuery ? window.fbQuery(collection(db, 'users'), window.fbWhere("email", "==", user.email)) : null;
-      // Let's rely on standard SDK since I did export query and where.
-      
-      const { query, where } = await import('./firebase-setup.js?v=20240817_1');
       const qRef = query(collection(db, 'users'), where("email", "==", user.email));
       const querySnapshot = await getDocs(qRef);
       
@@ -911,12 +938,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentUserRole === 'ADM') {
       document.getElementById('toggle-crm').style.display = 'block';
       document.getElementById('btn-admin').style.display = 'block';
+      if (elements.btnUploadLogo) elements.btnUploadLogo.style.display = 'inline-flex';
+      updateLogoButtonsState();
     } else if (currentUserRole === 'OPERADOR') {
       document.getElementById('toggle-crm').style.display = 'block';
       document.getElementById('btn-admin').style.display = 'none';
+      if (elements.btnUploadLogo) elements.btnUploadLogo.style.display = 'none';
+      if (elements.btnRemoveLogo) elements.btnRemoveLogo.style.display = 'none';
     } else {
       document.getElementById('toggle-crm').style.display = 'none';
       document.getElementById('btn-admin').style.display = 'none';
+      if (elements.btnUploadLogo) elements.btnUploadLogo.style.display = 'none';
+      if (elements.btnRemoveLogo) elements.btnRemoveLogo.style.display = 'none';
       // Força a visualização do portal se for cliente
       document.getElementById('toggle-portal').click();
     }
@@ -924,6 +957,188 @@ document.addEventListener('DOMContentLoaded', () => {
     // Carrega os leads
     loadLeads();
   });
+
+  // --- LÓGICA DE BRANDING / UPLOAD, SUBSTITUIÇÃO E REMOÇÃO DE LOGO (ADM) ---
+  const updateLogoButtonsState = () => {
+    const role = localStorage.getItem('consorcio_user_role') || currentUserRole;
+    const isAdm = role === 'ADM';
+    const activeLogo = localStorage.getItem('consorcio_custom_logo');
+    const wasRemoved = localStorage.getItem('consorcio_logo_removed') === 'true';
+
+    if (!isAdm) {
+      if (elements.btnUploadLogo) elements.btnUploadLogo.style.display = 'none';
+      if (elements.btnRemoveLogo) elements.btnRemoveLogo.style.display = 'none';
+      return;
+    }
+
+    if (elements.btnUploadLogo) elements.btnUploadLogo.style.display = 'inline-flex';
+
+    // Determina se há um logo ativo exibido
+    const customImg = document.getElementById('custom-logo-img');
+    const hasActiveLogo = !!activeLogo || (!wasRemoved && customImg && customImg.getAttribute('src'));
+
+    if (hasActiveLogo) {
+      if (elements.btnUploadLogoText) elements.btnUploadLogoText.textContent = 'Substituir logo';
+      if (elements.btnRemoveLogo) elements.btnRemoveLogo.style.display = 'inline-flex';
+    } else {
+      if (elements.btnUploadLogoText) elements.btnUploadLogoText.textContent = 'Upload do logo';
+      if (elements.btnRemoveLogo) elements.btnRemoveLogo.style.display = 'none';
+    }
+  };
+
+  const applyCustomLogo = (logoUrl) => {
+    const customImg = document.getElementById('custom-logo-img');
+    const defaultIcon = document.getElementById('default-logo-icon');
+    const logoText = document.getElementById('logo-text');
+
+    if (logoUrl) {
+      if (customImg) {
+        customImg.src = logoUrl;
+        customImg.style.display = 'block';
+      }
+      if (defaultIcon) {
+        defaultIcon.style.display = 'none';
+      }
+      if (logoText) {
+        logoText.style.display = 'none';
+      }
+    } else {
+      if (customImg) {
+        customImg.style.display = 'none';
+        customImg.removeAttribute('src');
+      }
+      if (defaultIcon) {
+        defaultIcon.style.display = 'flex';
+      }
+      if (logoText) {
+        logoText.style.display = 'inline-block';
+        logoText.textContent = 'Consórcio';
+      }
+    }
+    updateLogoButtonsState();
+  };
+
+  // Carregar imediatamente do cache local ou logo C7 Contempla padrão (se não tiver sido removido)
+  const wasRemoved = localStorage.getItem('consorcio_logo_removed') === 'true';
+  const cachedLogo = localStorage.getItem('consorcio_custom_logo');
+  if (cachedLogo) {
+    applyCustomLogo(cachedLogo);
+  } else if (!wasRemoved) {
+    applyCustomLogo('images/c7_contempla_logo.png');
+  } else {
+    applyCustomLogo(null);
+  }
+
+  // Carregar do Firestore para sincronização
+  const loadCustomLogo = async () => {
+    try {
+      const brandingDoc = await getDoc(doc(db, 'settings', 'branding'));
+      if (brandingDoc.exists()) {
+        const data = brandingDoc.data();
+        if (data.logoUrl) {
+          localStorage.removeItem('consorcio_logo_removed');
+          localStorage.setItem('consorcio_custom_logo', data.logoUrl);
+          applyCustomLogo(data.logoUrl);
+        } else if (data.logoUrl === null) {
+          localStorage.setItem('consorcio_logo_removed', 'true');
+          localStorage.removeItem('consorcio_custom_logo');
+          applyCustomLogo(null);
+        }
+      }
+    } catch (err) {
+      console.warn('Carregamento do logo via Firestore:', err);
+    }
+  };
+  loadCustomLogo();
+
+  // Configuração do input de upload / substituição do logo
+  if (elements.inputUploadLogo) {
+    elements.inputUploadLogo.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showAlert('Por favor, selecione uma imagem válida (PNG, JPG, SVG, WebP).', 'Formato Inválido');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (uploadEvt) => {
+        const rawData = uploadEvt.target.result;
+        const img = new Image();
+        img.onload = async () => {
+          // Otimizar dimensões para logo preservando proporção
+          const maxW = 450;
+          const maxH = 120;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxW || h > maxH) {
+            const ratio = Math.min(maxW / w, maxH / h);
+            w = Math.round(w * ratio);
+            h = Math.round(h * ratio);
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const optimizedDataUrl = canvas.toDataURL(file.type === 'image/png' ? 'image/png' : 'image/jpeg', 0.92);
+
+          // Salva local e aplica imediatamente no cabeçalho
+          localStorage.removeItem('consorcio_logo_removed');
+          localStorage.setItem('consorcio_custom_logo', optimizedDataUrl);
+          applyCustomLogo(optimizedDataUrl);
+
+          // Persiste no Firestore
+          try {
+            await setDoc(doc(db, 'settings', 'branding'), {
+              logoUrl: optimizedDataUrl,
+              updatedAt: new Date().toISOString(),
+              uploadedBy: auth.currentUser ? auth.currentUser.email : 'ADM'
+            }, { merge: true });
+            showAlert('Logo da empresa salvo com sucesso!', 'Logo Atualizado');
+          } catch (cloudErr) {
+            console.error('Erro ao sincronizar logo no Firestore:', cloudErr);
+            showAlert('Logo importado e salvo com sucesso!', 'Logo Atualizado');
+          }
+        };
+        img.src = rawData;
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
+    });
+  }
+
+  // Ação de Remoção do Logo (ADM)
+  window.triggerRemoveLogo = () => {
+    showConfirm(
+      'Deseja remover o logo da empresa e restaurar a identidade padrão?',
+      'Remover Logotipo',
+      async () => {
+        try {
+          localStorage.setItem('consorcio_logo_removed', 'true');
+          localStorage.removeItem('consorcio_custom_logo');
+          applyCustomLogo(null);
+
+          try {
+            await setDoc(doc(db, 'settings', 'branding'), {
+              logoUrl: null,
+              updatedAt: new Date().toISOString(),
+              removedBy: auth.currentUser ? auth.currentUser.email : 'ADM'
+            }, { merge: true });
+          } catch (cloudErr) {
+            console.warn('Erro ao sincronizar remoção no Firestore:', cloudErr);
+          }
+
+          showAlert('Logo removido com sucesso! A exibição padrão foi restaurada.', 'Logo Removido');
+        } catch (err) {
+          console.error('Erro ao remover logo:', err);
+          showAlert('Erro ao remover logo.', 'Erro');
+        }
+      }
+    );
+  };
 
   
   // --- LÓGICA DE GERENCIAMENTO DE USUÁRIOS (ADM) ---
@@ -965,32 +1180,84 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  if (elements.btnAdmin) {
-    elements.btnAdmin.addEventListener('click', () => {
-      elements.adminUsersModal.classList.add('active');
+  // Funções globais acessíveis via onclick e listeners
+  window.openAdminUsersModal = () => {
+    const modal = document.getElementById('admin-users-modal');
+    if (modal) {
+      modal.classList.add('active');
       loadUsers();
-    });
-    
+    }
+  };
+
+  window.handleLogoButtonClick = (e) => {
+    if (e) e.preventDefault();
+    const input = document.getElementById('input-upload-logo');
+    if (input) {
+      input.click();
+    }
+  };
+
+  window.handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.warn('Erro ao deslogar:', err);
+    }
+    localStorage.removeItem('consorcio_user_role');
+    window.location.href = 'index.html';
+  };
+
+  // Vincular eventos nos botões do topo
+  const btnAdminEl = document.getElementById('btn-admin');
+  if (btnAdminEl) {
+    btnAdminEl.onclick = (e) => {
+      e.preventDefault();
+      window.openAdminUsersModal();
+    };
+  }
+
+  const btnUploadLogoEl = document.getElementById('btn-upload-logo');
+  if (btnUploadLogoEl) {
+    btnUploadLogoEl.onclick = window.handleLogoButtonClick;
+  }
+
+  const btnRemoveLogoEl = document.getElementById('btn-remove-logo');
+  if (btnRemoveLogoEl) {
+    btnRemoveLogoEl.onclick = (e) => {
+      e.preventDefault();
+      if (typeof window.triggerRemoveLogo === 'function') {
+        window.triggerRemoveLogo();
+      }
+    };
+  }
+
+  const btnLogoutEl = document.getElementById('btn-logout');
+  if (btnLogoutEl) {
+    btnLogoutEl.onclick = (e) => {
+      e.preventDefault();
+      window.handleLogout();
+    };
+  }
+
+  if (elements.closeAdminModalBtn) {
     elements.closeAdminModalBtn.addEventListener('click', () => {
       elements.adminUsersModal.classList.remove('active');
     });
-    
+  }
+
+  if (elements.formAddUser) {
     elements.formAddUser.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('new-user-email').value;
       const role = document.getElementById('new-user-role').value;
       
       try {
-        // Find if user already exists
-        const { query, where } = await import('./firebase-setup.js');
         const qRef = query(collection(db, 'users'), where("email", "==", email));
         const snap = await getDocs(qRef);
         
         if (!snap.empty) {
-           // Update
            await setDoc(doc(db, 'users', snap.docs[0].id), { email, role }, { merge: true });
         } else {
-           // Add new
            await addDoc(collection(db, 'users'), { email, role });
         }
         
@@ -1002,9 +1269,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  document.getElementById('btn-logout').addEventListener('click', () => {
-    signOut(auth);
-  });
   updateSimulatorLimits();
   renderSimulations();
-});
+};
+
+// Inicialização segura compatível com ES Modules
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}

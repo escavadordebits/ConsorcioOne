@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ConsórcioOne | Simulação e Contratação 100% Digital</title>
+  <title>C7 Contempla | Simulação e Contratação 100% Digital</title>
   <meta name="description" content="Centralize e automatize a jornada de venda e atendimento de consórcios multimarcas com Inteligência Artificial.">
   <link rel="stylesheet" href="styles.css">
   <style>
@@ -237,9 +237,9 @@
 
   <!-- CABEÇALHO -->
   <header class="landing-header">
-    <div class="logo">
-      <div class="logo-icon">C</div>
-      ConsórcioOne
+    <div class="logo" id="main-logo-container">
+      <img id="custom-logo-img" class="logo-custom-img" src="images/c7_contempla_logo.png" alt="C7 Contempla" style="display: block; max-height: 38px; max-width: 150px; object-fit: contain; border-radius: 6px;">
+      <div class="logo-icon" id="default-logo-icon" style="display: none;">C</div>
     </div>
     <button id="btn-entrar" class="btn-login">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -318,7 +318,7 @@
 
     <!-- SEÇÃO DE BENEFÍCIOS -->
     <section class="benefits-section">
-      <h2 style="font-family: var(--font-title); font-size: 2rem; margin-bottom: 1rem;">Por que escolher a ConsórcioOne?</h2>
+      <h2 style="font-family: var(--font-title); font-size: 2rem; margin-bottom: 1rem;">Por que escolher a nossa consultoria?</h2>
       <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">Nossa plataforma une inteligência artificial e consultoria especializada para encontrar a melhor condição para você.</p>
       
       <div class="benefits-grid">
@@ -470,7 +470,7 @@
   <!-- RODAPÉ -->
   <footer style="margin-top: 4rem;">
     <div class="container">
-      <p>&copy; 2026 ConsórcioOne. Todos os direitos reservados. Projeto demonstrativo de automatização de vendas com IA.</p>
+      <p>&copy; 2026 Todos os direitos reservados. Plataforma de consórcios multimarcas com Inteligência Artificial.</p>
       <p style="font-size:0.75rem; margin-top:0.5rem; color:var(--text-muted);">Administradora oficial vinculada ao regulamento geral de consórcios sob supervisão do BACEN.</p>
     </div>
   </footer>
@@ -649,6 +649,44 @@
         }
       });
     });
+
+    // Exibir logo salvo se houver no cache local ou o logo C7 Contempla padrão
+    const wasRemoved = localStorage.getItem('consorcio_logo_removed');
+    const cachedLogo = localStorage.getItem('consorcio_custom_logo');
+    const logoToUse = cachedLogo || (!wasRemoved ? 'images/c7_contempla_logo.png' : null);
+    
+    const customImg = document.getElementById('custom-logo-img');
+    const defaultIcon = document.getElementById('default-logo-icon');
+    if (logoToUse) {
+      if (customImg && defaultIcon) {
+        customImg.src = logoToUse;
+        customImg.style.display = 'block';
+        defaultIcon.style.display = 'none';
+      }
+    } else {
+      if (customImg && defaultIcon) {
+        customImg.style.display = 'none';
+        defaultIcon.style.display = 'flex';
+      }
+    }
+
+    // Ação do Botão Flutuante de WhatsApp
+    const landingChat = document.getElementById('chat-trigger-landing');
+    if (landingChat) {
+      landingChat.addEventListener('click', () => {
+        const msg = encodeURIComponent('Olá! Gostaria de falar sobre consórcios e tirar dúvidas.');
+        window.open('https://wa.me/5521992283451?text=' + msg, '_blank');
+      });
+    }
   </script>
+
+  <!-- BOTÃO FLUTUANTE WHATSAPP (LANDING PAGE) -->
+  <div class="chat-widget" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 100;">
+    <button class="chat-trigger" id="chat-trigger-landing" title="Conversar no WhatsApp (+55 21 99228-3451)" aria-label="Iniciar conversa no WhatsApp">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+        <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm5.8 14.16c-.24.68-1.4 1.25-1.92 1.33-.51.08-1.16.12-3.76-.92-3.32-1.33-5.47-4.71-5.63-4.93-.16-.22-1.34-1.78-1.34-3.4 0-1.62.85-2.42 1.15-2.75.31-.33.68-.41.9-.41.22 0 .45 0 .65.01.21.01.49-.08.77.58.28.68.96 2.34 1.05 2.51.09.17.15.38.03.61-.12.23-.18.37-.36.57-.18.2-.38.45-.54.6-.18.17-.37.35-.16.71.21.36.93 1.53 2 2.48 1.37 1.22 2.53 1.6 2.89 1.78.36.18.57.15.78-.09.21-.24.9-1.05 1.14-1.41.24-.36.48-.3.8-.18.32.12 2.03.96 2.38 1.13.35.17.58.26.66.4.08.14.08.82-.16 1.5z"/>
+      </svg>
+    </button>
+  </div>
 </body>
 </html>

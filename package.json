@@ -1,0 +1,17 @@
+{
+  "name": "consorcioone",
+  "version": "1.0.0",
+  "description": "ConsórcioOne - Simulação e Contratação 100% Digital com IA",
+  "type": "module",
+  "scripts": {
+    "start": "npx -y serve -l 3000 .",
+    "serve": "npx -y serve -l 3000 .",
+    "dev": "npx -y serve -l 3000 ."
+  },
+  "keywords": [
+    "consorcio",
+    "fintech"
+  ],
+  "author": "ConsórcioOne",
+  "license": "ISC"
+}
