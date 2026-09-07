@@ -195,9 +195,19 @@ const initApp = () => {
 
   // --- FUNÇÃO DE CONFIRMAÇÃO GENÉRICA ---
   let currentConfirmCallback = null;
-  const showConfirm = (message, title, onConfirm) => {
+  const showConfirm = (message, title, onConfirm, btnText = 'Confirmar', isDanger = false) => {
     elements.confirmTitle.textContent = title || 'Confirmar';
     elements.confirmMessage.textContent = message;
+    if (elements.btnConfirmOk) {
+      elements.btnConfirmOk.textContent = btnText;
+      if (isDanger) {
+        elements.btnConfirmOk.style.background = '#ef4444';
+        elements.btnConfirmOk.style.borderColor = '#ef4444';
+      } else {
+        elements.btnConfirmOk.style.background = 'var(--primary-gradient)';
+        elements.btnConfirmOk.style.borderColor = 'transparent';
+      }
+    }
     currentConfirmCallback = onConfirm;
     elements.confirmModal.classList.add('active');
   };
@@ -1012,7 +1022,7 @@ const initApp = () => {
       }
       if (logoText) {
         logoText.style.display = 'inline-block';
-        logoText.textContent = 'Consórcio';
+        logoText.textContent = 'ConsórcioOne';
       }
     }
     updateLogoButtonsState();
@@ -1113,8 +1123,8 @@ const initApp = () => {
   // Ação de Remoção do Logo (ADM)
   window.triggerRemoveLogo = () => {
     showConfirm(
-      'Deseja remover o logo da empresa e restaurar a identidade padrão?',
-      'Remover Logotipo',
+      'Deseja remover o logotipo personalizado e restaurar a identidade padrão ConsórcioOne?',
+      'Restaurar Identidade Padrão',
       async () => {
         try {
           localStorage.setItem('consorcio_logo_removed', 'true');
@@ -1131,12 +1141,14 @@ const initApp = () => {
             console.warn('Erro ao sincronizar remoção no Firestore:', cloudErr);
           }
 
-          showAlert('Logo removido com sucesso! A exibição padrão foi restaurada.', 'Logo Removido');
+          showAlert('Logotipo removido com sucesso! A identidade padrão ConsórcioOne foi restaurada.', 'Padrão Restaurado');
         } catch (err) {
           console.error('Erro ao remover logo:', err);
           showAlert('Erro ao remover logo.', 'Erro');
         }
-      }
+      },
+      'Restaurar ConsórcioOne',
+      false
     );
   };
 
@@ -1172,7 +1184,7 @@ const initApp = () => {
               await deleteDoc(doc(db, 'users', id));
               loadUsers();
             } catch(err) { console.error(err); }
-          });
+          }, 'Excluir', true);
         });
       });
     } catch (e) {
@@ -1190,9 +1202,9 @@ const initApp = () => {
   };
 
   window.handleLogoButtonClick = (e) => {
-    if (e) e.preventDefault();
     const input = document.getElementById('input-upload-logo');
-    if (input) {
+    const btn = document.getElementById('btn-upload-logo');
+    if (input && (!btn || btn.tagName !== 'LABEL')) {
       input.click();
     }
   };
@@ -1218,7 +1230,13 @@ const initApp = () => {
 
   const btnUploadLogoEl = document.getElementById('btn-upload-logo');
   if (btnUploadLogoEl) {
-    btnUploadLogoEl.onclick = window.handleLogoButtonClick;
+    btnUploadLogoEl.addEventListener('click', (e) => {
+      // Se for elemento que não seja LABEL nativo, dispara clique
+      if (btnUploadLogoEl.tagName !== 'LABEL') {
+        const input = document.getElementById('input-upload-logo');
+        if (input) input.click();
+      }
+    });
   }
 
   const btnRemoveLogoEl = document.getElementById('btn-remove-logo');

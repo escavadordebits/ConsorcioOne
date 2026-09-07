@@ -13,7 +13,7 @@
     <div class="logo" id="main-logo-container">
       <img id="custom-logo-img" class="logo-custom-img" alt="Logo da Empresa">
       <div class="logo-icon" id="default-logo-icon">C</div>
-      <span id="logo-text">Consórcio</span>
+      <span id="logo-text">ConsórcioOne</span>
     </div>
     <nav style="display: flex; gap: 1rem; align-items: center;">
       <div class="dashboard-toggle" id="dashboard-toggle-group">
@@ -25,14 +25,14 @@
         <button id="btn-admin" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; display: none;" onclick="openUsersModal()">Usuários</button>
         
         <!-- Upload / Substituir Logo (visível apenas para Administrador) -->
-        <input type="file" id="input-upload-logo" accept="image/png, image/jpeg, image/svg+xml, image/webp" style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none;">
-        <button type="button" id="btn-upload-logo" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; display: none; align-items: center; gap: 0.4rem; cursor: pointer;" title="Upload ou substituição do logo da empresa" onclick="triggerLogoUpload(event)">
+        <input type="file" id="input-upload-logo" accept="image/png, image/jpeg, image/svg+xml, image/webp" style="display: none;">
+        <label for="input-upload-logo" id="btn-upload-logo" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; display: none; align-items: center; gap: 0.4rem; cursor: pointer;" title="Upload ou substituição do logo da empresa">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           <span id="btn-upload-logo-text">Upload do logo</span>
-        </button>
+        </label>
 
         <!-- Remover Logo (visível apenas para Administrador quando houver logo ativo) -->
-        <button type="button" id="btn-remove-logo" class="btn btn-secondary" style="padding: 0.4rem 0.7rem; font-size: 0.8rem; display: none; align-items: center; gap: 0.35rem; cursor: pointer; color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" title="Remover logo personalizado e restaurar padrão" onclick="triggerRemoveLogo(event)">
+        <button type="button" id="btn-remove-logo" class="btn btn-secondary" style="padding: 0.4rem 0.7rem; font-size: 0.8rem; display: none; align-items: center; gap: 0.35rem; cursor: pointer; color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" title="Remover logo personalizado e restaurar padrão ConsórcioOne" onclick="triggerRemoveLogo(event)">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           Remover logo
         </button>

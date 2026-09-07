@@ -240,6 +240,7 @@
     <div class="logo" id="main-logo-container">
       <img id="custom-logo-img" class="logo-custom-img" src="images/c7_contempla_logo.png" alt="C7 Contempla" style="display: block; max-height: 38px; max-width: 150px; object-fit: contain; border-radius: 6px;">
       <div class="logo-icon" id="default-logo-icon" style="display: none;">C</div>
+      <span id="logo-text" style="display: none;">ConsórcioOne</span>
     </div>
     <button id="btn-entrar" class="btn-login">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -657,16 +658,23 @@
     
     const customImg = document.getElementById('custom-logo-img');
     const defaultIcon = document.getElementById('default-logo-icon');
+    const logoText = document.getElementById('logo-text');
     if (logoToUse) {
-      if (customImg && defaultIcon) {
+      if (customImg) {
         customImg.src = logoToUse;
         customImg.style.display = 'block';
-        defaultIcon.style.display = 'none';
       }
+      if (defaultIcon) defaultIcon.style.display = 'none';
+      if (logoText) logoText.style.display = 'none';
     } else {
-      if (customImg && defaultIcon) {
+      if (customImg) {
         customImg.style.display = 'none';
-        defaultIcon.style.display = 'flex';
+        customImg.removeAttribute('src');
+      }
+      if (defaultIcon) defaultIcon.style.display = 'flex';
+      if (logoText) {
+        logoText.style.display = 'inline-block';
+        logoText.textContent = 'ConsórcioOne';
       }
     }
 
