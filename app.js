@@ -925,7 +925,14 @@ const initApp = () => {
       return;
     }
     
-    document.getElementById('user-display-name').textContent = user.email;
+    const email = user.email || '';
+    const displayName = user.displayName || (email ? email.split('@')[0] : 'Usuário');
+    
+    const userDisplayNameEl = document.getElementById('user-display-name');
+    if (userDisplayNameEl) userDisplayNameEl.textContent = displayName;
+    
+    const userEmailDisplayEl = document.getElementById('user-email-display');
+    if (userEmailDisplayEl) userEmailDisplayEl.textContent = email ? `(${email})` : '';
     
     // Obter o role do usuario no Firestore
     try {
@@ -936,7 +943,6 @@ const initApp = () => {
         const userDoc = querySnapshot.docs[0];
         currentUserRole = userDoc.data().role;
       } else {
-        // Se não existir, define como ADM para desenvolvimento
         currentUserRole = 'ADM'; 
         await setDoc(doc(db, 'users', user.uid), { role: 'ADM', email: user.email });
       }
@@ -945,23 +951,32 @@ const initApp = () => {
       currentUserRole = 'ADM'; // Fallback
     }
 
+    const userRoleBadgeEl = document.getElementById('user-role-badge');
+    if (userRoleBadgeEl) userRoleBadgeEl.textContent = currentUserRole || 'ADM';
+
     if (currentUserRole === 'ADM') {
-      document.getElementById('toggle-crm').style.display = 'block';
-      document.getElementById('btn-admin').style.display = 'block';
+      const toggleCrm = document.getElementById('toggle-crm');
+      if (toggleCrm) toggleCrm.style.display = 'block';
+      const btnAdmin = document.getElementById('btn-admin');
+      if (btnAdmin) btnAdmin.style.display = 'inline-flex';
       if (elements.btnUploadLogo) elements.btnUploadLogo.style.display = 'inline-flex';
       updateLogoButtonsState();
     } else if (currentUserRole === 'OPERADOR') {
-      document.getElementById('toggle-crm').style.display = 'block';
-      document.getElementById('btn-admin').style.display = 'none';
+      const toggleCrm = document.getElementById('toggle-crm');
+      if (toggleCrm) toggleCrm.style.display = 'block';
+      const btnAdmin = document.getElementById('btn-admin');
+      if (btnAdmin) btnAdmin.style.display = 'none';
       if (elements.btnUploadLogo) elements.btnUploadLogo.style.display = 'none';
       if (elements.btnRemoveLogo) elements.btnRemoveLogo.style.display = 'none';
     } else {
-      document.getElementById('toggle-crm').style.display = 'none';
-      document.getElementById('btn-admin').style.display = 'none';
+      const toggleCrm = document.getElementById('toggle-crm');
+      if (toggleCrm) toggleCrm.style.display = 'none';
+      const btnAdmin = document.getElementById('btn-admin');
+      if (btnAdmin) btnAdmin.style.display = 'none';
       if (elements.btnUploadLogo) elements.btnUploadLogo.style.display = 'none';
       if (elements.btnRemoveLogo) elements.btnRemoveLogo.style.display = 'none';
-      // Força a visualização do portal se for cliente
-      document.getElementById('toggle-portal').click();
+      const togglePortal = document.getElementById('toggle-portal');
+      if (togglePortal) togglePortal.click();
     }
     
     // Carrega os leads
@@ -1193,6 +1208,8 @@ const initApp = () => {
   };
 
   // Funções globais acessíveis via onclick e listeners
+  window.APP_VERSION = '1.2.0';
+  window.loadUsersData = loadUsers;
   window.openAdminUsersModal = () => {
     const modal = document.getElementById('admin-users-modal');
     if (modal) {
