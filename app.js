@@ -1092,9 +1092,9 @@ const initApp = () => {
         const rawData = uploadEvt.target.result;
         const img = new Image();
         img.onload = async () => {
-          // Otimizar dimensões para logo preservando proporção
-          const maxW = 450;
-          const maxH = 120;
+          // Otimizar dimensões para logo preservando proporção e alta nitidez (Retina/2x)
+          const maxW = 600;
+          const maxH = 200;
           let w = img.width;
           let h = img.height;
           if (w > maxW || h > maxH) {
