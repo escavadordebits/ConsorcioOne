@@ -350,11 +350,19 @@ const initApp = () => {
           <span class="stat-val">${res.taxaTotal.toFixed(1)}% total</span>
         </div>
         <div>
-          <button class="btn btn-primary btn-sm w-full select-plan-btn" onclick="window.openPreCadastro('${res.nome}', ${res.parcela})">
+          <button type="button" class="btn btn-primary btn-sm w-full select-plan-btn" data-adm="${res.nome}" data-parcela="${res.parcela}" onclick="window.openPreCadastro('${res.nome}', ${res.parcela})">
             Solicitar Proposta
           </button>
         </div>
       `;
+      
+      const selectBtn = card.querySelector('.select-plan-btn');
+      if (selectBtn) {
+        selectBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          openPreCadastro(res.nome, res.parcela);
+        });
+      }
       
       elements.comparisonContainer.appendChild(card);
     });
@@ -387,18 +395,34 @@ const initApp = () => {
 
   // --- MODAL DE PRÉ-CADASTRO ---
   const openPreCadastro = (admName, parcela) => {
-    elements.selectedAdmField.value = admName;
-    elements.preCadastroModal.setAttribute('data-parcela', parcela);
-    elements.preCadastroModal.classList.add('active');
+    if (elements.selectedAdmField) elements.selectedAdmField.value = admName;
+    if (elements.preCadastroModal) {
+      elements.preCadastroModal.setAttribute('data-parcela', parcela);
+      // Marca automaticamente a categoria atual do simulador
+      const catCheck = elements.preCadastroModal.querySelector(`input[name="tipo_consorcio"][value="${state.categoria}"]`);
+      if (catCheck) catCheck.checked = true;
+      elements.preCadastroModal.classList.add('active');
+    }
   };
   window.openPreCadastro = openPreCadastro;
 
   const closePreCadastro = () => {
-    elements.preCadastroModal.classList.remove('active');
-    elements.formPreCadastro.reset();
+    if (elements.preCadastroModal) elements.preCadastroModal.classList.remove('active');
+    if (elements.formPreCadastro) elements.formPreCadastro.reset();
   };
+  window.closePreCadastro = closePreCadastro;
 
-  elements.closeModalBtn.addEventListener('click', closePreCadastro);
+  if (elements.closeModalBtn) {
+    elements.closeModalBtn.addEventListener('click', closePreCadastro);
+  }
+  
+  if (elements.preCadastroModal) {
+    elements.preCadastroModal.addEventListener('click', (e) => {
+      if (e.target === elements.preCadastroModal) {
+        closePreCadastro();
+      }
+    });
+  }
   
   elements.formPreCadastro.addEventListener('submit', (e) => {
     e.preventDefault();

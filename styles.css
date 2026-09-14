@@ -498,6 +498,8 @@ nav a:hover, nav a.active {
   padding: 2.5rem;
   width: 90%;
   max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
   position: relative;
   transform: translateY(20px);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -557,6 +559,7 @@ nav a:hover, nav a.active {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  pointer-events: none;
 }
 
 .chat-trigger {
@@ -571,6 +574,7 @@ nav a:hover, nav a.active {
   cursor: pointer;
   border: none;
   color: white;
+  pointer-events: auto;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -597,14 +601,16 @@ nav a:hover, nav a.active {
   box-shadow: var(--shadow-lg);
   margin-bottom: 1rem;
   opacity: 0;
+  visibility: hidden;
   transform: scale(0.9) translateY(20px);
   transform-origin: bottom right;
   pointer-events: none;
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
 }
 
 .chat-window.active {
   opacity: 1;
+  visibility: visible;
   transform: scale(1) translateY(0);
   pointer-events: auto;
 }
