@@ -68,7 +68,7 @@ const initApp = () => {
   };
 
   // Carregar dados salvos do localStorage se existirem
-  
+
   // Async load leads from Firestore
   const loadLeads = async () => {
     try {
@@ -122,7 +122,7 @@ const initApp = () => {
     viewCrm: document.getElementById('view-crm'),
     togglePortalBtn: document.getElementById('toggle-portal'),
     toggleCrmBtn: document.getElementById('toggle-crm'),
-    
+
     // Controles do Simulador
     categoryBtns: document.querySelectorAll('.category-btn'),
     sliderCredito: document.getElementById('slider-credito'),
@@ -130,13 +130,13 @@ const initApp = () => {
     valCredito: document.getElementById('val-credito'),
     valPrazo: document.getElementById('val-prazo'),
     comparisonContainer: document.getElementById('comparison-cards'),
-    
+
     // Modal de Pré-cadastro
     preCadastroModal: document.getElementById('pre-cadastro-modal'),
     formPreCadastro: document.getElementById('form-pre-cadastro'),
     closeModalBtn: document.getElementById('close-modal'),
     selectedAdmField: document.getElementById('selected-adm'),
-    
+
     // Chat Widget
     chatTrigger: document.getElementById('chat-trigger'),
     chatWindow: document.getElementById('chat-window'),
@@ -144,7 +144,7 @@ const initApp = () => {
     chatMessages: document.getElementById('chat-messages'),
     chatInput: document.getElementById('chat-input'),
     chatSendBtn: document.getElementById('chat-send-btn'),
-    
+
     // CRM
     kanbanColumns: {
       'NOVO': document.getElementById('column-novo'),
@@ -153,7 +153,7 @@ const initApp = () => {
       'PROPOSTA_ENVIADA': document.getElementById('column-proposta'),
       'VENDIDO': document.getElementById('column-vendido')
     },
-    
+
     // Detalhe do Lead (Slide-over)
     leadPanel: document.getElementById('lead-panel'),
     closeLeadPanelBtn: document.getElementById('close-lead-panel'),
@@ -245,7 +245,7 @@ const initApp = () => {
     let maxC = 200000;
     let minP = 12;
     let maxP = 60;
-    
+
     if (state.categoria === 'IMOVEL') {
       minC = 100000;
       maxC = 1000000;
@@ -262,25 +262,25 @@ const initApp = () => {
       minP = 6;
       maxP = 36;
     }
-    
+
     // Ajustar ranges dos inputs
     elements.sliderCredito.min = minC;
     elements.sliderCredito.max = maxC;
     elements.sliderCredito.step = minC === 100000 ? 25000 : (minC === 2000 ? 500 : 5000);
-    
+
     elements.sliderPrazo.min = minP;
     elements.sliderPrazo.max = maxP;
     elements.sliderPrazo.step = minP === 60 ? 12 : 6;
-    
+
     // Forçar os valores atuais a caírem dentro dos novos limites se estiverem fora
     if (state.credito < minC) state.credito = minC;
     if (state.credito > maxC) state.credito = maxC;
     if (state.prazo < minP) state.prazo = minP;
     if (state.prazo > maxP) state.prazo = maxP;
-    
+
     elements.sliderCredito.value = state.credito;
     elements.sliderPrazo.value = state.prazo;
-    
+
     elements.valCredito.textContent = formatCurrency(state.credito);
     elements.valPrazo.textContent = `${state.prazo} meses`;
   };
@@ -296,17 +296,17 @@ const initApp = () => {
 
   const renderSimulations = () => {
     elements.comparisonContainer.innerHTML = '';
-    
+
     // Calcular simulações para todas as administradoras cadastradas
     const results = Object.keys(admRules).map(key => {
       const rule = admRules[key];
       // Ajustar prazo máximo permitido para a categoria
       const prazoMax = rule.prazoMaximo[state.categoria] || 60;
       const prazoSimulado = Math.min(state.prazo, prazoMax);
-      
+
       const parcela = calculateInstallment(state.credito, prazoSimulado, rule.taxaAdmin, rule.fundoReserva);
       const taxaTotal = (rule.taxaAdmin + rule.fundoReserva) * 100;
-      
+
       return {
         key,
         nome: rule.nome,
@@ -317,19 +317,19 @@ const initApp = () => {
         regras: rule.regras
       };
     });
-    
+
     // Ordenar por menor valor de parcela (mais atrativo)
     results.sort((a, b) => a.parcela - b.parcela);
-    
+
     results.forEach((res, index) => {
       const card = document.createElement('div');
       card.className = `comparison-card ${index === 0 ? 'recommended' : ''}`;
-      
+
       let badgeHtml = '';
       if (index === 0) {
         badgeHtml = `<div class="recommended-badge">Melhor Opção</div>`;
       }
-      
+
       card.innerHTML = `
         ${badgeHtml}
         <div class="admin-info">
@@ -355,7 +355,7 @@ const initApp = () => {
           </button>
         </div>
       `;
-      
+
       const selectBtn = card.querySelector('.select-plan-btn');
       if (selectBtn) {
         selectBtn.addEventListener('click', (e) => {
@@ -363,7 +363,7 @@ const initApp = () => {
           openPreCadastro(res.nome, res.parcela);
         });
       }
-      
+
       elements.comparisonContainer.appendChild(card);
     });
   };
@@ -375,7 +375,7 @@ const initApp = () => {
       const trigger = e.currentTarget;
       trigger.classList.add('active');
       state.categoria = trigger.getAttribute('data-category');
-      
+
       updateSimulatorLimits();
       renderSimulations();
     });
@@ -415,7 +415,7 @@ const initApp = () => {
   if (elements.closeModalBtn) {
     elements.closeModalBtn.addEventListener('click', closePreCadastro);
   }
-  
+
   if (elements.preCadastroModal) {
     elements.preCadastroModal.addEventListener('click', (e) => {
       if (e.target === elements.preCadastroModal) {
@@ -423,17 +423,17 @@ const initApp = () => {
       }
     });
   }
-  
+
   elements.formPreCadastro.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     const formData = new FormData(elements.formPreCadastro);
     const adm = elements.selectedAdmField.value;
     const parcela = parseFloat(elements.preCadastroModal.getAttribute('data-parcela'));
-    
+
     // Obter array de tipos de consórcios selecionados
     const tiposConsorcio = formData.getAll('tipo_consorcio');
-    
+
     // Criar um novo Lead no estado
     const newLead = {
       id: `lead-${Date.now()}`,
@@ -457,26 +457,26 @@ const initApp = () => {
       ],
       documentos: []
     };
-    
-    state.leads.push(newLead);
-    
-      // sync to firestore
-      try {
-        if (state.leadCorrente) {
-           setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
-        } else {
-           // when adding new or updating multiple
-           state.leads.forEach(l => {
-              if(l.id) setDoc(doc(db, 'leads', l.id), l);
-           });
-        }
-      } catch (e) { console.error(e); }
 
-    
+    state.leads.push(newLead);
+
+    // sync to firestore
+    try {
+      if (state.leadCorrente) {
+        setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
+      } else {
+        // when adding new or updating multiple
+        state.leads.forEach(l => {
+          if (l.id) setDoc(doc(db, 'leads', l.id), l);
+        });
+      }
+    } catch (e) { console.error(e); }
+
+
     // Fechar modal e renderizar CRM atualizado
     closePreCadastro();
     renderKanban();
-    
+
     showAlert('Simulação salva com sucesso! Um consultor entrará em contato em breve.', 'Sucesso');
   });
 
@@ -498,7 +498,7 @@ const initApp = () => {
 
   const getBotResponse = (text) => {
     const rawText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    
+
     // Tentar identificar se o usuário digitou um valor monetário
     const valueMatch = rawText.match(/(\d+)\s*(mil|reais|r\$)/i) || rawText.match(/(rs|r\$)\s*(\d+)/i) || rawText.match(/\b\d{4,6}\b/);
     if (valueMatch) {
@@ -510,12 +510,12 @@ const initApp = () => {
         const numMatch = rawText.match(/(\d+)/);
         if (numMatch) val = parseInt(numMatch[0]);
       }
-      
+
       if (val >= 2000) {
         state.credito = val;
         elements.sliderCredito.value = val;
         elements.valCredito.textContent = formatCurrency(val);
-        
+
         // Ajustar categoria baseado no valor
         if (val >= 100000 && state.categoria !== 'IMOVEL') {
           state.categoria = 'IMOVEL';
@@ -526,20 +526,20 @@ const initApp = () => {
           document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
           document.querySelector('[data-category="AUTOMOVEL"]').classList.add('active');
         }
-        
+
         updateSimulatorLimits();
         renderSimulations();
         return `Entendido! Configurei o simulador para um crédito de **${formatCurrency(val)}** na categoria de **${state.categoria}**. Veja os valores de parcelas atualizados no painel ao lado! Deseja que eu crie uma pré-proposta ou quer ajustar o prazo?`;
       }
     }
-    
+
     // Tentar encontrar respostas de FAQ
     for (const key in botAnswers) {
       if (rawText.includes(key)) {
         return botAnswers[key];
       }
     }
-    
+
     return 'Entendi. Posso te ajudar a simular as melhores taxas de consórcio multimarcas. Me diga qual o valor do crédito desejado ou envie uma mensagem com suas dúvidas!';
   };
 
@@ -554,17 +554,17 @@ const initApp = () => {
   const handleSendMessage = () => {
     const text = elements.chatInput.value.trim();
     if (!text) return;
-    
+
     addChatMessage('CLIENTE', text);
     elements.chatInput.value = '';
-    
+
     // Mostrar digitando
     const typingElement = document.createElement('div');
     typingElement.className = 'chat-msg ia typing';
     typingElement.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
     elements.chatMessages.appendChild(typingElement);
     elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
-    
+
     setTimeout(() => {
       typingElement.remove();
       const botResponse = getBotResponse(text);
@@ -573,7 +573,7 @@ const initApp = () => {
   };
 
   // --- INTEGRAÇÃO COM WHATSAPP ---
-  const WHATSAPP_PHONE = '5521992283451';
+  const WHATSAPP_PHONE = '5521998228936';
   const openWhatsAppChat = () => {
     const defaultMsg = encodeURIComponent('Olá! Gostaria de falar sobre consórcios e tirar dúvidas.');
     window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${defaultMsg}`, '_blank');
@@ -588,7 +588,7 @@ const initApp = () => {
   });
 
   elements.chatSendBtn.addEventListener('click', handleSendMessage);
-  
+
   elements.chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleSendMessage();
   });
@@ -600,21 +600,21 @@ const initApp = () => {
       elements.kanbanColumns[key].querySelector('.kanban-cards').innerHTML = '';
       elements.kanbanColumns[key].querySelector('.lead-count').textContent = '0';
     });
-    
+
     const counts = { 'NOVO': 0, 'EM_ATENDIMENTO': 0, 'QUALIFICADO': 0, 'PROPOSTA_ENVIADA': 0, 'VENDIDO': 0 };
-    
+
     state.leads.forEach(lead => {
       const colKey = lead.status;
       const column = elements.kanbanColumns[colKey];
       if (!column) return;
-      
+
       counts[colKey]++;
-      
+
       const card = document.createElement('div');
       card.className = 'lead-card';
       card.draggable = true;
       card.id = lead.id;
-      
+
       card.innerHTML = `
         <div class="lead-card-header">
           <span class="lead-name">${lead.nomeCompleto || 'Lead Anônimo'}</span>
@@ -626,18 +626,18 @@ const initApp = () => {
         </div>
         <div class="lead-value">${formatCurrency(lead.valorCredito)}</div>
       `;
-      
+
       // Drag events
       card.addEventListener('dragstart', handleDragStart);
-      
+
       // Click event para ver detalhes
       card.addEventListener('click', () => {
         openLeadDetails(lead);
       });
-      
+
       column.querySelector('.kanban-cards').appendChild(card);
     });
-    
+
     // Atualizar contadores
     Object.keys(counts).forEach(key => {
       elements.kanbanColumns[key].querySelector('.lead-count').textContent = counts[key];
@@ -657,25 +657,25 @@ const initApp = () => {
     col.addEventListener('dragover', (e) => {
       e.preventDefault();
     });
-    
+
     col.addEventListener('drop', (e) => {
       e.preventDefault();
       const id = e.dataTransfer.getData('text/plain');
       const lead = state.leads.find(l => l.id === id);
       if (lead && lead.status !== key) {
         lead.status = key;
-        
-      // sync to firestore
-      try {
-        if (state.leadCorrente) {
-           setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
-        } else {
-           // when adding new or updating multiple
-           state.leads.forEach(l => {
-              if(l.id) setDoc(doc(db, 'leads', l.id), l);
-           });
-        }
-      } catch (e) { console.error(e); }
+
+        // sync to firestore
+        try {
+          if (state.leadCorrente) {
+            setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
+          } else {
+            // when adding new or updating multiple
+            state.leads.forEach(l => {
+              if (l.id) setDoc(doc(db, 'leads', l.id), l);
+            });
+          }
+        } catch (e) { console.error(e); }
 
         renderKanban();
       }
@@ -686,7 +686,7 @@ const initApp = () => {
   const openLeadDetails = (lead) => {
     state.leadCorrente = lead;
     elements.leadPanelName.textContent = lead.nomeCompleto || 'Sem Nome';
-    
+
     // Renderizar informações básicas
     elements.leadDetailsBox.innerHTML = `
       <div class="detail-row"><span class="detail-label">Telefone:</span><span class="detail-value">${lead.telefone}</span></div>
@@ -700,10 +700,10 @@ const initApp = () => {
       <div class="detail-row"><span class="detail-label">Parcela Estimada:</span><span class="detail-valueHighlight" style="color:var(--accent); font-weight:700;">${formatCurrency(lead.valorParcela)}</span></div>
       <div class="detail-row"><span class="detail-label">Origem do Lead:</span><span class="detail-value">${lead.origem}</span></div>
     `;
-    
+
     // Renderizar seção de documentos / OCR
     renderLeadDocuments(lead);
-    
+
     elements.leadPanel.classList.add('active');
   };
 
@@ -721,7 +721,7 @@ const initApp = () => {
   const renderLeadDocuments = (lead) => {
     if (!elements.leadPanelDocsBox) return;
     elements.leadPanelDocsBox.innerHTML = '';
-    
+
     // Garantir lista de documentos
     if (!lead.documentos || lead.documentos.length === 0) {
       lead.documentos = [
@@ -730,16 +730,16 @@ const initApp = () => {
       ];
       syncLeadUpdate(lead);
     }
-    
+
     lead.documentos.forEach(docItem => {
       const docDiv = document.createElement('div');
       docDiv.className = 'doc-box';
       docDiv.style.marginBottom = '0.5rem';
-      
+
       const isApproved = docItem.status === 'APROVADO';
       const badgeClass = isApproved ? 'success' : 'pending';
       const badgeLabel = isApproved ? '✓ Aprovado' : 'Validar OCR';
-      
+
       docDiv.innerHTML = `
         <div style="flex: 1; min-width: 0; margin-right: 0.5rem;">
           <div class="doc-name" style="word-break: break-all;">${docItem.nome}</div>
@@ -757,7 +757,7 @@ const initApp = () => {
           </button>
         </div>
       `;
-      
+
       // Ação de validação OCR
       const btnOcr = docDiv.querySelector('.doc-status-badge');
       if (!isApproved) {
@@ -773,7 +773,7 @@ const initApp = () => {
         syncLeadUpdate(lead);
         renderLeadDocuments(lead);
       });
-      
+
       elements.leadPanelDocsBox.appendChild(docDiv);
     });
   };
@@ -781,14 +781,14 @@ const initApp = () => {
   const triggerMockOCR = (lead, docId) => {
     const docItem = lead.documentos.find(d => d.id === docId);
     if (!docItem) return;
-    
+
     // Alterar botão para simulando carregamento
     const btn = elements.leadPanelDocsBox.querySelector(`[data-doc-id="${docId}"]`);
     if (btn) {
       btn.textContent = 'Processando...';
       btn.disabled = true;
     }
-    
+
     setTimeout(async () => {
       docItem.status = 'APROVADO';
       docItem.ocrLog = {
@@ -799,7 +799,7 @@ const initApp = () => {
           cpfValid: true
         }
       };
-      
+
       // Sincronizar com Firestore
       await syncLeadUpdate(lead);
       renderLeadDocuments(lead);
@@ -833,11 +833,11 @@ const initApp = () => {
     });
   }
 
-  
+
   // --- LÓGICA DE EDIÇÃO ---
   elements.leadPanelEditBtn.addEventListener('click', () => {
     if (!state.leadCorrente) return;
-    
+
     // Preencher o formulário
     const l = state.leadCorrente;
     document.getElementById('edit-lead-id').value = l.id;
@@ -846,7 +846,7 @@ const initApp = () => {
     document.getElementById('edit-email').value = l.email || '';
     document.getElementById('edit-tel').value = l.telefone || '';
     document.getElementById('edit-renda').value = l.rendaMensal || '';
-    
+
     // Checkboxes
     const checkboxes = document.querySelectorAll('input[name="edit_tipo_consorcio"]');
     checkboxes.forEach(cb => cb.checked = false);
@@ -859,7 +859,7 @@ const initApp = () => {
       const cb = document.querySelector(`input[name="edit_tipo_consorcio"][value="${l.categoriaBem}"]`);
       if (cb) cb.checked = true;
     }
-    
+
     elements.editLeadModal.classList.add('active');
   });
 
@@ -875,7 +875,7 @@ const initApp = () => {
     e.preventDefault();
     const formData = new FormData(elements.formEditLead);
     const leadId = document.getElementById('edit-lead-id').value;
-    
+
     const leadIndex = state.leads.findIndex(l => l.id === leadId);
     if (leadIndex > -1) {
       state.leads[leadIndex].nomeCompleto = formData.get('nome');
@@ -884,12 +884,12 @@ const initApp = () => {
       state.leads[leadIndex].telefone = formData.get('telefone');
       state.leads[leadIndex].rendaMensal = parseFloat(formData.get('renda'));
       state.leads[leadIndex].tiposConsorcio = formData.getAll('edit_tipo_consorcio');
-      
+
       // Salvar no firestore
       try {
         setDoc(doc(db, 'leads', leadId), state.leads[leadIndex]);
       } catch (e) { console.error(e); }
-      
+
       // Atualizar interface
       openLeadDetails(state.leads[leadIndex]);
       renderKanban();
@@ -907,16 +907,16 @@ const initApp = () => {
     if (!state.leadCorrente) return;
     showConfirm(`Tem certeza que deseja excluir o lead ${state.leadCorrente.nomeCompleto}?`, 'Excluir Lead', () => {
       state.leads = state.leads.filter(l => l.id !== state.leadCorrente.id);
-      
+
       // sync to firestore
       try {
         if (state.leadCorrente) {
-           setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
+          setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
         } else {
-           // when adding new or updating multiple
-           state.leads.forEach(l => {
-              if(l.id) setDoc(doc(db, 'leads', l.id), l);
-           });
+          // when adding new or updating multiple
+          state.leads.forEach(l => {
+            if (l.id) setDoc(doc(db, 'leads', l.id), l);
+          });
         }
       } catch (e) { console.error(e); }
 
@@ -948,26 +948,26 @@ const initApp = () => {
       window.location.href = 'index.html'; // Redireciona se não logado
       return;
     }
-    
+
     const email = user.email || '';
     const displayName = user.displayName || (email ? email.split('@')[0] : 'Usuário');
-    
+
     const userDisplayNameEl = document.getElementById('user-display-name');
     if (userDisplayNameEl) userDisplayNameEl.textContent = displayName;
-    
+
     const userEmailDisplayEl = document.getElementById('user-email-display');
     if (userEmailDisplayEl) userEmailDisplayEl.textContent = email ? `(${email})` : '';
-    
+
     // Obter o role do usuario no Firestore
     try {
       const qRef = query(collection(db, 'users'), where("email", "==", user.email));
       const querySnapshot = await getDocs(qRef);
-      
+
       if (!querySnapshot.empty) {
         const userDoc = querySnapshot.docs[0];
         currentUserRole = userDoc.data().role;
       } else {
-        currentUserRole = 'ADM'; 
+        currentUserRole = 'ADM';
         await setDoc(doc(db, 'users', user.uid), { role: 'ADM', email: user.email });
       }
     } catch (e) {
@@ -1002,7 +1002,7 @@ const initApp = () => {
       const togglePortal = document.getElementById('toggle-portal');
       if (togglePortal) togglePortal.click();
     }
-    
+
     // Carrega os leads
     loadLeads();
   });
@@ -1191,17 +1191,17 @@ const initApp = () => {
     );
   };
 
-  
+
   // --- LÓGICA DE GERENCIAMENTO DE USUÁRIOS (ADM) ---
   const loadUsers = async () => {
     try {
       const snapshot = await getDocs(collection(db, 'users'));
       elements.usersTableBody.innerHTML = '';
-      
+
       snapshot.forEach(docSnap => {
         const data = docSnap.data();
         if (!data.email) return;
-        
+
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid var(--border-color)';
         tr.innerHTML = `
@@ -1213,7 +1213,7 @@ const initApp = () => {
         `;
         elements.usersTableBody.appendChild(tr);
       });
-      
+
       // Bind delete buttons
       document.querySelectorAll('.delete-user-btn').forEach(btn => {
         btn.addEventListener('click', async (e) => {
@@ -1222,7 +1222,7 @@ const initApp = () => {
             try {
               await deleteDoc(doc(db, 'users', id));
               loadUsers();
-            } catch(err) { console.error(err); }
+            } catch (err) { console.error(err); }
           }, 'Excluir', true);
         });
       });
@@ -1309,17 +1309,17 @@ const initApp = () => {
       e.preventDefault();
       const email = document.getElementById('new-user-email').value;
       const role = document.getElementById('new-user-role').value;
-      
+
       try {
         const qRef = query(collection(db, 'users'), where("email", "==", email));
         const snap = await getDocs(qRef);
-        
+
         if (!snap.empty) {
-           await setDoc(doc(db, 'users', snap.docs[0].id), { email, role }, { merge: true });
+          await setDoc(doc(db, 'users', snap.docs[0].id), { email, role }, { merge: true });
         } else {
-           await addDoc(collection(db, 'users'), { email, role });
+          await addDoc(collection(db, 'users'), { email, role });
         }
-        
+
         document.getElementById('new-user-email').value = '';
         loadUsers();
       } catch (err) {
