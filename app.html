@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Portal e Simulador | ConsórcioOne v1.2.0</title>
+  <title>Portal e Simulador | ConsórcioOne V 1.0.3</title>
   <meta name="description" content="Centralize e automatize a jornada de venda e atendimento de consórcios multimarcas com Inteligência Artificial.">
   <link rel="stylesheet" href="styles.css?v=20260914_fix1">
 </head>
@@ -55,7 +55,7 @@
 
         <!-- Linha Inferior: Versão, Usuário e E-mail organizados abaixo do botão Sair -->
         <div class="user-info-row" style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.75rem; justify-content: flex-end;">
-          <span class="badge-version" title="Versão da Aplicação" style="background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(59, 130, 246, 0.45); color: #93c5fd; font-size: 0.68rem; padding: 0.05rem 0.4rem; border-radius: 4px; font-weight: 700; font-family: monospace; letter-spacing: 0.5px;">v1.2.0</span>
+          <span class="badge-version" title="Versão da Aplicação" style="background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(59, 130, 246, 0.45); color: #93c5fd; font-size: 0.68rem; padding: 0.05rem 0.4rem; border-radius: 4px; font-weight: 700; font-family: monospace; letter-spacing: 0.5px;">V 1.0.3</span>
           <span id="user-role-badge" style="background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-color); color: #94a3b8; font-size: 0.68rem; padding: 0.05rem 0.35rem; border-radius: 4px; font-weight: 600;">ADM</span>
           <span id="user-display-name" style="color: var(--text-color); font-weight: 600;">Usuário</span>
           <span id="user-email-display" style="color: var(--text-muted); font-size: 0.72rem;"></span>
@@ -114,7 +114,7 @@
             <span id="val-credito" class="control-value">R$ 80.000,00</span>
           </div>
           <div class="slider-container">
-            <input type="range" id="slider-credito" class="slider" min="10000" max="200000" value="80000" step="5000">
+            <input type="range" id="slider-credito" class="slider" min="30000" max="300000" value="80000" step="5000">
           </div>
         </div>
 
@@ -124,7 +124,7 @@
             <span id="val-prazo" class="control-value">60 meses</span>
           </div>
           <div class="slider-container">
-            <input type="range" id="slider-prazo" class="slider" min="12" max="120" value="60" step="6">
+            <input type="range" id="slider-prazo" class="slider" min="12" max="100" value="60" step="1">
           </div>
         </div>
       </section>
@@ -434,14 +434,14 @@
   <!-- RODAPÉ DA PÁGINA -->
   <footer>
     <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
-      <p>&copy; 2026 ConsórcioOne • <strong style="color: #60a5fa;">Versão 1.2.0</strong>. Todos os direitos reservados. Plataforma digital de consórcios multimarcas com IA.</p>
+      <p>&copy; 2026 ConsórcioOne • <strong style="color: #60a5fa;">Versão 1.0.3</strong>. Todos os direitos reservados. Plataforma digital de consórcios multimarcas com IA.</p>
       <p style="font-size:0.75rem; color:var(--text-muted);">Administradora oficial vinculada ao regulamento geral de consórcios sob supervisão do BACEN.</p>
     </div>
   </footer>
 
   <script>
-    window.APP_VERSION = '1.2.0';
-    console.log('%c ConsórcioOne v1.2.0 iniciado ', 'background: #2563eb; color: #fff; font-weight: bold; border-radius: 4px; padding: 2px 6px;');
+    window.APP_VERSION = '1.0.3';
+    console.log('%c ConsórcioOne V 1.0.3 iniciado ', 'background: #2563eb; color: #fff; font-weight: bold; border-radius: 4px; padding: 2px 6px;');
 
     function triggerLogoUpload(event) {
       if (event) { event.preventDefault(); event.stopPropagation(); }
@@ -486,6 +486,6 @@
       }
     }
   </script>
-  <script type="module" src="app.js?v=20260914_fix1"></script>
+  <script type="module" src="app.js?v=20260921_v103"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 import { auth, db, onAuthStateChanged, signOut, collection, getDocs, doc, setDoc, deleteDoc, getDoc, addDoc, query, where } from './firebase-setup.js?v=20240817_1';
 
-let currentUserRole = 'CLIENTE'; // MOCK
+let currentUserRole = 'CLIENTE';
 
 // ConsórcioOne - Lógica do Portal e CRM
 const initApp = () => {
@@ -12,59 +12,7 @@ const initApp = () => {
     credito: 80000,
     prazo: 60,
     leadCorrente: null,
-    leads: [
-      {
-        id: 'lead-1',
-        nomeCompleto: 'Ana Silva Mendonça',
-        cpfCnpj: '342.981.092-23',
-        email: 'ana.silva@email.com',
-        telefone: '(11) 98765-4321',
-        endereco: 'Av. Paulista, 1000 - Bela Vista, São Paulo - SP',
-        rendaMensal: 6500.00,
-        status: 'QUALIFICADO',
-        origem: 'WHATSAPP',
-        categoriaBem: 'AUTOMOVEL',
-        valorCredito: 100000,
-        prazoMeses: 72,
-        administradora: 'Itaú Consórcios',
-        valorParcela: 1569.44,
-        created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // Ontem
-        chatHistory: [
-          { remetente: 'IA', conteudo: 'Olá! Sou o assistente virtual de consórcios. Qual o seu objetivo hoje?' },
-          { remetente: 'CLIENTE', conteudo: 'Gostaria de ver planos de consórcio para um carro no valor de 100 mil reais.' },
-          { remetente: 'IA', conteudo: 'Perfeito! Para um crédito de R$ 100.000,00, qual o prazo de pagamento ideal para você (ex: 36, 48, 60 ou 72 meses)?' },
-          { remetente: 'CLIENTE', conteudo: 'Pode ser em 72 meses por favor.' },
-          { remetente: 'IA', conteudo: 'Entendido. Já atualizei os simuladores. A melhor opção identificada foi o Itaú Consórcios com parcelas de R$ 1.569,44.' },
-          { remetente: 'CLIENTE', conteudo: 'Gostei dessa opção, como faço para avançar?' }
-        ],
-        documentos: [
-          { id: 'doc-1', tipo: 'CPF', nome: 'cpf_ana_silva.pdf', status: 'APROVADO', ocrLog: { score: 0.99, match: true } },
-          { id: 'doc-2', tipo: 'COMPROVANTE_RENDA', nome: 'holerite_recente.jpg', status: 'PENDENTE', ocrLog: null }
-        ]
-      },
-      {
-        id: 'lead-2',
-        nomeCompleto: 'Bruno Fernandes Costa',
-        cpfCnpj: '098.345.871-12',
-        email: 'bruno.fernandes@email.com',
-        telefone: '(21) 99122-3344',
-        endereco: 'Rua Voluntários da Pátria, 45 - Botafogo, Rio de Janeiro - RJ',
-        rendaMensal: 3500.00,
-        status: 'EM_ATENDIMENTO',
-        origem: 'WEB',
-        categoriaBem: 'IMOVEL',
-        valorCredito: 350000,
-        prazoMeses: 180,
-        administradora: 'Consórcio Caixa',
-        valorParcela: 2255.56,
-        created_at: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(), // 4 horas atrás
-        chatHistory: [
-          { remetente: 'IA', conteudo: 'Olá! Sou o assistente de consórcios. Qual o seu objetivo?' },
-          { remetente: 'CLIENTE', conteudo: 'Quero comprar meu primeiro apartamento de uns 350 mil' }
-        ],
-        documentos: []
-      }
-    ]
+    leads: []
   };
 
   // Carregar dados salvos do localStorage se existirem
@@ -77,9 +25,7 @@ const initApp = () => {
       querySnapshot.forEach((doc) => {
         firestoreLeads.push({ id: doc.id, ...doc.data() });
       });
-      if (firestoreLeads.length > 0) {
-        state.leads = firestoreLeads;
-      }
+      state.leads = firestoreLeads;
       renderKanban();
     } catch (e) {
       console.error("Error loading leads", e);
@@ -94,7 +40,7 @@ const initApp = () => {
       logoUrl: 'data:image/jpeg;base64,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',
       taxaAdmin: 0.12,    // 12%
       fundoReserva: 0.01, // 1%
-      prazoMaximo: { 'AUTOMOVEL': 80, 'IMOVEL': 200, 'SERVICO': 48, 'ELETRO': 36 },
+      prazoMaximo: { 'AUTOMOVEL': 100, 'IMOVEL': 240, 'SERVICO': 70, 'ELETRO': 84 },
       regras: 'Aceita apenas pessoa física. Exige renda compatível com parcela.'
     },
     'porto': {
@@ -102,7 +48,7 @@ const initApp = () => {
       logoUrl: 'https://www.portoseguro.com.br/faqs/_next/_next/static/media/ic-logo-porto.61491afc.svg',
       taxaAdmin: 0.15,    // 15%
       fundoReserva: 0.015, // 1.5%
-      prazoMaximo: { 'AUTOMOVEL': 100, 'IMOVEL': 240, 'SERVICO': 48, 'ELETRO': 48 },
+      prazoMaximo: { 'AUTOMOVEL': 100, 'IMOVEL': 240, 'SERVICO': 70, 'ELETRO': 84 },
       regras: 'Renda mínima de R$ 2.500,00. Possibilidade de lance embutido de até 30%.'
     },
     'caixa': {
@@ -110,7 +56,7 @@ const initApp = () => {
       logoUrl: 'https://www.caixa.gov.br/PublishingImages/nova-home/icones/x-volume-negativa-54.png',
       taxaAdmin: 0.14,    // 14%
       fundoReserva: 0.02, // 2%
-      prazoMaximo: { 'AUTOMOVEL': 120, 'IMOVEL': 240, 'SERVICO': 48, 'ELETRO': 36 },
+      prazoMaximo: { 'AUTOMOVEL': 100, 'IMOVEL': 240, 'SERVICO': 70, 'ELETRO': 84 },
       regras: 'Excelente taxa para imóveis. Análise cadastral rigorosa.'
     }
   };
@@ -241,36 +187,48 @@ const initApp = () => {
 
   // --- CONFIGURAÇÃO INICIAL DO SIMULADOR ---
   const updateSimulatorLimits = () => {
-    let minC = 10000;
-    let maxC = 200000;
+    // Padrão AUTOMOVEL: a partir de 30k com prazo máximo de 100 meses
+    let minC = 30000;
+    let maxC = 300000;
+    let stepC = 5000;
     let minP = 12;
-    let maxP = 60;
+    let maxP = 100;
+    let stepP = 1;
 
     if (state.categoria === 'IMOVEL') {
+      // Imóvel: a partir de 100k com prazo máximo de 240 meses
       minC = 100000;
-      maxC = 1000000;
+      maxC = 1500000;
+      stepC = 25000;
       minP = 60;
       maxP = 240;
+      stepP = 12;
     } else if (state.categoria === 'SERVICO') {
-      minC = 5000;
-      maxC = 50000;
+      // Serviços: a partir de 15k com prazo máximo de 70 meses
+      minC = 15000;
+      maxC = 100000;
+      stepC = 2500;
       minP = 12;
-      maxP = 48;
+      maxP = 70;
+      stepP = 1;
     } else if (state.categoria === 'ELETRO') {
-      minC = 2000;
-      maxC = 20000;
+      // Eletro: a partir de 7k com prazo máximo de 84 meses
+      minC = 7000;
+      maxC = 50000;
+      stepC = 1000;
       minP = 6;
-      maxP = 36;
+      maxP = 84;
+      stepP = 6;
     }
 
     // Ajustar ranges dos inputs
     elements.sliderCredito.min = minC;
     elements.sliderCredito.max = maxC;
-    elements.sliderCredito.step = minC === 100000 ? 25000 : (minC === 2000 ? 500 : 5000);
+    elements.sliderCredito.step = stepC;
 
     elements.sliderPrazo.min = minP;
     elements.sliderPrazo.max = maxP;
-    elements.sliderPrazo.step = minP === 60 ? 12 : 6;
+    elements.sliderPrazo.step = stepP;
 
     // Forçar os valores atuais a caírem dentro dos novos limites se estiverem fora
     if (state.credito < minC) state.credito = minC;
@@ -424,7 +382,7 @@ const initApp = () => {
     });
   }
 
-  elements.formPreCadastro.addEventListener('submit', (e) => {
+  elements.formPreCadastro.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const formData = new FormData(elements.formPreCadastro);
@@ -462,15 +420,12 @@ const initApp = () => {
 
     // sync to firestore
     try {
-      if (state.leadCorrente) {
-        setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
-      } else {
-        // when adding new or updating multiple
-        state.leads.forEach(l => {
-          if (l.id) setDoc(doc(db, 'leads', l.id), l);
-        });
+      if (newLead.id) {
+        await setDoc(doc(db, 'leads', newLead.id), newLead);
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error('Erro ao salvar lead no Firestore:', e);
+    }
 
 
     // Fechar modal e renderizar CRM atualizado
@@ -511,7 +466,7 @@ const initApp = () => {
         if (numMatch) val = parseInt(numMatch[0]);
       }
 
-      if (val >= 2000) {
+      if (val >= 7000) {
         state.credito = val;
         elements.sliderCredito.value = val;
         elements.valCredito.textContent = formatCurrency(val);
@@ -769,9 +724,11 @@ const initApp = () => {
       // Ação de excluir documento anexado
       const btnDel = docDiv.querySelector('.delete-doc-btn');
       btnDel.addEventListener('click', () => {
-        lead.documentos = lead.documentos.filter(d => d.id !== docItem.id);
-        syncLeadUpdate(lead);
-        renderLeadDocuments(lead);
+        showConfirm(`Deseja remover o documento "${docItem.nome}"?`, 'Remover Documento', () => {
+          lead.documentos = lead.documentos.filter(d => d.id !== docItem.id);
+          syncLeadUpdate(lead);
+          renderLeadDocuments(lead);
+        }, 'Remover', true);
       });
 
       elements.leadPanelDocsBox.appendChild(docDiv);
@@ -905,25 +862,23 @@ const initApp = () => {
 
   elements.leadPanelDeleteBtn.addEventListener('click', () => {
     if (!state.leadCorrente) return;
-    showConfirm(`Tem certeza que deseja excluir o lead ${state.leadCorrente.nomeCompleto}?`, 'Excluir Lead', () => {
-      state.leads = state.leads.filter(l => l.id !== state.leadCorrente.id);
+    const leadToDelete = state.leadCorrente;
+    showConfirm(`Tem certeza que deseja excluir o lead ${leadToDelete.nomeCompleto || 'selecionado'}?`, 'Excluir Lead', async () => {
+      state.leads = state.leads.filter(l => l.id !== leadToDelete.id);
 
       // sync to firestore
       try {
-        if (state.leadCorrente) {
-          setDoc(doc(db, 'leads', state.leadCorrente.id), state.leadCorrente);
-        } else {
-          // when adding new or updating multiple
-          state.leads.forEach(l => {
-            if (l.id) setDoc(doc(db, 'leads', l.id), l);
-          });
+        if (leadToDelete.id) {
+          await deleteDoc(doc(db, 'leads', leadToDelete.id));
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error('Erro ao excluir lead do Firestore:', e);
+      }
 
       elements.leadPanel.classList.remove('active');
       state.leadCorrente = null;
       renderKanban();
-    });
+    }, 'Excluir', true);
   });
 
   // --- NAVEGAÇÃO ENTRE ABAS ---
@@ -1232,7 +1187,7 @@ const initApp = () => {
   };
 
   // Funções globais acessíveis via onclick e listeners
-  window.APP_VERSION = '1.2.0';
+  window.APP_VERSION = '1.0.3';
   window.loadUsersData = loadUsers;
   window.openAdminUsersModal = () => {
     const modal = document.getElementById('admin-users-modal');
