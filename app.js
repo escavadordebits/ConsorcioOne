@@ -77,11 +77,19 @@ const initApp = () => {
     valPrazo: document.getElementById('val-prazo'),
     comparisonContainer: document.getElementById('comparison-cards'),
 
-    // Modal de Pré-cadastro
+    // Modal de Pré-cadastro e Cadastro de Lead
     preCadastroModal: document.getElementById('pre-cadastro-modal'),
+    modalLeadTitle: document.getElementById('modal-lead-title'),
+    modalLeadSubtitle: document.getElementById('modal-lead-subtitle'),
     formPreCadastro: document.getElementById('form-pre-cadastro'),
     closeModalBtn: document.getElementById('close-modal'),
     selectedAdmField: document.getElementById('selected-adm'),
+    groupLeadStatus: document.getElementById('group-lead-status'),
+    regStatus: document.getElementById('reg-status'),
+    regCredito: document.getElementById('reg-credito'),
+    regAdmSelect: document.getElementById('reg-adm-select'),
+    btnSubmitLead: document.getElementById('btn-submit-lead'),
+    btnAddLeadCrm: document.getElementById('btn-add-lead-crm'),
 
     // Chat Widget
     chatTrigger: document.getElementById('chat-trigger'),
@@ -351,21 +359,61 @@ const initApp = () => {
     renderSimulations();
   });
 
-  // --- MODAL DE PRÉ-CADASTRO ---
-  const openPreCadastro = (admName, parcela) => {
-    if (elements.selectedAdmField) elements.selectedAdmField.value = admName;
+  // --- STATUS LABELS PARA O CRM ---
+  const statusTitles = {
+    'NOVO': 'Novos Leads',
+    'EM_ATENDIMENTO': 'Em Atendimento',
+    'QUALIFICADO': 'Qualificados',
+    'PROPOSTA_ENVIADA': 'Proposta Enviada',
+    'VENDIDO': 'Vendido / Ativo'
+  };
+
+  // --- MODAL DE PRÉ-CADASTRO E CADASTRO DE NOVO LEAD ---
+  const openPreCadastro = (admName, parcela, targetStatus = 'NOVO', origin = 'WEB') => {
+    if (elements.formPreCadastro) elements.formPreCadastro.reset();
+
+    if (elements.selectedAdmField) elements.selectedAdmField.value = admName || '';
+    if (elements.regStatus) elements.regStatus.value = targetStatus;
+    if (elements.regAdmSelect) {
+      elements.regAdmSelect.value = admName || 'Itaú Consórcios';
+    }
+    if (elements.regCredito) {
+      elements.regCredito.value = state.credito || 80000;
+    }
+
     if (elements.preCadastroModal) {
-      elements.preCadastroModal.setAttribute('data-parcela', parcela);
+      elements.preCadastroModal.setAttribute('data-parcela', parcela || 0);
+      elements.preCadastroModal.setAttribute('data-status', targetStatus);
+      elements.preCadastroModal.setAttribute('data-origin', origin);
+
+      if (origin === 'CRM') {
+        const colTitle = statusTitles[targetStatus] || targetStatus;
+        if (elements.modalLeadTitle) elements.modalLeadTitle.textContent = 'Cadastrar Novo Lead';
+        if (elements.modalLeadSubtitle) elements.modalLeadSubtitle.textContent = `Preencha os dados abaixo para cadastrar o lead na etapa: ${colTitle}.`;
+        if (elements.btnSubmitLead) elements.btnSubmitLead.textContent = 'Cadastrar Lead';
+        if (elements.groupLeadStatus) elements.groupLeadStatus.style.display = 'block';
+      } else {
+        if (elements.modalLeadTitle) elements.modalLeadTitle.textContent = 'Solicitar Pré-Cadastro';
+        if (elements.modalLeadSubtitle) elements.modalLeadSubtitle.textContent = 'Preencha os dados abaixo para gerar sua pré-proposta e enviar para a administradora escolhida.';
+        if (elements.btnSubmitLead) elements.btnSubmitLead.textContent = 'Enviar Simulação';
+        if (elements.groupLeadStatus) elements.groupLeadStatus.style.display = 'none';
+      }
+
       // Marca automaticamente a categoria atual do simulador
       const catCheck = elements.preCadastroModal.querySelector(`input[name="tipo_consorcio"][value="${state.categoria}"]`);
       if (catCheck) catCheck.checked = true;
+
       elements.preCadastroModal.classList.add('active');
     }
   };
   window.openPreCadastro = openPreCadastro;
 
   const closePreCadastro = () => {
-    if (elements.preCadastroModal) elements.preCadastroModal.classList.remove('active');
+    if (elements.preCadastroModal) {
+      elements.preCadastroModal.classList.remove('active');
+      elements.preCadastroModal.removeAttribute('data-status');
+      elements.preCadastroModal.removeAttribute('data-origin');
+    }
     if (elements.formPreCadastro) elements.formPreCadastro.reset();
   };
   window.closePreCadastro = closePreCadastro;
@@ -386,8 +434,12 @@ const initApp = () => {
     e.preventDefault();
 
     const formData = new FormData(elements.formPreCadastro);
-    const adm = elements.selectedAdmField.value;
-    const parcela = parseFloat(elements.preCadastroModal.getAttribute('data-parcela'));
+    const origin = elements.preCadastroModal.getAttribute('data-origin') || 'WEB';
+    const status = formData.get('status') || elements.preCadastroModal.getAttribute('data-status') || 'NOVO';
+    const adm = elements.selectedAdmField.value || formData.get('administradora_select') || 'Itaú Consórcios';
+    const parcelaAttr = parseFloat(elements.preCadastroModal.getAttribute('data-parcela'));
+    const creditoVal = parseFloat(formData.get('valor_credito')) || state.credito || 80000;
+    const parcela = !isNaN(parcelaAttr) && parcelaAttr > 0 ? parcelaAttr : Math.round(creditoVal / (state.prazo || 60));
 
     // Obter array de tipos de consórcios selecionados
     const tiposConsorcio = formData.getAll('tipo_consorcio');
@@ -401,19 +453,22 @@ const initApp = () => {
       telefone: formData.get('telefone'),
       endereco: '',
       rendaMensal: parseFloat(formData.get('renda')) || 3000,
-      status: 'NOVO',
-      origem: 'WEB',
+      status: status,
+      origem: origin === 'CRM' ? 'CRM' : 'WEB',
       tiposConsorcio: tiposConsorcio, // Array multi-seleção
-      categoriaBem: state.categoria, // Mantém a categoria principal da simulação
-      valorCredito: state.credito,
-      prazoMeses: state.prazo,
+      categoriaBem: tiposConsorcio.length > 0 ? tiposConsorcio[0] : state.categoria,
+      valorCredito: creditoVal,
+      prazoMeses: state.prazo || 60,
       administradora: adm,
       valorParcela: parcela,
       created_at: new Date().toISOString(),
       chatHistory: [
-        { remetente: 'IA', conteudo: 'Olá! Proposta criada com sucesso através do simulador web!' }
+        { remetente: 'IA', conteudo: origin === 'CRM' ? `Lead cadastrado diretamente via CRM na etapa ${statusTitles[status] || status}.` : 'Olá! Proposta criada com sucesso através do simulador web!' }
       ],
-      documentos: []
+      documentos: [
+        { id: 'doc-cpf', tipo: 'CPF / IDENTIDADE', nome: 'documento_identidade.pdf', status: 'PENDENTE', ocrLog: null },
+        { id: 'doc-renda', tipo: 'COMPROVANTE DE RENDA', nome: 'extrato_bancario.jpg', status: 'PENDENTE', ocrLog: null }
+      ]
     };
 
     state.leads.push(newLead);
@@ -427,12 +482,11 @@ const initApp = () => {
       console.error('Erro ao salvar lead no Firestore:', e);
     }
 
-
     // Fechar modal e renderizar CRM atualizado
     closePreCadastro();
     renderKanban();
 
-    showAlert('Simulação salva com sucesso! Um consultor entrará em contato em breve.', 'Sucesso');
+    showAlert(origin === 'CRM' ? 'Lead cadastrado com sucesso no painel!' : 'Simulação salva com sucesso! Um consultor entrará em contato em breve.', 'Sucesso');
   });
 
   // --- CHATBOT WIDGET (MOCK IA) ---
@@ -636,6 +690,22 @@ const initApp = () => {
       }
     });
   });
+
+  // --- BOTÕES DE ADICIONAR LEAD NAS COLUNAS / ABAS DO KANBAN ---
+  document.querySelectorAll('.btn-add-lead-column').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const status = btn.getAttribute('data-status') || 'NOVO';
+      openPreCadastro('', 0, status, 'CRM');
+    });
+  });
+
+  // Botão de Novo Lead no cabeçalho do CRM
+  if (elements.btnAddLeadCrm) {
+    elements.btnAddLeadCrm.addEventListener('click', () => {
+      openPreCadastro('', 0, 'NOVO', 'CRM');
+    });
+  }
 
   // --- DETALHES DO LEAD (SLIDE OVER) ---
   const openLeadDetails = (lead) => {
@@ -1215,7 +1285,7 @@ const initApp = () => {
   };
 
   // Funções globais acessíveis via onclick e listeners
-  window.APP_VERSION = '1.0.4';
+  window.APP_VERSION = '1.0.5';
   window.loadUsersData = loadUsers;
   window.openAdminUsersModal = () => {
     const modal = document.getElementById('admin-users-modal');

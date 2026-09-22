@@ -1052,6 +1052,41 @@ nav a:hover, nav a.active {
   padding: 0.15rem 0.5rem;
   border-radius: var(--radius-full);
   color: var(--text-main);
+  font-weight: 600;
+}
+
+.kanban-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.btn-add-lead-column {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.btn-add-lead-column:hover {
+  background: var(--brand-blue);
+  border-color: var(--brand-blue);
+  color: #ffffff;
+  transform: translateY(-1px) scale(1.06);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+}
+
+.btn-add-lead-column:active {
+  transform: scale(0.96);
 }
 
 .kanban-cards {

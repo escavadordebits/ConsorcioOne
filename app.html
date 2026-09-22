@@ -6,9 +6,9 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Portal e Simulador | ConsórcioOne V 1.0.4</title>
+  <title>Portal e Simulador | ConsórcioOne V 1.0.5</title>
   <meta name="description" content="Centralize e automatize a jornada de venda e atendimento de consórcios multimarcas com Inteligência Artificial.">
-  <link rel="stylesheet" href="styles.css?v=20260914_fix1">
+  <link rel="stylesheet" href="styles.css?v=20260922_v105">
 </head>
 <body>
 
@@ -55,7 +55,7 @@
 
         <!-- Linha Inferior: Versão, Usuário e E-mail organizados abaixo do botão Sair -->
         <div class="user-info-row" style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.75rem; justify-content: flex-end;">
-          <span class="badge-version" title="Versão da Aplicação" style="background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(59, 130, 246, 0.45); color: #93c5fd; font-size: 0.68rem; padding: 0.05rem 0.4rem; border-radius: 4px; font-weight: 700; font-family: monospace; letter-spacing: 0.5px;">V 1.0.4</span>
+          <span class="badge-version" title="Versão da Aplicação" style="background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(59, 130, 246, 0.45); color: #93c5fd; font-size: 0.68rem; padding: 0.05rem 0.4rem; border-radius: 4px; font-weight: 700; font-family: monospace; letter-spacing: 0.5px;">V 1.0.5</span>
           <span id="user-role-badge" style="background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-color); color: #94a3b8; font-size: 0.68rem; padding: 0.05rem 0.35rem; border-radius: 4px; font-weight: 600;">ADM</span>
           <span id="user-display-name" style="color: var(--text-color); font-weight: 600;">Usuário</span>
           <span id="user-email-display" style="color: var(--text-muted); font-size: 0.72rem;"></span>
@@ -144,6 +144,10 @@
         <h2>Painel Comercial de Leads</h2>
         <p style="color:var(--text-muted); font-size:0.9rem;">Gerencie propostas, interações de IA e validação OCR de documentos.</p>
       </div>
+      <button type="button" class="btn btn-primary" id="btn-add-lead-crm" style="display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; font-size: 0.85rem;" title="Cadastrar novo lead no CRM">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo Lead
+      </button>
     </div>
 
     <!-- TABULEIRO KANBAN -->
@@ -153,7 +157,12 @@
       <div class="kanban-column" id="column-novo">
         <div class="kanban-column-header">
           <span class="kanban-column-title">Novos Leads</span>
-          <span class="lead-count">0</span>
+          <div class="kanban-header-actions">
+            <span class="lead-count">0</span>
+            <button type="button" class="btn-add-lead-column" data-status="NOVO" data-title="Novos Leads" title="Adicionar lead em Novos Leads" aria-label="Adicionar lead em Novos Leads">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
         </div>
         <div class="kanban-cards"></div>
       </div>
@@ -162,7 +171,12 @@
       <div class="kanban-column" id="column-atendimento">
         <div class="kanban-column-header">
           <span class="kanban-column-title">Em Atendimento</span>
-          <span class="lead-count">0</span>
+          <div class="kanban-header-actions">
+            <span class="lead-count">0</span>
+            <button type="button" class="btn-add-lead-column" data-status="EM_ATENDIMENTO" data-title="Em Atendimento" title="Adicionar lead em Em Atendimento" aria-label="Adicionar lead em Em Atendimento">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
         </div>
         <div class="kanban-cards"></div>
       </div>
@@ -171,7 +185,12 @@
       <div class="kanban-column" id="column-qualificado">
         <div class="kanban-column-header">
           <span class="kanban-column-title">Qualificados</span>
-          <span class="lead-count">0</span>
+          <div class="kanban-header-actions">
+            <span class="lead-count">0</span>
+            <button type="button" class="btn-add-lead-column" data-status="QUALIFICADO" data-title="Qualificados" title="Adicionar lead em Qualificados" aria-label="Adicionar lead em Qualificados">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
         </div>
         <div class="kanban-cards"></div>
       </div>
@@ -180,7 +199,12 @@
       <div class="kanban-column" id="column-proposta">
         <div class="kanban-column-header">
           <span class="kanban-column-title">Proposta Enviada</span>
-          <span class="lead-count">0</span>
+          <div class="kanban-header-actions">
+            <span class="lead-count">0</span>
+            <button type="button" class="btn-add-lead-column" data-status="PROPOSTA_ENVIADA" data-title="Proposta Enviada" title="Adicionar lead em Proposta Enviada" aria-label="Adicionar lead em Proposta Enviada">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
         </div>
         <div class="kanban-cards"></div>
       </div>
@@ -189,7 +213,12 @@
       <div class="kanban-column" id="column-vendido">
         <div class="kanban-column-header">
           <span class="kanban-column-title">Vendido / Ativo</span>
-          <span class="lead-count">0</span>
+          <div class="kanban-header-actions">
+            <span class="lead-count">0</span>
+            <button type="button" class="btn-add-lead-column" data-status="VENDIDO" data-title="Vendido / Ativo" title="Adicionar lead em Vendido / Ativo" aria-label="Adicionar lead em Vendido / Ativo">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
         </div>
         <div class="kanban-cards"></div>
       </div>
@@ -273,15 +302,27 @@
   <div class="modal-overlay" id="pre-cadastro-modal">
     <div class="modal-content">
       <button class="modal-close" id="close-modal">&times;</button>
-      <h3 style="margin-bottom:0.5rem; font-family:var(--font-title);">Solicitar Pré-Cadastro</h3>
-      <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Preencha os dados abaixo para gerar sua pré-proposta e enviar para a administradora escolhida.</p>
+      <h3 id="modal-lead-title" style="margin-bottom:0.5rem; font-family:var(--font-title);">Solicitar Pré-Cadastro</h3>
+      <p id="modal-lead-subtitle" style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Preencha os dados abaixo para gerar sua pré-proposta e enviar para a administradora escolhida.</p>
       
       <form id="form-pre-cadastro">
         <input type="hidden" id="selected-adm">
         
+        <!-- Seleção de Etapa no Funil (Visível no CRM) -->
+        <div class="form-group" id="group-lead-status" style="display: none;">
+          <label class="form-label" for="reg-status">Etapa do Funil (Coluna)</label>
+          <select class="form-input" id="reg-status" name="status">
+            <option value="NOVO">Novos Leads</option>
+            <option value="EM_ATENDIMENTO">Em Atendimento</option>
+            <option value="QUALIFICADO">Qualificados</option>
+            <option value="PROPOSTA_ENVIADA">Proposta Enviada</option>
+            <option value="VENDIDO">Vendido / Ativo</option>
+          </select>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Tipos de Consórcio de Interesse</label>
-          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;" id="pre-cadastro-tipos">
             <label style="display: flex; align-items: center; gap: 0.3rem;"><input type="checkbox" name="tipo_consorcio" value="AUTOMOVEL"> Automóvel</label>
             <label style="display: flex; align-items: center; gap: 0.3rem;"><input type="checkbox" name="tipo_consorcio" value="IMOVEL"> Imóvel</label>
             <label style="display: flex; align-items: center; gap: 0.3rem;"><input type="checkbox" name="tipo_consorcio" value="SERVICO"> Serviço</label>
@@ -314,9 +355,28 @@
           <input class="form-input" type="number" id="reg-renda" name="renda" placeholder="Ex: 3500" required>
         </div>
 
+        <!-- Campos de Proposta / Administradora (Opcionais no CRM) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;" id="row-lead-credito-adm">
+          <div class="form-group">
+            <label class="form-label" for="reg-credito">Valor do Crédito (R$)</label>
+            <input class="form-input" type="number" id="reg-credito" name="valor_credito" placeholder="Ex: 80000" step="5000">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-adm-select">Administradora</label>
+            <select class="form-input" id="reg-adm-select" name="administradora_select">
+              <option value="Itaú Consórcios">Itaú Consórcios</option>
+              <option value="Porto Seguro">Porto Seguro</option>
+              <option value="Consórcio Caixa">Consórcio Caixa</option>
+              <option value="Santander Consórcios">Santander Consórcios</option>
+              <option value="Bradesco Consórcios">Bradesco Consórcios</option>
+              <option value="Consórcio Geral">Consórcio Geral</option>
+            </select>
+          </div>
+        </div>
+
         <div style="margin-top:1.5rem; display:flex; gap:0.5rem; justify-content:flex-end;">
           <button class="btn btn-secondary" type="button" onclick="closePreCadastro()">Cancelar</button>
-          <button class="btn btn-primary" type="submit">Enviar Simulação</button>
+          <button class="btn btn-primary" type="submit" id="btn-submit-lead">Enviar Simulação</button>
         </div>
       </form>
     </div>
@@ -434,14 +494,14 @@
   <!-- RODAPÉ DA PÁGINA -->
   <footer>
     <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
-      <p>&copy; 2026 ConsórcioOne • <strong style="color: #60a5fa;">Versão 1.0.4</strong>. Todos os direitos reservados. Plataforma digital de consórcios multimarcas com IA.</p>
+      <p>&copy; 2026 ConsórcioOne • <strong style="color: #60a5fa;">Versão 1.0.5</strong>. Todos os direitos reservados. Plataforma digital de consórcios multimarcas com IA.</p>
       <p style="font-size:0.75rem; color:var(--text-muted);">Administradora oficial vinculada ao regulamento geral de consórcios sob supervisão do BACEN.</p>
     </div>
   </footer>
 
   <script>
-    window.APP_VERSION = '1.0.4';
-    console.log('%c ConsórcioOne V 1.0.4 iniciado ', 'background: #2563eb; color: #fff; font-weight: bold; border-radius: 4px; padding: 2px 6px;');
+    window.APP_VERSION = '1.0.5';
+    console.log('%c ConsórcioOne V 1.0.5 iniciado ', 'background: #2563eb; color: #fff; font-weight: bold; border-radius: 4px; padding: 2px 6px;');
 
     function triggerLogoUpload(event) {
       if (event) { event.preventDefault(); event.stopPropagation(); }
