@@ -1215,7 +1215,7 @@ const initApp = () => {
   };
 
   // Funções globais acessíveis via onclick e listeners
-  window.APP_VERSION = '1.0.3';
+  window.APP_VERSION = '1.0.4';
   window.loadUsersData = loadUsers;
   window.openAdminUsersModal = () => {
     const modal = document.getElementById('admin-users-modal');
