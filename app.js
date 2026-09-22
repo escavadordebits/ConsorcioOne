@@ -920,18 +920,18 @@ const initApp = () => {
 
       if (!querySnapshot.empty) {
         const userDoc = querySnapshot.docs[0];
-        currentUserRole = userDoc.data().role;
+        currentUserRole = userDoc.data().role || 'CLIENTE';
       } else {
-        currentUserRole = 'ADM';
-        await setDoc(doc(db, 'users', user.uid), { role: 'ADM', email: user.email });
+        currentUserRole = 'CLIENTE';
+        await setDoc(doc(db, 'users', user.uid), { role: 'CLIENTE', email: user.email });
       }
     } catch (e) {
       console.error("Erro ao pegar role", e);
-      currentUserRole = 'ADM'; // Fallback
+      currentUserRole = 'CLIENTE'; // Fallback seguro para novos usuários
     }
 
     const userRoleBadgeEl = document.getElementById('user-role-badge');
-    if (userRoleBadgeEl) userRoleBadgeEl.textContent = currentUserRole || 'ADM';
+    if (userRoleBadgeEl) userRoleBadgeEl.textContent = currentUserRole || 'CLIENTE';
 
     if (currentUserRole === 'ADM') {
       const toggleCrm = document.getElementById('toggle-crm');
@@ -1161,12 +1161,40 @@ const initApp = () => {
         tr.style.borderBottom = '1px solid var(--border-color)';
         tr.innerHTML = `
           <td style="padding: 0.5rem;">${data.email}</td>
-          <td style="padding: 0.5rem;">${data.role}</td>
-          <td style="padding: 0.5rem;">
-            <button class="btn btn-secondary btn-sm delete-user-btn" data-id="${docSnap.id}" style="padding:0.2rem 0.5rem; font-size:0.75rem; border-color:#ef4444; color:#ef4444;">Excluir</button>
+          <td style="padding: 0.5rem;"><span style="font-size:0.75rem; padding:0.15rem 0.45rem; border-radius:4px; background:rgba(255,255,255,0.06); font-weight:600; color:var(--text-main);">${data.role || 'CLIENTE'}</span></td>
+          <td style="padding: 0.5rem; text-align: right; white-space: nowrap;">
+            <button type="button" class="btn btn-secondary btn-sm edit-user-btn" data-email="${data.email}" data-role="${data.role || 'CLIENTE'}" style="padding:0.25rem 0.55rem; font-size:0.75rem; border-color:var(--primary); color:var(--primary); margin-right:0.35rem; cursor:pointer;" title="Clique para editar e alterar este usuário">Editar</button>
+            <button type="button" class="btn btn-secondary btn-sm delete-user-btn" data-id="${docSnap.id}" style="padding:0.25rem 0.55rem; font-size:0.75rem; border-color:#ef4444; color:#ef4444; cursor:pointer;" title="Excluir acesso">Excluir</button>
           </td>
         `;
         elements.usersTableBody.appendChild(tr);
+      });
+
+      // Vincular clique no botão Editar
+      document.querySelectorAll('.edit-user-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const email = btn.getAttribute('data-email');
+          const role = btn.getAttribute('data-role');
+          const emailInput = document.getElementById('new-user-email');
+          const roleSelect = document.getElementById('new-user-role');
+          
+          if (emailInput) {
+            emailInput.value = email;
+            emailInput.style.borderColor = 'var(--primary)';
+            emailInput.focus();
+          }
+          if (roleSelect && role) {
+            roleSelect.value = role;
+            roleSelect.style.borderColor = 'var(--primary)';
+          }
+
+          const submitBtn = elements.formAddUser ? elements.formAddUser.querySelector('button[type="submit"]') : null;
+          if (submitBtn) {
+            submitBtn.textContent = 'Salvar Alteração';
+            submitBtn.style.background = 'var(--primary-gradient)';
+          }
+        });
       });
 
       // Bind delete buttons
@@ -1262,10 +1290,20 @@ const initApp = () => {
   if (elements.formAddUser) {
     elements.formAddUser.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('new-user-email').value;
-      const role = document.getElementById('new-user-role').value;
+      const emailInput = document.getElementById('new-user-email');
+      const roleSelect = document.getElementById('new-user-role');
+      const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+      const role = roleSelect ? roleSelect.value : 'CLIENTE';
+      const submitBtn = elements.formAddUser.querySelector('button[type="submit"]');
+
+      if (!email) return;
 
       try {
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Salvando...';
+        }
+
         const qRef = query(collection(db, 'users'), where("email", "==", email));
         const snap = await getDocs(qRef);
 
@@ -1275,10 +1313,29 @@ const initApp = () => {
           await addDoc(collection(db, 'users'), { email, role });
         }
 
-        document.getElementById('new-user-email').value = '';
+        if (emailInput) {
+          emailInput.value = '';
+          emailInput.style.borderColor = '';
+        }
+        if (roleSelect) {
+          roleSelect.style.borderColor = '';
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Salvar';
+          submitBtn.style.background = '';
+        }
+
+        showAlert(`Perfil do usuário "${email}" salvo com sucesso como ${role}!`, 'Acesso Atualizado');
         loadUsers();
       } catch (err) {
-        console.error(err);
+        console.error("Erro ao salvar perfil do usuário:", err);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Salvar';
+          submitBtn.style.background = '';
+        }
+        showAlert('Erro ao salvar permissão do usuário.', 'Erro');
       }
     });
   }
