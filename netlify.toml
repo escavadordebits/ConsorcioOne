@@ -1,0 +1,23 @@
+# Netlify Configuration & Redirects
+
+[[redirects]]
+  from = "https://consorcioone.netlify.app/*"
+  to = "https://c7contempla.netlify.app/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://consorcioone.netlify.app/*"
+  to = "https://c7contempla.netlify.app/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/app"
+  to = "/app.html"
+  status = 200
+
+[[redirects]]
+  from = "/index"
+  to = "/index.html"
+  status = 200

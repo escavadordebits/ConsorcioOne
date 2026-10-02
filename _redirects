@@ -1,0 +1,7 @@
+# Redirecionamento forçado do subdomínio/domínio antigo para o novo
+https://consorcioone.netlify.app/* https://c7contempla.netlify.app/:splat 301!
+http://consorcioone.netlify.app/*  https://c7contempla.netlify.app/:splat 301!
+
+# Rotas amigáveis internas
+/app    /app.html    200
+/index  /index.html  200
