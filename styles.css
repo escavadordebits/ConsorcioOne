@@ -11,6 +11,8 @@
   --primary-gradient: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
   --secondary: #8b5cf6; /* Violet */
   --accent: #10b981; /* Emerald Green */
+  --brand-blue: #0ea5e9;
+  --brand-light: #38bdf8;
   
   --text-main: #f3f4f6;
   --text-muted: #9ca3af;
