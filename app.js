@@ -110,6 +110,7 @@ const initApp = () => {
 
     // Detalhe do Lead (Slide-over)
     leadPanel: document.getElementById('lead-panel'),
+    leadPanelBackdrop: document.getElementById('lead-panel-backdrop'),
     closeLeadPanelBtn: document.getElementById('close-lead-panel'),
     leadPanelName: document.getElementById('lead-panel-name'),
     leadDetailsBox: document.getElementById('lead-details-box'),
@@ -730,6 +731,7 @@ const initApp = () => {
     renderLeadDocuments(lead);
 
     elements.leadPanel.classList.add('active');
+    if (elements.leadPanelBackdrop) elements.leadPanelBackdrop.classList.add('active');
   };
 
   // Sincronizar alterações de lead no Firestore
@@ -925,9 +927,25 @@ const initApp = () => {
     }
   });
 
-  elements.closeLeadPanelBtn.addEventListener('click', () => {
-    elements.leadPanel.classList.remove('active');
+  const closeLeadDrawer = () => {
+    if (elements.leadPanel) elements.leadPanel.classList.remove('active');
+    if (elements.leadPanelBackdrop) elements.leadPanelBackdrop.classList.remove('active');
     state.leadCorrente = null;
+  };
+
+  if (elements.closeLeadPanelBtn) {
+    elements.closeLeadPanelBtn.addEventListener('click', closeLeadDrawer);
+  }
+
+  if (elements.leadPanelBackdrop) {
+    elements.leadPanelBackdrop.addEventListener('click', closeLeadDrawer);
+  }
+
+  // Tecla Esc fecha o drawer do lead
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && elements.leadPanel && elements.leadPanel.classList.contains('active')) {
+      closeLeadDrawer();
+    }
   });
 
   elements.leadPanelDeleteBtn.addEventListener('click', () => {
@@ -945,10 +963,27 @@ const initApp = () => {
         console.error('Erro ao excluir lead do Firestore:', e);
       }
 
-      elements.leadPanel.classList.remove('active');
-      state.leadCorrente = null;
+      closeLeadDrawer();
       renderKanban();
     }, 'Excluir', true);
+  });
+
+  // --- SELETOR DE ETAPAS (TABS) MOBILE DO KANBAN ---
+  document.querySelectorAll('.kanban-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.kanban-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const targetColId = btn.getAttribute('data-col');
+
+      const allColumns = document.querySelectorAll('.kanban-column');
+      allColumns.forEach(col => {
+        if (targetColId === 'all' || col.id === targetColId) {
+          col.classList.remove('mobile-hidden');
+        } else {
+          col.classList.add('mobile-hidden');
+        }
+      });
+    });
   });
 
   // --- NAVEGAÇÃO ENTRE ABAS ---

@@ -1211,8 +1211,10 @@
         window.location.href = 'app.html';
       } catch (error) {
         console.error("Erro no login Google:", error);
-        if (error.code !== 'auth/popup-closed-by-user') {
-          showNotice("Ocorreu um erro com o login do Google: " + error.message, "error");
+        if (error.code === 'auth/unauthorized-domain') {
+          showNotice("Domínio não autorizado no Firebase! É necessário adicionar o novo domínio ('" + window.location.hostname + "') em: Firebase Console > Authentication > Settings > Authorized domains.", "error");
+        } else if (error.code !== 'auth/popup-closed-by-user') {
+          showNotice("Ocorreu um erro com o login do Google: " + (error.message || error.code), "error");
         }
       }
     });

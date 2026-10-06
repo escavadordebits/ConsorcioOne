@@ -8,59 +8,57 @@
   <meta http-equiv="Expires" content="0">
   <title>Portal e Simulador | ConsórcioOne V 1.0.5</title>
   <meta name="description" content="Centralize e automatize a jornada de venda e atendimento de consórcios multimarcas com Inteligência Artificial.">
-  <link rel="stylesheet" href="styles.css?v=20261002_v106">
+  <link rel="stylesheet" href="styles.css?v=20261006_v107">
 </head>
 <body>
 
-  <header>
-    <div class="logo" id="main-logo-container">
-      <img id="custom-logo-img" class="logo-custom-img" alt="Logo da Empresa">
-      <div class="logo-icon" id="default-logo-icon">C</div>
-      <span id="logo-text">ConsórcioOne</span>
+  <header class="app-header">
+    <div class="header-top-bar">
+      <div class="logo" id="main-logo-container">
+        <img id="custom-logo-img" class="logo-custom-img" alt="Logo da Empresa">
+        <div class="logo-icon" id="default-logo-icon">C</div>
+        <span id="logo-text">ConsórcioOne</span>
+      </div>
+
+      <!-- Ações de Usuário / Administração -->
+      <div class="header-actions-row">
+        <button type="button" id="btn-admin" class="btn btn-secondary btn-header" style="display: none;" onclick="openUsersModal(event)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Usuários
+        </button>
+        
+        <!-- Upload / Substituir Logo (visível apenas para Administrador) -->
+        <input type="file" id="input-upload-logo" accept="image/png, image/jpeg, image/svg+xml, image/webp" style="display: none;">
+        <label for="input-upload-logo" id="btn-upload-logo" class="btn btn-secondary btn-header" style="display: none;" title="Upload ou substituição do logo da empresa">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span id="btn-upload-logo-text">Upload logo</span>
+        </label>
+
+        <!-- Remover Logo (visível apenas para Administrador quando houver logo ativo) -->
+        <button type="button" id="btn-remove-logo" class="btn btn-secondary btn-header" style="display: none; color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" title="Remover logo personalizado e restaurar padrão ConsórcioOne" onclick="triggerRemoveLogo(event)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Remover
+        </button>
+
+        <button type="button" id="btn-logout" class="btn btn-secondary btn-header" onclick="logoutApp(event)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sair
+        </button>
+      </div>
     </div>
-    <nav style="display: flex; gap: 1.25rem; align-items: center;">
+
+    <nav class="app-nav">
       <div class="dashboard-toggle" id="dashboard-toggle-group">
         <button id="toggle-portal" class="dashboard-toggle-btn active">Portal do Cliente</button>
         <button id="toggle-crm" class="dashboard-toggle-btn" style="display: none;">Painel CRM (Consultor)</button>
       </div>
 
-      <!-- Área de Controles e Perfil do Usuário Organizada -->
-      <div class="header-user-section" style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem;">
-        
-        <!-- Linha Superior: Botões de Ação -->
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <button type="button" id="btn-admin" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: none; align-items: center; gap: 0.35rem; cursor: pointer;" onclick="openUsersModal(event)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Usuários
-          </button>
-          
-          <!-- Upload / Substituir Logo (visível apenas para Administrador) -->
-          <input type="file" id="input-upload-logo" accept="image/png, image/jpeg, image/svg+xml, image/webp" style="display: none;">
-          <label for="input-upload-logo" id="btn-upload-logo" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: none; align-items: center; gap: 0.4rem; cursor: pointer;" title="Upload ou substituição do logo da empresa">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <span id="btn-upload-logo-text">Upload do logo</span>
-          </label>
-
-          <!-- Remover Logo (visível apenas para Administrador quando houver logo ativo) -->
-          <button type="button" id="btn-remove-logo" class="btn btn-secondary" style="padding: 0.35rem 0.7rem; font-size: 0.8rem; display: none; align-items: center; gap: 0.35rem; cursor: pointer; color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" title="Remover logo personalizado e restaurar padrão ConsórcioOne" onclick="triggerRemoveLogo(event)">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            Remover logo
-          </button>
-
-          <button type="button" id="btn-logout" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer;" onclick="logoutApp(event)">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            Sair
-          </button>
-        </div>
-
-        <!-- Linha Inferior: Versão, Usuário e E-mail organizados abaixo do botão Sair -->
-        <div class="user-info-row" style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.75rem; justify-content: flex-end;">
-          <span class="badge-version" title="Versão da Aplicação" style="background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(59, 130, 246, 0.45); color: #93c5fd; font-size: 0.68rem; padding: 0.05rem 0.4rem; border-radius: 4px; font-weight: 700; font-family: monospace; letter-spacing: 0.5px;">V 1.0.5</span>
-          <span id="user-role-badge" style="background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-color); color: #94a3b8; font-size: 0.68rem; padding: 0.05rem 0.35rem; border-radius: 4px; font-weight: 600;">ADM</span>
-          <span id="user-display-name" style="color: var(--text-color); font-weight: 600;">Usuário</span>
-          <span id="user-email-display" style="color: var(--text-muted); font-size: 0.72rem;"></span>
-        </div>
-
+      <!-- Identificação do Usuário e Versão -->
+      <div class="user-info-row">
+        <span class="badge-version" title="Versão da Aplicação">V 1.0.6</span>
+        <span id="user-role-badge">ADM</span>
+        <span id="user-display-name">Usuário</span>
+        <span id="user-email-display"></span>
       </div>
     </nav>
   </header>
@@ -148,6 +146,16 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Novo Lead
       </button>
+    </div>
+
+    <!-- SELETOR RÁPIDO DE COLUNAS NO MOBILE -->
+    <div class="kanban-mobile-tabs" id="kanban-mobile-tabs">
+      <button type="button" class="kanban-tab-btn active" data-col="all">Todas as Etapas</button>
+      <button type="button" class="kanban-tab-btn" data-col="column-novo">Novos</button>
+      <button type="button" class="kanban-tab-btn" data-col="column-atendimento">Atendimento</button>
+      <button type="button" class="kanban-tab-btn" data-col="column-qualificado">Qualificados</button>
+      <button type="button" class="kanban-tab-btn" data-col="column-proposta">Propostas</button>
+      <button type="button" class="kanban-tab-btn" data-col="column-vendido">Vendidos</button>
     </div>
 
     <!-- TABULEIRO KANBAN -->
@@ -255,6 +263,9 @@
       </svg>
     </button>
   </div>
+
+  <!-- BACKDROP OVERLAY PARA DETALHES DO LEAD -->
+  <div class="lead-panel-backdrop" id="lead-panel-backdrop"></div>
 
   <!-- SLIDE OVER PANEL: DETALHES DO LEAD NO CRM -->
   <div class="lead-panel" id="lead-panel">
