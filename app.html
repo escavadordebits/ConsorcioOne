@@ -6,9 +6,9 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Portal e Simulador | ConsórcioOne V 1.0.5</title>
+  <title>Portal e Simulador | ConsórcioOne V 1.0.6</title>
   <meta name="description" content="Centralize e automatize a jornada de venda e atendimento de consórcios multimarcas com Inteligência Artificial.">
-  <link rel="stylesheet" href="styles.css?v=20261006_v107">
+  <link rel="stylesheet" href="styles.css?v=20261015_v106">
 </head>
 <body>
 
@@ -50,6 +50,7 @@
     <nav class="app-nav">
       <div class="dashboard-toggle" id="dashboard-toggle-group">
         <button id="toggle-portal" class="dashboard-toggle-btn active">Portal do Cliente</button>
+        <button id="toggle-cartas" class="dashboard-toggle-btn">Cartas Contempladas</button>
         <button id="toggle-crm" class="dashboard-toggle-btn" style="display: none;">Painel CRM (Consultor)</button>
       </div>
 
@@ -231,6 +232,214 @@
         <div class="kanban-cards"></div>
       </div>
 
+    </div>
+  </main>
+
+  <!-- SEÇÃO DE CARTAS CONTEMPLADAS (CATÁLOGO & GESTÃO) -->
+  <main id="view-cartas" class="cartas-section container">
+    <!-- CABEÇALHO DA SEÇÃO -->
+    <div class="cartas-top-header">
+      <div>
+        <h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Cartas Contempladas
+        </h2>
+        <p style="color:var(--text-muted); font-size:0.92rem; margin-top:0.25rem;">
+          Cotas contempladas com crédito imediato para compra ou negociação. Atualização semanal.
+        </p>
+      </div>
+
+      <!-- Ações Administrativas (Visíveis para ADM / OPERADOR) -->
+      <div class="cartas-admin-buttons" id="cartas-admin-actions" style="display: none;">
+        <button type="button" class="btn btn-primary" id="btn-open-import-cartas" style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Importar Planilha
+        </button>
+        <button type="button" class="btn btn-secondary" id="btn-add-carta" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nova Carta
+        </button>
+        <button type="button" class="btn btn-secondary" id="btn-load-default-cartas" title="Carregar modelo de CartasContempladas.xls da pasta artefatos" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Carregar Modelo
+        </button>
+        <button type="button" class="btn btn-secondary" id="btn-export-cartas-csv" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;" title="Exportar dados filtrados em CSV">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Exportar
+        </button>
+      </div>
+    </div>
+
+    <!-- CARDS DE ESTATÍSTICAS KPI -->
+    <div class="cartas-kpi-grid">
+      <div class="cartas-kpi-card">
+        <div class="kpi-icon-box kpi-icon-total">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        </div>
+        <div class="kpi-data-box">
+          <span class="kpi-label">Total de Cartas</span>
+          <span class="kpi-value" id="kpi-total-cartas">0</span>
+        </div>
+      </div>
+      <div class="cartas-kpi-card">
+        <div class="kpi-icon-box kpi-icon-disp">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="kpi-data-box">
+          <span class="kpi-label">Disponíveis</span>
+          <span class="kpi-value" id="kpi-disp-cartas" style="color: #34d399;">0</span>
+        </div>
+      </div>
+      <div class="cartas-kpi-card">
+        <div class="kpi-icon-box kpi-icon-res">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="kpi-data-box">
+          <span class="kpi-label">Reservadas</span>
+          <span class="kpi-value" id="kpi-res-cartas" style="color: #fbbf24;">0</span>
+        </div>
+      </div>
+      <div class="cartas-kpi-card">
+        <div class="kpi-icon-box kpi-icon-vol">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="kpi-data-box">
+          <span class="kpi-label">Volume de Crédito</span>
+          <span class="kpi-value" id="kpi-vol-credito" style="font-size: 1.15rem; color: #a78bfa;">R$ 0,00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAINEL DE PESQUISA E FILTROS -->
+    <div class="cartas-filters-container">
+      <div class="cartas-filters-grid">
+        <!-- Filtro Cód. Cota -->
+        <div class="filter-item">
+          <label for="filter-cod-cota">Cód. Cota</label>
+          <div class="filter-input-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="filter-cod-cota" class="form-input" placeholder="Ex: 1199..." autocomplete="off">
+          </div>
+        </div>
+
+        <!-- Filtro Categoria -->
+        <div class="filter-item">
+          <label for="filter-categoria">Categoria</label>
+          <select id="filter-categoria" class="form-input">
+            <option value="">Todas as Categorias</option>
+            <option value="Imóvel">Imóvel</option>
+            <option value="Veículo">Veículo</option>
+          </select>
+        </div>
+
+        <!-- Filtro Administradora -->
+        <div class="filter-item">
+          <label for="filter-administradora">Administradora</label>
+          <select id="filter-administradora" class="form-input">
+            <option value="">Todas as Administradoras</option>
+            <!-- Preenchido dinamicamente -->
+          </select>
+        </div>
+
+        <!-- Filtro Status -->
+        <div class="filter-item">
+          <label for="filter-status">Status</label>
+          <select id="filter-status" class="form-input">
+            <option value="">Todos os Status</option>
+            <option value="Disponível">Disponível</option>
+            <option value="Reservada">Reservada</option>
+            <option value="Vendida">Vendida</option>
+          </select>
+        </div>
+
+        <!-- Ordenação -->
+        <div class="filter-item">
+          <label for="filter-order">Ordenar por</label>
+          <select id="filter-order" class="form-input">
+            <option value="cod_desc">Cód. Cota (Maior)</option>
+            <option value="cod_asc">Cód. Cota (Menor)</option>
+            <option value="credito_desc">Maior Crédito</option>
+            <option value="credito_asc">Menor Crédito</option>
+            <option value="entrada_asc">Menor Entrada</option>
+            <option value="entrada_desc">Maior Entrada</option>
+            <option value="parcela_asc">Menor Parcela</option>
+          </select>
+        </div>
+
+        <!-- Ação Limpar Filtros -->
+        <div class="cartas-filters-actions">
+          <button type="button" id="btn-clear-filters" class="btn-filter-clear" title="Redefinir todos os filtros">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            Limpar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BARRA DE AÇÕES EM LOTE (BATCH BAR) -->
+    <div class="cartas-batch-toolbar" id="cartas-batch-toolbar">
+      <div class="batch-info">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="batch-selected-count">0</span> cartas selecionadas
+      </div>
+      <div class="batch-actions">
+        <button type="button" class="btn btn-secondary" id="btn-batch-status" style="font-size:0.82rem; padding:0.4rem 0.8rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Alterar Status em Lote
+        </button>
+        <button type="button" class="btn btn-secondary" id="btn-batch-delete" style="font-size:0.82rem; padding:0.4rem 0.8rem; color:#ef4444; border-color:rgba(239, 68, 68, 0.4);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Excluir Selecionadas
+        </button>
+        <button type="button" class="btn btn-secondary" id="btn-batch-clear" style="font-size:0.82rem; padding:0.4rem 0.6rem;">
+          Desmarcar
+        </button>
+      </div>
+    </div>
+
+    <!-- TABELA DE DADOS -->
+    <div class="cartas-table-container">
+      <table class="cartas-table" id="table-cartas">
+        <thead>
+          <tr>
+            <th style="width: 40px; text-align: center;" id="th-check-all">
+              <input type="checkbox" id="check-select-all" title="Selecionar todas nesta página">
+            </th>
+            <th style="width: 100px;">Cód. Cota</th>
+            <th>Categoria</th>
+            <th>Administradora</th>
+            <th>Crédito</th>
+            <th>Entrada</th>
+            <th>Parcelas</th>
+            <th>Saldo Devedor</th>
+            <th>Status</th>
+            <th style="text-align: right; min-width: 170px;">Negociação & Ações</th>
+          </tr>
+        </thead>
+        <tbody id="cartas-tbody">
+          <!-- Renderizado via JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- BARRA DE PAGINAÇÃO -->
+    <div class="cartas-pagination-bar">
+      <div class="pagination-info" id="cartas-pagination-info">
+        Exibindo 0 de 0 cartas contempladas
+      </div>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--text-muted);">
+          <span>Por página:</span>
+          <select id="cartas-page-size" class="form-input" style="width: 75px; padding: 0.3rem 0.5rem; height: 32px;">
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+        <div class="pagination-controls" id="cartas-pagination-controls">
+          <!-- Botoes de pagina gerados pelo JS -->
+        </div>
+      </div>
     </div>
   </main>
 
@@ -502,17 +711,224 @@
     </div>
   </div>
 
+  <!-- MODAL DE IMPORTAÇÃO DE CARTAS CONTEMPLADAS -->
+  <div class="modal-overlay" id="modal-import-cartas" style="z-index: 9998;">
+    <div class="modal-content" style="max-width: 650px;">
+      <button class="modal-close" id="close-modal-import-cartas">&times;</button>
+      <h3 style="margin-bottom:0.35rem; font-family:var(--font-title); display:flex; align-items:center; gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Importar Planilha de Cartas Contempladas
+      </h3>
+      <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.25rem;">
+        Importe a planilha semanal (.xls, .xlsx ou .csv). As duplicidades são controladas automaticamente pelo Cód. da Cota.
+      </p>
+
+      <!-- Zona de Upload Drag & Drop -->
+      <div class="dropzone-import" id="import-dropzone">
+        <input type="file" id="input-cartas-file" accept=".xls,.xlsx,.csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" style="display: none;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" style="margin: 0 auto 0.75rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 0.35rem;" id="dropzone-label">
+          Arraste o arquivo .xls/.xlsx aqui ou <span style="color: #38bdf8; text-decoration: underline;">clique para selecionar</span>
+        </div>
+        <div style="font-size: 0.78rem; color: #94a3b8;" id="dropzone-filename">
+          Suporta formato padrão Excel (.xls, .xlsx) e CSV
+        </div>
+      </div>
+
+      <!-- Atalho para carregar planilha modelo da pasta artefatos -->
+      <div style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; background: rgba(234, 179, 8, 0.08); border: 1px solid rgba(234, 179, 8, 0.25); padding: 0.65rem 1rem; border-radius: var(--radius-sm); flex-wrap: wrap; gap: 0.5rem;">
+        <div style="font-size: 0.82rem; color: #fef08a;">
+          <strong>Planilha do Sistema:</strong> Deseja carregar o arquivo modelo da pasta artefatos?
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-use-model-artefato" style="font-size: 0.78rem; padding: 0.35rem 0.75rem; border-color: rgba(234, 179, 8, 0.5); color: #fef08a;">
+          Carregar artefatos/CartasContempladas.xls
+        </button>
+      </div>
+
+      <!-- Política de Tratamento de Duplicidades -->
+      <div class="duplicate-policy-group">
+        <div style="font-size: 0.82rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
+          Prevenção de Duplicidades (Cód. Cota):
+        </div>
+        
+        <label class="duplicate-policy-option">
+          <input type="radio" name="duplicate_policy" value="upsert" checked>
+          <div class="duplicate-policy-text">
+            <span class="duplicate-policy-title">Atualizar registros existentes e adicionar novos (Upsert - Recomendado)</span>
+            <span class="duplicate-policy-desc">Se o Cód. Cota já existir, atualiza com os dados mais recentes; se for nova, adiciona.</span>
+          </div>
+        </label>
+
+        <label class="duplicate-policy-option">
+          <input type="radio" name="duplicate_policy" value="skip">
+          <div class="duplicate-policy-text">
+            <span class="duplicate-policy-title">Ignorar duplicados (Manter os atuais)</span>
+            <span class="duplicate-policy-desc">Registros que já existirem no sistema não serão alterados. Adiciona somente os novos.</span>
+          </div>
+        </label>
+
+        <label class="duplicate-policy-option">
+          <input type="radio" name="duplicate_policy" value="replace">
+          <div class="duplicate-policy-text">
+            <span class="duplicate-policy-title">Substituição Completa da Base</span>
+            <span class="duplicate-policy-desc">Apaga todos os registros anteriores e importa exclusivamente a nova planilha semanal.</span>
+          </div>
+        </label>
+      </div>
+
+      <!-- Preview de Dados Importados -->
+      <div id="import-preview-container" style="display: none; margin-bottom: 1.25rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+          <span style="font-size:0.8rem; font-weight:600; color:#38bdf8;" id="preview-count-label">Prévia: 0 registros detectados</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Exibindo as primeiras 5 cotas</span>
+        </div>
+        <div class="import-preview-box">
+          <table class="import-preview-table">
+            <thead>
+              <tr style="background: rgba(15,23,42,0.9); color:#94a3b8;">
+                <th>Cód. Cota</th>
+                <th>Categoria</th>
+                <th>Administradora</th>
+                <th>Crédito</th>
+                <th>Entrada</th>
+                <th>Parcelas</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="import-preview-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:0.5rem; justify-content:flex-end; align-items:center;">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-import">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-submit-import" disabled style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);">
+          Confirmar Importação
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE EDIÇÃO / CADASTRO INDIVIDUAL DE CARTA -->
+  <div class="modal-overlay" id="modal-edit-carta" style="z-index: 9997;">
+    <div class="modal-content" style="max-width: 600px;">
+      <button class="modal-close" id="close-modal-edit-carta">&times;</button>
+      <h3 id="modal-edit-carta-title" style="margin-bottom:0.5rem; font-family:var(--font-title);">Editar Carta Contemplada</h3>
+      <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Preencha os dados da cota para atualização ou cadastro no estoque.</p>
+
+      <form id="form-carta-item">
+        <input type="hidden" id="form-carta-original-cod">
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label" for="carta-cod">Cód. Cota *</label>
+            <input type="text" id="carta-cod" class="form-input" required placeholder="Ex: 1199">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="carta-categoria">Categoria *</label>
+            <select id="carta-categoria" class="form-input" required>
+              <option value="Imóvel">Imóvel</option>
+              <option value="Veículo">Veículo</option>
+              <option value="Serviço">Serviço</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label" for="carta-adm">Administradora *</label>
+            <input type="text" id="carta-adm" class="form-input" required placeholder="Ex: Bradesco, Rodobens, Porto Seguro...">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="carta-status">Status *</label>
+            <select id="carta-status" class="form-input" required>
+              <option value="Disponível">Disponível</option>
+              <option value="Reservada">Reservada</option>
+              <option value="Vendida">Vendida</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label" for="carta-credito">Crédito *</label>
+            <input type="text" id="carta-credito" class="form-input" required placeholder="Ex: R$ 1.000.000,00">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="carta-entrada">Entrada *</label>
+            <input type="text" id="carta-entrada" class="form-input" required placeholder="Ex: R$ 450.000,00">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label" for="carta-num-parcelas">Nº Parcelas *</label>
+            <input type="number" id="carta-num-parcelas" class="form-input" required placeholder="Ex: 180">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="carta-vlr-parcela">Valor Parcela *</label>
+            <input type="text" id="carta-vlr-parcela" class="form-input" required placeholder="Ex: R$ 6.500,00">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label" for="carta-saldo-devedor">Saldo Devedor</label>
+            <input type="text" id="carta-saldo-devedor" class="form-input" placeholder="Ex: R$ 1.150.000,00">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="carta-grupo">Grupo</label>
+            <input type="text" id="carta-grupo" class="form-input" placeholder="Ex: 0142">
+          </div>
+        </div>
+
+        <div style="margin-top:1.5rem; display:flex; gap:0.5rem; justify-content:flex-end;">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-edit-carta">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-carta">Salvar Carta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE ALTERAÇÃO DE STATUS EM LOTE -->
+  <div class="modal-overlay" id="modal-batch-status" style="z-index: 9996;">
+    <div class="modal-content" style="max-width: 420px; text-align: left; padding: 2rem;">
+      <button class="modal-close" id="close-modal-batch-status">&times;</button>
+      <h3 style="margin-bottom:0.5rem; font-family:var(--font-title);">Alterar Status em Lote</h3>
+      <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:1.5rem;">
+        Selecione o novo status que será aplicado a todas as <strong id="batch-modal-count" style="color: #38bdf8;">0</strong> cartas selecionadas:
+      </p>
+
+      <div class="form-group">
+        <label class="form-label" for="batch-new-status">Novo Status</label>
+        <select id="batch-new-status" class="form-input">
+          <option value="Disponível">Disponível</option>
+          <option value="Reservada">Reservada</option>
+          <option value="Vendida">Vendida</option>
+        </select>
+      </div>
+
+      <div style="margin-top:1.5rem; display:flex; gap:0.5rem; justify-content:flex-end;">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-batch-status">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-apply-batch-status">Aplicar Alteração</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
   <!-- RODAPÉ DA PÁGINA -->
   <footer>
     <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
-      <p>&copy; 2026 ConsórcioOne • <strong style="color: #60a5fa;">Versão 1.0.5</strong>. Todos os direitos reservados. Plataforma digital de consórcios multimarcas com IA.</p>
+      <p>&copy; 2026 ConsórcioOne • <strong style="color: #60a5fa;">Versão 1.0.6</strong>. Todos os direitos reservados. Plataforma digital de consórcios multimarcas com IA.</p>
       <p style="font-size:0.75rem; color:var(--text-muted);">Administradora oficial vinculada ao regulamento geral de consórcios sob supervisão do BACEN.</p>
     </div>
   </footer>
 
   <script>
-    window.APP_VERSION = '1.0.5';
-    console.log('%c ConsórcioOne V 1.0.5 iniciado ', 'background: #2563eb; color: #fff; font-weight: bold; border-radius: 4px; padding: 2px 6px;');
+    window.APP_VERSION = '1.0.6';
+    console.log('%c ConsórcioOne V 1.0.6 iniciado ', 'background: #2563eb; color: #fff; font-weight: bold; border-radius: 4px; padding: 2px 6px;');
 
     function triggerLogoUpload(event) {
       if (event) { event.preventDefault(); event.stopPropagation(); }
@@ -557,6 +973,6 @@
       }
     }
   </script>
-  <script type="module" src="app.js?v=20260921_v103"></script>
+  <script type="module" src="app.js?v=20261015_v106"></script>
 </body>
 </html>

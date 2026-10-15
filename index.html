@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>C7 Contempla | Simulação e Contratação 100% Digital</title>
   <meta name="description" content="Centralize e automatize a jornada de venda e atendimento de consórcios multimarcas com Inteligência Artificial.">
-  <link rel="stylesheet" href="styles.css?v=20261002_v106">
+  <link rel="stylesheet" href="styles.css?v=20261015_v106">
   <style>
     /* Estilos extras específicos da Landing Page */
     .landing-header {
@@ -459,14 +459,21 @@
       <div class="logo-icon" id="default-logo-icon" style="display: none;">C</div>
       <span id="logo-text" style="display: none;">ConsórcioOne</span>
     </div>
-    <button id="btn-entrar" class="btn-login">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-        <polyline points="10 17 15 12 10 7"/>
-        <line x1="15" y1="12" x2="3" y2="12"/>
-      </svg>
-      Entrar
-    </button>
+    <div class="landing-header-actions">
+      <a href="app.html?view=cartas" id="btn-top-cartas" class="btn-cartas-top" title="Consultar Cartas Já Contempladas com Crédito Imediato">
+        <span class="pulse-dot"></span>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        Cartas Contempladas
+      </a>
+      <button id="btn-entrar" class="btn-login" title="Acessar o Painel do Consultor">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/>
+          <line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        Painel do Consultor
+      </button>
+    </div>
   </header>
 
   <main class="container">
@@ -483,6 +490,39 @@
       <button id="btn-cta" class="btn-login" style="margin: 2rem auto; font-size: 1.1rem; padding: 1rem 2rem;">
         Acessar Simulador Inteligente
       </button>
+    </section>
+
+    <!-- BANNER DE ANÚNCIO: CARTAS CONTEMPLADAS -->
+    <section class="cartas-announcement-section">
+      <div class="cartas-announcement-card">
+        <div class="cartas-announcement-badge">
+          <span class="badge-fire">🔥 Oportunidade Imediata</span>
+          <span class="badge-update">Planilha Atualizada Semanalmente</span>
+        </div>
+        <div class="cartas-announcement-content">
+          <div class="cartas-announcement-text">
+            <h2>Cartas Já Contempladas com Crédito Imediato</h2>
+            <p>
+              Não quer depender de sorteio ou lance? Adquira cotas já contempladas com liberação imediata para <strong>Imóveis</strong> e <strong>Veículos</strong>. Negocie diretamente com nossa equipe pelas melhores taxas do mercado.
+            </p>
+            <div class="cartas-features-chips">
+              <span class="chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> +1.700 Cotas Ativas</span>
+              <span class="chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Bradesco, Porto Seguro, Caixa, Itaú, Embracon e mais</span>
+              <span class="chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Negociação Direta no WhatsApp</span>
+            </div>
+          </div>
+          <div class="cartas-announcement-cta">
+            <a href="app.html?view=cartas" id="btn-banner-cartas" class="btn-cartas-cta">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Acessar Catálogo de Cartas Contempladas
+            </a>
+            <a href="https://wa.me/5521998228936?text=Ol%C3%A1!%20Gostaria%20de%20consultar%20as%20cartas%20contempladas%20dispon%C3%ADveis%20esta%20semana." target="_blank" rel="noopener noreferrer" class="btn-cartas-wpp">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              Falar com Consultor no WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- SEÇÃO CARROSSEL DE CONSÓRCIOS -->
@@ -1079,7 +1119,9 @@
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        window.location.href = 'app.html';
+        const targetUrl = sessionStorage.getItem('redirect_after_login') || 'app.html';
+        sessionStorage.removeItem('redirect_after_login');
+        window.location.href = targetUrl;
       } catch (error) {
         console.error("Erro no login:", error);
         btnLoginEmail.disabled = false;
@@ -1129,7 +1171,9 @@
 
       try {
         await createUserWithEmailAndPassword(auth, email, password);
-        window.location.href = 'app.html';
+        const targetUrl = sessionStorage.getItem('redirect_after_login') || 'app.html';
+        sessionStorage.removeItem('redirect_after_login');
+        window.location.href = targetUrl;
       } catch (error) {
         console.error("Erro no cadastro:", error);
         btnRegisterEmail.disabled = false;
@@ -1208,7 +1252,9 @@
     document.getElementById('btn-login-google').addEventListener('click', async () => {
       try {
         await signInWithPopup(auth, googleProvider);
-        window.location.href = 'app.html';
+        const targetUrl = sessionStorage.getItem('redirect_after_login') || 'app.html';
+        sessionStorage.removeItem('redirect_after_login');
+        window.location.href = targetUrl;
       } catch (error) {
         console.error("Erro no login Google:", error);
         if (error.code === 'auth/unauthorized-domain') {

@@ -12,7 +12,21 @@ const initApp = () => {
     credito: 80000,
     prazo: 60,
     leadCorrente: null,
-    leads: []
+    leads: [],
+    // Estado de Cartas Contempladas
+    cartas: [],
+    cartasFiltered: [],
+    cartasPage: 1,
+    cartasPageSize: 25,
+    cartasSelected: new Set(),
+    cartasFiltros: {
+      cod: '',
+      categoria: '',
+      adm: '',
+      status: '',
+      order: 'cod_desc'
+    },
+    pendingImportData: []
   };
 
   // Carregar dados salvos do localStorage se existirem
@@ -63,10 +77,12 @@ const initApp = () => {
 
   // --- ELEMENTOS DO DOM ---
   const elements = {
-    // Abas de visualização (Portal vs CRM)
+    // Abas de visualização (Portal vs CRM vs Cartas)
     viewPortal: document.getElementById('view-portal'),
     viewCrm: document.getElementById('view-crm'),
+    viewCartas: document.getElementById('view-cartas'),
     togglePortalBtn: document.getElementById('toggle-portal'),
+    toggleCartasBtn: document.getElementById('toggle-cartas'),
     toggleCrmBtn: document.getElementById('toggle-crm'),
 
     // Controles do Simulador
@@ -144,7 +160,58 @@ const initApp = () => {
     btnUploadLogo: document.getElementById('btn-upload-logo'),
     btnUploadLogoText: document.getElementById('btn-upload-logo-text'),
     btnRemoveLogo: document.getElementById('btn-remove-logo'),
-    inputUploadLogo: document.getElementById('input-upload-logo')
+    inputUploadLogo: document.getElementById('input-upload-logo'),
+
+    // Elementos de Cartas Contempladas
+    cartasAdminActions: document.getElementById('cartas-admin-actions'),
+    cartasTbody: document.getElementById('cartas-tbody'),
+    filterCodCota: document.getElementById('filter-cod-cota'),
+    filterCategoria: document.getElementById('filter-categoria'),
+    filterAdministradora: document.getElementById('filter-administradora'),
+    filterStatus: document.getElementById('filter-status'),
+    filterOrder: document.getElementById('filter-order'),
+    btnClearFilters: document.getElementById('btn-clear-filters'),
+    cartasBatchToolbar: document.getElementById('cartas-batch-toolbar'),
+    batchSelectedCount: document.getElementById('batch-selected-count'),
+    checkSelectAll: document.getElementById('check-select-all'),
+    btnBatchStatus: document.getElementById('btn-batch-status'),
+    btnBatchDelete: document.getElementById('btn-batch-delete'),
+    btnBatchClear: document.getElementById('btn-batch-clear'),
+    kpiTotalCartas: document.getElementById('kpi-total-cartas'),
+    kpiDispCartas: document.getElementById('kpi-disp-cartas'),
+    kpiResCartas: document.getElementById('kpi-res-cartas'),
+    kpiVolCredito: document.getElementById('kpi-vol-credito'),
+    cartasPaginationInfo: document.getElementById('cartas-pagination-info'),
+    cartasPaginationControls: document.getElementById('cartas-pagination-controls'),
+    cartasPageSize: document.getElementById('cartas-page-size'),
+    btnOpenImportCartas: document.getElementById('btn-open-import-cartas'),
+    btnAddCarta: document.getElementById('btn-add-carta'),
+    btnLoadDefaultCartas: document.getElementById('btn-load-default-cartas'),
+    btnExportCartasCsv: document.getElementById('btn-export-cartas-csv'),
+    modalImportCartas: document.getElementById('modal-import-cartas'),
+    closeModalImportCartas: document.getElementById('close-modal-import-cartas'),
+    importDropzone: document.getElementById('import-dropzone'),
+    inputCartasFile: document.getElementById('input-cartas-file'),
+    dropzoneLabel: document.getElementById('dropzone-label'),
+    dropzoneFilename: document.getElementById('dropzone-filename'),
+    btnUseModelArtefato: document.getElementById('btn-use-model-artefato'),
+    btnCancelImport: document.getElementById('btn-cancel-import'),
+    btnSubmitImport: document.getElementById('btn-submit-import'),
+    importPreviewContainer: document.getElementById('import-preview-container'),
+    importPreviewTbody: document.getElementById('import-preview-tbody'),
+    previewCountLabel: document.getElementById('preview-count-label'),
+    modalEditCarta: document.getElementById('modal-edit-carta'),
+    closeModalEditCarta: document.getElementById('close-modal-edit-carta'),
+    modalEditCartaTitle: document.getElementById('modal-edit-carta-title'),
+    formCartaItem: document.getElementById('form-carta-item'),
+    formCartaOriginalCod: document.getElementById('form-carta-original-cod'),
+    btnCancelEditCarta: document.getElementById('btn-cancel-edit-carta'),
+    modalBatchStatus: document.getElementById('modal-batch-status'),
+    closeModalBatchStatus: document.getElementById('close-modal-batch-status'),
+    batchModalCount: document.getElementById('batch-modal-count'),
+    batchNewStatus: document.getElementById('batch-new-status'),
+    btnCancelBatchStatus: document.getElementById('btn-cancel-batch-status'),
+    btnApplyBatchStatus: document.getElementById('btn-apply-batch-status')
   };
 
 
@@ -989,15 +1056,31 @@ const initApp = () => {
   // --- NAVEGAÇÃO ENTRE ABAS ---
   elements.togglePortalBtn.addEventListener('click', (e) => {
     elements.togglePortalBtn.classList.add('active');
+    if (elements.toggleCartasBtn) elements.toggleCartasBtn.classList.remove('active');
     elements.toggleCrmBtn.classList.remove('active');
     elements.viewPortal.style.display = 'block';
+    if (elements.viewCartas) elements.viewCartas.classList.remove('active');
     elements.viewCrm.classList.remove('active');
   });
+
+  if (elements.toggleCartasBtn) {
+    elements.toggleCartasBtn.addEventListener('click', (e) => {
+      elements.toggleCartasBtn.classList.add('active');
+      elements.togglePortalBtn.classList.remove('active');
+      elements.toggleCrmBtn.classList.remove('active');
+      elements.viewPortal.style.display = 'none';
+      if (elements.viewCartas) elements.viewCartas.classList.add('active');
+      elements.viewCrm.classList.remove('active');
+      applyCartasFiltersAndRender();
+    });
+  }
 
   elements.toggleCrmBtn.addEventListener('click', (e) => {
     elements.toggleCrmBtn.classList.add('active');
     elements.togglePortalBtn.classList.remove('active');
+    if (elements.toggleCartasBtn) elements.toggleCartasBtn.classList.remove('active');
     elements.viewPortal.style.display = 'none';
+    if (elements.viewCartas) elements.viewCartas.classList.remove('active');
     elements.viewCrm.classList.add('active');
     renderKanban();
   });
@@ -1005,7 +1088,24 @@ const initApp = () => {
   // Inicializar o simulador ao carregar
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      window.location.href = 'index.html'; // Redireciona se não logado
+      // Usuário visitante (acesso direto pelo link de Cartas ou Landing Page)
+      currentUserRole = 'CLIENTE';
+      const userRoleBadgeEl = document.getElementById('user-role-badge');
+      if (userRoleBadgeEl) userRoleBadgeEl.textContent = 'CLIENTE';
+      const userDisplayNameEl = document.getElementById('user-display-name');
+      if (userDisplayNameEl) userDisplayNameEl.textContent = 'Visitante';
+      const userEmailDisplayEl = document.getElementById('user-email-display');
+      if (userEmailDisplayEl) userEmailDisplayEl.textContent = '';
+
+      const btnLogout = document.getElementById('btn-logout');
+      if (btnLogout) {
+        btnLogout.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Entrar`;
+        btnLogout.onclick = () => window.location.href = 'index.html';
+      }
+
+      updateCartasPermissions();
+      loadCartasData();
+      checkUrlNavigation();
       return;
     }
 
@@ -1059,9 +1159,11 @@ const initApp = () => {
       if (btnAdmin) btnAdmin.style.display = 'none';
       if (elements.btnUploadLogo) elements.btnUploadLogo.style.display = 'none';
       if (elements.btnRemoveLogo) elements.btnRemoveLogo.style.display = 'none';
-      const togglePortal = document.getElementById('toggle-portal');
-      if (togglePortal) togglePortal.click();
     }
+
+    updateCartasPermissions();
+    loadCartasData();
+    checkUrlNavigation();
 
     // Carrega os leads
     loadLeads();
@@ -1320,7 +1422,7 @@ const initApp = () => {
   };
 
   // Funções globais acessíveis via onclick e listeners
-  window.APP_VERSION = '1.0.5';
+  window.APP_VERSION = '1.0.6';
   window.loadUsersData = loadUsers;
   window.openAdminUsersModal = () => {
     const modal = document.getElementById('admin-users-modal');
@@ -1444,6 +1546,1034 @@ const initApp = () => {
       }
     });
   }
+
+  // =========================================================================
+  // MÓDULO DE CARTAS CONTEMPLADAS (IMPORTAÇÃO, FILTROS, WHATSAPP E GESTÃO)
+  // =========================================================================
+
+  const parseMoeda = (val) => {
+    if (!val) return 0;
+    if (typeof val === 'number') return val;
+    const clean = String(val).replace(/R\$/g, '').replace(/\./g, '').replace(/,/g, '.').trim();
+    const num = parseFloat(clean);
+    return isNaN(num) ? 0 : num;
+  };
+
+  const formatMoeda = (val) => {
+    return (val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  };
+
+  const parseHtmlTableXls = (htmlString) => {
+    const trMatches = htmlString.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
+    if (trMatches.length === 0) return [];
+
+    const items = [];
+    for (let i = 1; i < trMatches.length; i++) {
+      const tdMatches = trMatches[i].match(/<td[^>]*>([\s\S]*?)<\/td>/gi) || [];
+      const cells = tdMatches.map(td => td.replace(/<[^>]+>/g, '').trim());
+      if (cells.length >= 7 && cells[0]) {
+        items.push({
+          cod_cota: cells[0] || '',
+          categoria: cells[1] || 'Imóvel',
+          credito: cells[2] || '',
+          entrada: cells[3] || '',
+          num_parcelas: cells[4] || '',
+          vlr_parcela: cells[5] || '',
+          saldo_devedor: cells[6] || '',
+          fundo_comum: cells[7] || '',
+          ref_garantia: cells[8] || '',
+          administradora: cells[9] || 'Consórcio',
+          grupo: cells[10] || '',
+          status: cells[11] || 'Disponível',
+          updated_at: new Date().toISOString()
+        });
+      }
+    }
+    return items;
+  };
+
+  const parseCsvText = (csvString) => {
+    const lines = csvString.split(/\r?\n/).filter(line => line.trim().length > 0);
+    if (lines.length <= 1) return [];
+
+    const delimiter = lines[0].includes(';') ? ';' : ',';
+    const items = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(delimiter).map(col => col.replace(/^"|"$/g, '').trim());
+      if (cols.length >= 6 && cols[0]) {
+        items.push({
+          cod_cota: cols[0],
+          categoria: cols[1] || 'Imóvel',
+          credito: cols[2] || '',
+          entrada: cols[3] || '',
+          num_parcelas: cols[4] || '',
+          vlr_parcela: cols[5] || '',
+          saldo_devedor: cols[6] || '',
+          administradora: cols[7] || 'Consórcio',
+          status: cols[8] || 'Disponível',
+          grupo: cols[9] || '',
+          updated_at: new Date().toISOString()
+        });
+      }
+    }
+    return items;
+  };
+
+  const loadCartasData = async () => {
+    try {
+      const stored = localStorage.getItem('consorcio_cartas_contempladas');
+      if (stored) {
+        state.cartas = JSON.parse(stored);
+      }
+    } catch (e) {
+      console.warn("Erro ao ler localStorage de cartas:", e);
+    }
+
+    if (!state.cartas || state.cartas.length === 0) {
+      await loadDefaultCartasFromFile(false);
+    } else {
+      populateAdministradorasFilter();
+      applyCartasFiltersAndRender();
+    }
+  };
+
+  const loadDefaultCartasFromFile = async (showNotification = false) => {
+    try {
+      let loadedItems = [];
+      try {
+        const respJson = await fetch('artefatos/cartas_default.json');
+        if (respJson.ok) {
+          loadedItems = await respJson.json();
+        }
+      } catch (e) {}
+
+      if (!loadedItems || loadedItems.length === 0) {
+        const respXls = await fetch('artefatos/CartasContempladas.xls');
+        if (respXls.ok) {
+          const text = await respXls.text();
+          loadedItems = parseHtmlTableXls(text);
+        }
+      }
+
+      if (loadedItems && loadedItems.length > 0) {
+        state.cartas = loadedItems;
+        saveCartasData();
+        populateAdministradorasFilter();
+        applyCartasFiltersAndRender();
+
+        if (showNotification) {
+          showAlert(`Planilha modelo carregada com sucesso! ${state.cartas.length.toLocaleString('pt-BR')} cartas contempladas prontas para consulta.`, 'Modelo Importado');
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao carregar modelo:", err);
+      if (showNotification) {
+        showAlert('Erro ao ler arquivo modelo da pasta artefatos.', 'Erro');
+      }
+    }
+  };
+
+  const saveCartasData = () => {
+    try {
+      localStorage.setItem('consorcio_cartas_contempladas', JSON.stringify(state.cartas));
+    } catch (e) {
+      console.warn("Erro ao persistir cartas localmente:", e);
+    }
+    updateCartasKPIs();
+  };
+
+  const populateAdministradorasFilter = () => {
+    if (!elements.filterAdministradora) return;
+    const currentVal = elements.filterAdministradora.value;
+    const uniqueAdms = Array.from(new Set(state.cartas.map(c => (c.administradora || '').trim()).filter(Boolean))).sort();
+
+    let html = '<option value="">Todas as Administradoras</option>';
+    uniqueAdms.forEach(adm => {
+      html += `<option value="${adm}">${adm}</option>`;
+    });
+    elements.filterAdministradora.innerHTML = html;
+    if (uniqueAdms.includes(currentVal)) {
+      elements.filterAdministradora.value = currentVal;
+    }
+  };
+
+  const updateCartasKPIs = () => {
+    const total = state.cartas.length;
+    const disp = state.cartas.filter(c => (c.status || '').toLowerCase() === 'disponível').length;
+    const res = state.cartas.filter(c => (c.status || '').toLowerCase() === 'reservada').length;
+    const totalVol = state.cartas
+      .filter(c => (c.status || '').toLowerCase() === 'disponível')
+      .reduce((sum, c) => sum + parseMoeda(c.credito), 0);
+
+    if (elements.kpiTotalCartas) elements.kpiTotalCartas.textContent = total.toLocaleString('pt-BR');
+    if (elements.kpiDispCartas) elements.kpiDispCartas.textContent = disp.toLocaleString('pt-BR');
+    if (elements.kpiResCartas) elements.kpiResCartas.textContent = res.toLocaleString('pt-BR');
+    if (elements.kpiVolCredito) elements.kpiVolCredito.textContent = formatMoeda(totalVol);
+  };
+
+  const applyCartasFiltersAndRender = () => {
+    const codQuery = (elements.filterCodCota ? elements.filterCodCota.value : '').trim().toLowerCase();
+    const catQuery = elements.filterCategoria ? elements.filterCategoria.value : '';
+    const admQuery = elements.filterAdministradora ? elements.filterAdministradora.value : '';
+    const statusQuery = elements.filterStatus ? elements.filterStatus.value : '';
+    const orderQuery = elements.filterOrder ? elements.filterOrder.value : 'cod_desc';
+
+    state.cartasFiltered = state.cartas.filter(c => {
+      if (codQuery && !(c.cod_cota || '').toLowerCase().includes(codQuery)) {
+        return false;
+      }
+      if (catQuery && (c.categoria || '').toLowerCase() !== catQuery.toLowerCase()) {
+        return false;
+      }
+      if (admQuery && (c.administradora || '').trim().toLowerCase() !== admQuery.trim().toLowerCase()) {
+        return false;
+      }
+      if (statusQuery && (c.status || '').trim().toLowerCase() !== statusQuery.trim().toLowerCase()) {
+        return false;
+      }
+      return true;
+    });
+
+    state.cartasFiltered.sort((a, b) => {
+      const codA = parseInt(a.cod_cota) || 0;
+      const codB = parseInt(b.cod_cota) || 0;
+      const credA = parseMoeda(a.credito);
+      const credB = parseMoeda(b.credito);
+      const entA = parseMoeda(a.entrada);
+      const entB = parseMoeda(b.entrada);
+      const parcA = parseMoeda(a.vlr_parcela);
+      const parcB = parseMoeda(b.vlr_parcela);
+
+      switch (orderQuery) {
+        case 'cod_asc': return codA - codB;
+        case 'cod_desc': return codB - codA;
+        case 'credito_desc': return credB - credA;
+        case 'credito_asc': return credA - credB;
+        case 'entrada_asc': return entA - entB;
+        case 'entrada_desc': return entB - entA;
+        case 'parcela_asc': return parcA - parcB;
+        default: return codB - codA;
+      }
+    });
+
+    updateCartasKPIs();
+
+    const totalItems = state.cartasFiltered.length;
+    const pageSize = state.cartasPageSize || 25;
+    const totalPages = Math.ceil(totalItems / pageSize) || 1;
+
+    if (state.cartasPage > totalPages) state.cartasPage = totalPages;
+    if (state.cartasPage < 1) state.cartasPage = 1;
+
+    const startIdx = (state.cartasPage - 1) * pageSize;
+    const endIdx = Math.min(startIdx + pageSize, totalItems);
+    const pageItems = state.cartasFiltered.slice(startIdx, endIdx);
+
+    renderCartasTable(pageItems);
+
+    if (elements.cartasPaginationInfo) {
+      if (totalItems === 0) {
+        elements.cartasPaginationInfo.textContent = 'Nenhuma carta contemplada encontrada com os filtros selecionados';
+      } else {
+        elements.cartasPaginationInfo.textContent = `Exibindo ${startIdx + 1} a ${endIdx} de ${totalItems.toLocaleString('pt-BR')} cartas contempladas`;
+      }
+    }
+
+    renderCartasPagination(totalPages);
+    updateBatchToolbar();
+  };
+
+  const renderCartasTable = (items) => {
+    if (!elements.cartasTbody) return;
+
+    const isAdm = currentUserRole === 'ADM';
+    const isOperador = currentUserRole === 'OPERADOR';
+    const canManage = isAdm || isOperador;
+
+    if (!items || items.length === 0) {
+      elements.cartasTbody.innerHTML = `
+        <tr>
+          <td colspan="10" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 0.75rem; opacity: 0.5;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <div style="font-size: 1.05rem; font-weight: 600; color: #f1f5f9;">Nenhuma carta encontrada</div>
+            <div style="font-size: 0.85rem; margin-top: 0.25rem;">Tente ajustar os filtros de pesquisa ou pesquisar por outro código de cota.</div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    let html = '';
+    items.forEach(c => {
+      const isSelected = state.cartasSelected.has(c.cod_cota);
+      const isImovel = (c.categoria || '').toLowerCase().includes('imóvel') || (c.categoria || '').toLowerCase().includes('imovel');
+      const catClass = isImovel ? 'badge-cat-imovel' : 'badge-cat-veiculo';
+      const catIcon = isImovel 
+        ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'
+        : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>';
+
+      const statusLower = (c.status || '').toLowerCase();
+      let statusClass = 'badge-status-disponivel';
+      if (statusLower.includes('reservad')) statusClass = 'badge-status-reservada';
+      else if (statusLower.includes('vendid')) statusClass = 'badge-status-vendida';
+
+      html += `
+        <tr class="${isSelected ? 'selected' : ''}" data-cod="${c.cod_cota}">
+          ${canManage ? `
+            <td style="text-align: center;">
+              <input type="checkbox" class="check-carta-item" data-cod="${c.cod_cota}" ${isSelected ? 'checked' : ''}>
+            </td>
+          ` : '<td style="display:none;"></td>'}
+          <td><strong style="color: #38bdf8; font-size: 0.95rem;">#${c.cod_cota}</strong></td>
+          <td>
+            <span class="badge-cat ${catClass}">
+              ${catIcon}
+              ${c.categoria || 'Consórcio'}
+            </span>
+          </td>
+          <td><strong style="color: #ffffff;">${c.administradora || '-'}</strong>${c.grupo ? ` <span style="font-size:0.75rem; color:var(--text-muted);">(Gr. ${c.grupo})</span>` : ''}</td>
+          <td><strong style="color: #34d399; font-size: 0.95rem;">${c.credito || '-'}</strong></td>
+          <td><strong style="color: #fbbf24;">${c.entrada || '-'}</strong></td>
+          <td>
+            <div style="font-weight: 600; color: #f1f5f9;">${c.num_parcelas ? `${c.num_parcelas}x` : ''} ${c.vlr_parcela ? `de ${c.vlr_parcela}` : ''}</div>
+          </td>
+          <td style="color: var(--text-muted); font-size: 0.85rem;">${c.saldo_devedor || '-'}</td>
+          <td>
+            <span class="badge-status ${statusClass}">
+              ${c.status || 'Disponível'}
+            </span>
+          </td>
+          <td style="text-align: right;">
+            <div class="cell-actions" style="justify-content: flex-end;">
+              <button type="button" class="btn-action-wpp" data-action="wpp" data-cod="${c.cod_cota}" title="Negociar esta cota no WhatsApp">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                Negociar
+              </button>
+              ${canManage ? `
+                <button type="button" class="btn-action-icon" data-action="edit" data-cod="${c.cod_cota}" title="Editar Cota">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+              ` : ''}
+              ${isAdm ? `
+                <button type="button" class="btn-action-icon btn-delete" data-action="delete" data-cod="${c.cod_cota}" title="Excluir Cota">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+
+    elements.cartasTbody.innerHTML = html;
+  };
+
+  const renderCartasPagination = (totalPages) => {
+    if (!elements.cartasPaginationControls) return;
+
+    if (totalPages <= 1) {
+      elements.cartasPaginationControls.innerHTML = '';
+      return;
+    }
+
+    const current = state.cartasPage;
+    let html = '';
+
+    html += `<button type="button" class="btn-page" ${current === 1 ? 'disabled' : ''} data-page="${current - 1}">&laquo;</button>`;
+
+    let startPage = Math.max(1, current - 2);
+    let endPage = Math.min(totalPages, current + 2);
+
+    if (startPage > 1) {
+      html += `<button type="button" class="btn-page" data-page="1">1</button>`;
+      if (startPage > 2) html += `<span style="color:var(--text-muted); padding:0 0.25rem;">...</span>`;
+    }
+
+    for (let p = startPage; p <= endPage; p++) {
+      html += `<button type="button" class="btn-page ${p === current ? 'active' : ''}" data-page="${p}">${p}</button>`;
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) html += `<span style="color:var(--text-muted); padding:0 0.25rem;">...</span>`;
+      html += `<button type="button" class="btn-page" data-page="${totalPages}">${totalPages}</button>`;
+    }
+
+    html += `<button type="button" class="btn-page" ${current === totalPages ? 'disabled' : ''} data-page="${current + 1}">&raquo;</button>`;
+
+    elements.cartasPaginationControls.innerHTML = html;
+  };
+
+  const openWhatsAppNegotiation = (codCota) => {
+    const carta = state.cartas.find(c => String(c.cod_cota) === String(codCota));
+    if (!carta) return;
+
+    const phone = '5521998228936';
+    const text = `Olá! Tenho interesse na Carta Contemplada Cód. ${carta.cod_cota} (${carta.categoria} - ${carta.administradora}).\n` +
+                 `• Crédito: ${carta.credito}\n` +
+                 `• Entrada: ${carta.entrada}\n` +
+                 `• Parcelas: ${carta.num_parcelas}x de ${carta.vlr_parcela}\n` +
+                 `• Saldo Devedor: ${carta.saldo_devedor || 'A consultar'}\n\n` +
+                 `Gostaria de verificar a disponibilidade e condições para transferência desta cota.`;
+
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  const updateBatchToolbar = () => {
+    if (!elements.cartasBatchToolbar) return;
+    const isAdm = currentUserRole === 'ADM';
+    const isOperador = currentUserRole === 'OPERADOR';
+    const canManage = isAdm || isOperador;
+
+    const count = state.cartasSelected.size;
+    if (canManage && count > 0) {
+      elements.cartasBatchToolbar.classList.add('active');
+      if (elements.batchSelectedCount) elements.batchSelectedCount.textContent = count;
+      if (elements.batchModalCount) elements.batchModalCount.textContent = count;
+    } else {
+      elements.cartasBatchToolbar.classList.remove('active');
+    }
+
+    if (elements.checkSelectAll) {
+      const pageCheckboxes = document.querySelectorAll('.check-carta-item');
+      if (pageCheckboxes.length > 0) {
+        const allChecked = Array.from(pageCheckboxes).every(cb => cb.checked);
+        elements.checkSelectAll.checked = allChecked;
+      } else {
+        elements.checkSelectAll.checked = false;
+      }
+    }
+  };
+
+  const parseUploadedCartasFile = async (file) => {
+    try {
+      let items = [];
+      const fileName = file.name.toLowerCase();
+
+      if (fileName.endsWith('.csv')) {
+        const text = await file.text();
+        items = parseCsvText(text);
+      } else {
+        const text = await file.text();
+        if (text.includes('<table') || text.includes('<tr')) {
+          items = parseHtmlTableXls(text);
+        } else if (window.XLSX) {
+          const buffer = await file.arrayBuffer();
+          const wb = window.XLSX.read(buffer, { type: 'array' });
+          const firstSheetName = wb.SheetNames[0];
+          const ws = wb.Sheets[firstSheetName];
+          const jsonRows = window.XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+          items = jsonRows.map(row => {
+            const cod = row['Cód. Cota'] || row['Cod. Cota'] || row['Cota'] || row['Cód.'] || row['COD'] || row['Codigo'] || '';
+            const cat = row['Categoria'] || row['Tipo'] || 'Imóvel';
+            const cred = row['Crédito'] || row['Credito'] || row['Valor'] || '';
+            const ent = row['Entrada'] || row['Valor Entrada'] || '';
+            const parc = row['Nº Parcelas'] || row['Parcelas'] || row['Prazo'] || '';
+            const vlrParc = row['Vlr Parcela'] || row['Valor Parcela'] || row['Parcela'] || '';
+            const saldo = row['Saldo devedor'] || row['Saldo Devedor'] || '';
+            const adm = row['Administradora'] || row['Admin'] || row['Consórcio'] || 'Consórcio';
+            const status = row['Status'] || row['Situação'] || 'Disponível';
+            const grupo = row['Grupo'] || '';
+
+            return {
+              cod_cota: String(cod).trim(),
+              categoria: String(cat).trim(),
+              credito: String(cred).trim(),
+              entrada: String(ent).trim(),
+              num_parcelas: String(parc).trim(),
+              vlr_parcela: String(vlrParc).trim(),
+              saldo_devedor: String(saldo).trim(),
+              fundo_comum: '',
+              ref_garantia: '',
+              administradora: String(adm).trim(),
+              grupo: String(grupo).trim(),
+              status: String(status).trim() || 'Disponível',
+              updated_at: new Date().toISOString()
+            };
+          }).filter(c => c.cod_cota.length > 0);
+        }
+      }
+
+      if (items.length === 0) {
+        showAlert('Nenhuma linha de cota válida encontrada no arquivo fornecido. Verifique as colunas do arquivo.', 'Formato Inválido');
+        return;
+      }
+
+      state.pendingImportData = items;
+      renderImportPreview(items);
+      if (elements.btnSubmitImport) elements.btnSubmitImport.disabled = false;
+      if (elements.dropzoneFilename) elements.dropzoneFilename.textContent = `Arquivo carregado: ${file.name} (${items.length} cotas detectadas)`;
+
+    } catch (err) {
+      console.error("Erro ao analisar arquivo de cartas:", err);
+      showAlert('Erro ao processar o arquivo selecionado. Verifique o formato e tente novamente.', 'Erro no Processamento');
+    }
+  };
+
+  const renderImportPreview = (items) => {
+    if (!elements.importPreviewContainer || !elements.importPreviewTbody) return;
+    elements.importPreviewContainer.style.display = 'block';
+    if (elements.previewCountLabel) {
+      elements.previewCountLabel.textContent = `Prévia: ${items.length.toLocaleString('pt-BR')} registros detectados`;
+    }
+
+    const previewItems = items.slice(0, 5);
+    elements.importPreviewTbody.innerHTML = previewItems.map(c => `
+      <tr>
+        <td><strong>#${c.cod_cota}</strong></td>
+        <td>${c.categoria}</td>
+        <td>${c.administradora}</td>
+        <td>${c.credito}</td>
+        <td>${c.entrada}</td>
+        <td>${c.num_parcelas}x ${c.vlr_parcela}</td>
+        <td>${c.status}</td>
+      </tr>
+    `).join('');
+  };
+
+  const executeImportCartas = () => {
+    if (!state.pendingImportData || state.pendingImportData.length === 0) return;
+
+    const policyRadio = document.querySelector('input[name="duplicate_policy"]:checked');
+    const policy = policyRadio ? policyRadio.value : 'upsert';
+
+    let insertedCount = 0;
+    let updatedCount = 0;
+    let skippedCount = 0;
+
+    if (policy === 'replace') {
+      state.cartas = [...state.pendingImportData];
+      insertedCount = state.pendingImportData.length;
+    } else {
+      const existingMap = new Map();
+      state.cartas.forEach((c, idx) => {
+        existingMap.set(String(c.cod_cota).trim(), idx);
+      });
+
+      state.pendingImportData.forEach(newItem => {
+        const cod = String(newItem.cod_cota).trim();
+        if (existingMap.has(cod)) {
+          if (policy === 'upsert') {
+            const idx = existingMap.get(cod);
+            state.cartas[idx] = { ...state.cartas[idx], ...newItem };
+            updatedCount++;
+          } else if (policy === 'skip') {
+            skippedCount++;
+          }
+        } else {
+          state.cartas.unshift(newItem);
+          existingMap.set(cod, 0);
+          insertedCount++;
+        }
+      });
+    }
+
+    saveCartasData();
+    populateAdministradorasFilter();
+    applyCartasFiltersAndRender();
+
+    if (elements.modalImportCartas) elements.modalImportCartas.classList.remove('active');
+    state.pendingImportData = [];
+    if (elements.btnSubmitImport) elements.btnSubmitImport.disabled = true;
+    if (elements.importPreviewContainer) elements.importPreviewContainer.style.display = 'none';
+
+    showAlert(
+      `<strong>Importação Concluída com Sucesso!</strong><br><br>` +
+      `• Total processado: <strong>${(insertedCount + updatedCount + skippedCount).toLocaleString('pt-BR')}</strong><br>` +
+      `• Novas cotas adicionadas: <strong style="color:#34d399;">${insertedCount.toLocaleString('pt-BR')}</strong><br>` +
+      `• Cotas existentes atualizadas: <strong style="color:#38bdf8;">${updatedCount.toLocaleString('pt-BR')}</strong><br>` +
+      `• Duplicados mantidos/ignorados: <strong style="color:#fbbf24;">${skippedCount.toLocaleString('pt-BR')}</strong>`,
+      'Importação Concluída'
+    );
+  };
+
+  const openEditCartaModal = (codCota = null) => {
+    if (!elements.modalEditCarta) return;
+
+    if (codCota) {
+      const carta = state.cartas.find(c => String(c.cod_cota) === String(codCota));
+      if (!carta) return;
+
+      if (elements.modalEditCartaTitle) elements.modalEditCartaTitle.textContent = `Editar Carta Cód. #${carta.cod_cota}`;
+      if (elements.formCartaOriginalCod) elements.formCartaOriginalCod.value = carta.cod_cota;
+
+      document.getElementById('carta-cod').value = carta.cod_cota;
+      document.getElementById('carta-categoria').value = carta.categoria || 'Imóvel';
+      document.getElementById('carta-adm').value = carta.administradora || '';
+      document.getElementById('carta-status').value = carta.status || 'Disponível';
+      document.getElementById('carta-credito').value = carta.credito || '';
+      document.getElementById('carta-entrada').value = carta.entrada || '';
+      document.getElementById('carta-num-parcelas').value = carta.num_parcelas || '';
+      document.getElementById('carta-vlr-parcela').value = carta.vlr_parcela || '';
+      document.getElementById('carta-saldo-devedor').value = carta.saldo_devedor || '';
+      document.getElementById('carta-grupo').value = carta.grupo || '';
+    } else {
+      if (elements.modalEditCartaTitle) elements.modalEditCartaTitle.textContent = 'Nova Carta Contemplada';
+      if (elements.formCartaOriginalCod) elements.formCartaOriginalCod.value = '';
+      if (elements.formCartaItem) elements.formCartaItem.reset();
+    }
+
+    elements.modalEditCarta.classList.add('active');
+  };
+
+  const saveCartaForm = (e) => {
+    e.preventDefault();
+
+    const originalCod = elements.formCartaOriginalCod ? elements.formCartaOriginalCod.value : '';
+    const newCod = document.getElementById('carta-cod').value.trim();
+
+    if (!newCod) {
+      showAlert('Por favor, informe o Código da Cota.', 'Campo Obrigatório');
+      return;
+    }
+
+    if ((!originalCod || originalCod !== newCod) && state.cartas.some(c => String(c.cod_cota) === newCod)) {
+      showAlert(`Já existe uma carta cadastrada com o Código "${newCod}". Altere o código para evitar duplicidade.`, 'Cota Duplicada');
+      return;
+    }
+
+    const cartaData = {
+      cod_cota: newCod,
+      categoria: document.getElementById('carta-categoria').value,
+      administradora: document.getElementById('carta-adm').value.trim(),
+      status: document.getElementById('carta-status').value,
+      credito: document.getElementById('carta-credito').value.trim(),
+      entrada: document.getElementById('carta-entrada').value.trim(),
+      num_parcelas: document.getElementById('carta-num-parcelas').value.trim(),
+      vlr_parcela: document.getElementById('carta-vlr-parcela').value.trim(),
+      saldo_devedor: document.getElementById('carta-saldo-devedor').value.trim(),
+      grupo: document.getElementById('carta-grupo').value.trim(),
+      updated_at: new Date().toISOString()
+    };
+
+    if (originalCod) {
+      const idx = state.cartas.findIndex(c => String(c.cod_cota) === String(originalCod));
+      if (idx !== -1) {
+        state.cartas[idx] = { ...state.cartas[idx], ...cartaData };
+      }
+    } else {
+      state.cartas.unshift(cartaData);
+    }
+
+    saveCartasData();
+    populateAdministradorasFilter();
+    applyCartasFiltersAndRender();
+
+    if (elements.modalEditCarta) elements.modalEditCarta.classList.remove('active');
+    showAlert(originalCod ? 'Carta atualizada com sucesso!' : 'Nova carta cadastrada com sucesso!', 'Sucesso');
+  };
+
+  const confirmDeleteCarta = (codCota) => {
+    showConfirm(
+      `Deseja realmente excluir a carta contemplada <strong>#${codCota}</strong>? Esta ação não pode ser desfeita.`,
+      'Excluir Carta',
+      () => {
+        state.cartas = state.cartas.filter(c => String(c.cod_cota) !== String(codCota));
+        state.cartasSelected.delete(String(codCota));
+        saveCartasData();
+        populateAdministradorasFilter();
+        applyCartasFiltersAndRender();
+        showAlert(`Carta #${codCota} excluída com sucesso.`, 'Carta Excluída');
+      },
+      'Excluir',
+      true
+    );
+  };
+
+  const executeBatchStatus = () => {
+    const newStatus = elements.batchNewStatus ? elements.batchNewStatus.value : 'Disponível';
+    if (state.cartasSelected.size === 0) return;
+
+    let updated = 0;
+    state.cartas.forEach(c => {
+      if (state.cartasSelected.has(String(c.cod_cota))) {
+        c.status = newStatus;
+        c.updated_at = new Date().toISOString();
+        updated++;
+      }
+    });
+
+    state.cartasSelected.clear();
+    saveCartasData();
+    applyCartasFiltersAndRender();
+
+    if (elements.modalBatchStatus) elements.modalBatchStatus.classList.remove('active');
+    showAlert(`Status de ${updated} cartas alterado para "${newStatus}" com sucesso!`, 'Lote Atualizado');
+  };
+
+  const confirmBatchDelete = () => {
+    const count = state.cartasSelected.size;
+    if (count === 0) return;
+
+    showConfirm(
+      `Deseja realmente excluir as <strong>${count}</strong> cartas selecionadas? Esta ação removerá os registros definitivamente.`,
+      'Excluir em Lote',
+      () => {
+        state.cartas = state.cartas.filter(c => !state.cartasSelected.has(String(c.cod_cota)));
+        state.cartasSelected.clear();
+        saveCartasData();
+        populateAdministradorasFilter();
+        applyCartasFiltersAndRender();
+        showAlert(`${count} cartas foram excluídas com sucesso.`, 'Exclusão Concluída');
+      },
+      'Excluir Selecionadas',
+      true
+    );
+  };
+
+  const exportCartasCsv = () => {
+    const list = state.cartasFiltered && state.cartasFiltered.length > 0 ? state.cartasFiltered : state.cartas;
+    if (list.length === 0) {
+      showAlert('Nenhuma carta disponível para exportação.', 'Aviso');
+      return;
+    }
+
+    const headers = ['Cód. Cota', 'Categoria', 'Crédito', 'Entrada', 'Nº Parcelas', 'Vlr Parcela', 'Saldo devedor', 'Administradora', 'Grupo', 'Status'];
+    const rows = list.map(c => [
+      `"${c.cod_cota || ''}"`,
+      `"${c.categoria || ''}"`,
+      `"${c.credito || ''}"`,
+      `"${c.entrada || ''}"`,
+      `"${c.num_parcelas || ''}"`,
+      `"${c.vlr_parcela || ''}"`,
+      `"${c.saldo_devedor || ''}"`,
+      `"${c.administradora || ''}"`,
+      `"${c.grupo || ''}"`,
+      `"${c.status || ''}"`
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `cartas_contempladas_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const checkUrlNavigation = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('view') === 'cartas') {
+      if (elements.toggleCartasBtn) elements.toggleCartasBtn.click();
+    }
+  };
+
+  const updateCartasPermissions = () => {
+    const isAdm = currentUserRole === 'ADM';
+    const isOperador = currentUserRole === 'OPERADOR';
+    const canManage = isAdm || isOperador;
+
+    if (elements.cartasAdminActions) {
+      elements.cartasAdminActions.style.display = canManage ? 'flex' : 'none';
+    }
+
+    const thCheck = document.getElementById('th-check-all');
+    if (thCheck) {
+      thCheck.style.display = canManage ? 'table-cell' : 'none';
+    }
+  };
+
+  // --- LISTENERS DE CARTAS CONTEMPLADAS ---
+  const setupCartasEventListeners = () => {
+    // Filtros de pesquisa
+    if (elements.filterCodCota) {
+      elements.filterCodCota.addEventListener('input', () => {
+        state.cartasPage = 1;
+        applyCartasFiltersAndRender();
+      });
+    }
+
+    if (elements.filterCategoria) {
+      elements.filterCategoria.addEventListener('change', () => {
+        state.cartasPage = 1;
+        applyCartasFiltersAndRender();
+      });
+    }
+
+    if (elements.filterAdministradora) {
+      elements.filterAdministradora.addEventListener('change', () => {
+        state.cartasPage = 1;
+        applyCartasFiltersAndRender();
+      });
+    }
+
+    if (elements.filterStatus) {
+      elements.filterStatus.addEventListener('change', () => {
+        state.cartasPage = 1;
+        applyCartasFiltersAndRender();
+      });
+    }
+
+    if (elements.filterOrder) {
+      elements.filterOrder.addEventListener('change', () => {
+        applyCartasFiltersAndRender();
+      });
+    }
+
+    if (elements.btnClearFilters) {
+      elements.btnClearFilters.addEventListener('click', () => {
+        if (elements.filterCodCota) elements.filterCodCota.value = '';
+        if (elements.filterCategoria) elements.filterCategoria.value = '';
+        if (elements.filterAdministradora) elements.filterAdministradora.value = '';
+        if (elements.filterStatus) elements.filterStatus.value = '';
+        if (elements.filterOrder) elements.filterOrder.value = 'cod_desc';
+        state.cartasPage = 1;
+        applyCartasFiltersAndRender();
+      });
+    }
+
+    if (elements.cartasPageSize) {
+      elements.cartasPageSize.addEventListener('change', () => {
+        state.cartasPageSize = parseInt(elements.cartasPageSize.value) || 25;
+        state.cartasPage = 1;
+        applyCartasFiltersAndRender();
+      });
+    }
+
+    // Paginação
+    if (elements.cartasPaginationControls) {
+      elements.cartasPaginationControls.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-page');
+        if (btn && !btn.disabled && btn.getAttribute('data-page')) {
+          state.cartasPage = parseInt(btn.getAttribute('data-page')) || 1;
+          applyCartasFiltersAndRender();
+          const tableElem = document.getElementById('table-cartas');
+          if (tableElem) tableElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+
+    // Tabela: cliques nas ações (WhatsApp, Editar, Excluir, Checkbox)
+    if (elements.cartasTbody) {
+      elements.cartasTbody.addEventListener('click', (e) => {
+        const wppBtn = e.target.closest('[data-action="wpp"]');
+        if (wppBtn) {
+          const cod = wppBtn.getAttribute('data-cod');
+          openWhatsAppNegotiation(cod);
+          return;
+        }
+
+        const editBtn = e.target.closest('[data-action="edit"]');
+        if (editBtn) {
+          const cod = editBtn.getAttribute('data-cod');
+          openEditCartaModal(cod);
+          return;
+        }
+
+        const deleteBtn = e.target.closest('[data-action="delete"]');
+        if (deleteBtn) {
+          const cod = deleteBtn.getAttribute('data-cod');
+          confirmDeleteCarta(cod);
+          return;
+        }
+
+        const checkbox = e.target.closest('.check-carta-item');
+        if (checkbox) {
+          const cod = checkbox.getAttribute('data-cod');
+          if (checkbox.checked) {
+            state.cartasSelected.add(cod);
+          } else {
+            state.cartasSelected.delete(cod);
+          }
+          const tr = checkbox.closest('tr');
+          if (tr) tr.classList.toggle('selected', checkbox.checked);
+          updateBatchToolbar();
+          return;
+        }
+      });
+    }
+
+    // Selecionar todos na página
+    if (elements.checkSelectAll) {
+      elements.checkSelectAll.addEventListener('change', (e) => {
+        const isChecked = e.target.checked;
+        const pageCheckboxes = document.querySelectorAll('.check-carta-item');
+        pageCheckboxes.forEach(cb => {
+          cb.checked = isChecked;
+          const cod = cb.getAttribute('data-cod');
+          if (isChecked) {
+            state.cartasSelected.add(cod);
+          } else {
+            state.cartasSelected.delete(cod);
+          }
+          const tr = cb.closest('tr');
+          if (tr) tr.classList.toggle('selected', isChecked);
+        });
+        updateBatchToolbar();
+      });
+    }
+
+    // Botões da Barra de Ações em Lote
+    if (elements.btnBatchClear) {
+      elements.btnBatchClear.addEventListener('click', () => {
+        state.cartasSelected.clear();
+        applyCartasFiltersAndRender();
+      });
+    }
+
+    if (elements.btnBatchStatus) {
+      elements.btnBatchStatus.addEventListener('click', () => {
+        if (state.cartasSelected.size === 0) return;
+        if (elements.batchModalCount) elements.batchModalCount.textContent = state.cartasSelected.size;
+        if (elements.modalBatchStatus) elements.modalBatchStatus.classList.add('active');
+      });
+    }
+
+    if (elements.closeModalBatchStatus) {
+      elements.closeModalBatchStatus.addEventListener('click', () => {
+        if (elements.modalBatchStatus) elements.modalBatchStatus.classList.remove('active');
+      });
+    }
+
+    if (elements.btnCancelBatchStatus) {
+      elements.btnCancelBatchStatus.addEventListener('click', () => {
+        if (elements.modalBatchStatus) elements.modalBatchStatus.classList.remove('active');
+      });
+    }
+
+    if (elements.btnApplyBatchStatus) {
+      elements.btnApplyBatchStatus.addEventListener('click', executeBatchStatus);
+    }
+
+    if (elements.btnBatchDelete) {
+      elements.btnBatchDelete.addEventListener('click', confirmBatchDelete);
+    }
+
+    // Botão Adicionar Nova Carta
+    if (elements.btnAddCarta) {
+      elements.btnAddCarta.addEventListener('click', () => openEditCartaModal(null));
+    }
+
+    // Botão Carregar Modelo da pasta artefatos
+    if (elements.btnLoadDefaultCartas) {
+      elements.btnLoadDefaultCartas.addEventListener('click', () => loadDefaultCartasFromFile(true));
+    }
+
+    // Botão Exportar CSV
+    if (elements.btnExportCartasCsv) {
+      elements.btnExportCartasCsv.addEventListener('click', exportCartasCsv);
+    }
+
+    // Modal Importação
+    if (elements.btnOpenImportCartas) {
+      elements.btnOpenImportCartas.addEventListener('click', () => {
+        state.pendingImportData = [];
+        if (elements.btnSubmitImport) elements.btnSubmitImport.disabled = true;
+        if (elements.importPreviewContainer) elements.importPreviewContainer.style.display = 'none';
+        if (elements.dropzoneFilename) elements.dropzoneFilename.textContent = 'Suporta formato padrão Excel (.xls, .xlsx) e CSV';
+        if (elements.modalImportCartas) elements.modalImportCartas.classList.add('active');
+      });
+    }
+
+    if (elements.closeModalImportCartas) {
+      elements.closeModalImportCartas.addEventListener('click', () => {
+        if (elements.modalImportCartas) elements.modalImportCartas.classList.remove('active');
+      });
+    }
+
+    if (elements.btnCancelImport) {
+      elements.btnCancelImport.addEventListener('click', () => {
+        if (elements.modalImportCartas) elements.modalImportCartas.classList.remove('active');
+      });
+    }
+
+    if (elements.importDropzone) {
+      elements.importDropzone.addEventListener('click', () => {
+        if (elements.inputCartasFile) elements.inputCartasFile.click();
+      });
+
+      elements.importDropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        elements.importDropzone.classList.add('dragover');
+      });
+
+      elements.importDropzone.addEventListener('dragleave', () => {
+        elements.importDropzone.classList.remove('dragover');
+      });
+
+      elements.importDropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        elements.importDropzone.classList.remove('dragover');
+        if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+          parseUploadedCartasFile(e.dataTransfer.files[0]);
+        }
+      });
+    }
+
+    if (elements.inputCartasFile) {
+      elements.inputCartasFile.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          parseUploadedCartasFile(e.target.files[0]);
+        }
+      });
+    }
+
+    if (elements.btnUseModelArtefato) {
+      elements.btnUseModelArtefato.addEventListener('click', async () => {
+        try {
+          elements.btnUseModelArtefato.disabled = true;
+          elements.btnUseModelArtefato.textContent = 'Lendo artefato...';
+
+          let items = [];
+          try {
+            const respJson = await fetch('artefatos/cartas_default.json');
+            if (respJson.ok) items = await respJson.json();
+          } catch (e) {}
+
+          if (!items || items.length === 0) {
+            const respXls = await fetch('artefatos/CartasContempladas.xls');
+            const text = await respXls.text();
+            items = parseHtmlTableXls(text);
+          }
+
+          if (items && items.length > 0) {
+            state.pendingImportData = items;
+            renderImportPreview(items);
+            if (elements.btnSubmitImport) elements.btnSubmitImport.disabled = false;
+            if (elements.dropzoneFilename) {
+              elements.dropzoneFilename.textContent = `Modelo carregado: artefatos/CartasContempladas.xls (${items.length} cotas prontas)`;
+            }
+          } else {
+            showAlert('Não foi possível ler o arquivo modelo da pasta artefatos.', 'Erro');
+          }
+        } catch (err) {
+          console.error("Erro ao carregar modelo no modal:", err);
+          showAlert('Erro ao ler modelo da pasta artefatos.', 'Erro');
+        } finally {
+          elements.btnUseModelArtefato.disabled = false;
+          elements.btnUseModelArtefato.textContent = 'Carregar artefatos/CartasContempladas.xls';
+        }
+      });
+    }
+
+    if (elements.btnSubmitImport) {
+      elements.btnSubmitImport.addEventListener('click', executeImportCartas);
+    }
+
+    // Modal de Edição de Carta
+    if (elements.closeModalEditCarta) {
+      elements.closeModalEditCarta.addEventListener('click', () => {
+        if (elements.modalEditCarta) elements.modalEditCarta.classList.remove('active');
+      });
+    }
+
+    if (elements.btnCancelEditCarta) {
+      elements.btnCancelEditCarta.addEventListener('click', () => {
+        if (elements.modalEditCarta) elements.modalEditCarta.classList.remove('active');
+      });
+    }
+
+    if (elements.formCartaItem) {
+      elements.formCartaItem.addEventListener('submit', saveCartaForm);
+    }
+  };
+
+  // Inicializa os listeners do módulo de Cartas Contempladas
+  setupCartasEventListeners();
 
   updateSimulatorLimits();
   renderSimulations();
