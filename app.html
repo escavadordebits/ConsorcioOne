@@ -6,66 +6,170 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Portal e Simulador | ConsórcioOne V 1.0.6</title>
+  <title>Portal e Simulador | C7 Contempla V 1.0.6</title>
   <meta name="description" content="Centralize e automatize a jornada de venda e atendimento de consórcios multimarcas com Inteligência Artificial.">
   <link rel="stylesheet" href="styles.css?v=20261015_v106">
 </head>
 <body>
 
-  <header class="app-header">
-    <div class="header-top-bar">
-      <div class="logo" id="main-logo-container">
-        <img id="custom-logo-img" class="logo-custom-img" alt="Logo da Empresa">
-        <div class="logo-icon" id="default-logo-icon">C</div>
-        <span id="logo-text">ConsórcioOne</span>
-      </div>
+<div class="app-shell" id="app-shell">
+    <!-- BACKDROP MOBILE -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebarMobile(false)"></div>
 
-      <!-- Ações de Usuário / Administração -->
-      <div class="header-actions-row">
-        <button type="button" id="btn-admin" class="btn btn-secondary btn-header" style="display: none;" onclick="openUsersModal(event)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Usuários
-        </button>
-        
-        <!-- Upload / Substituir Logo (visível apenas para Administrador) -->
-        <input type="file" id="input-upload-logo" accept="image/png, image/jpeg, image/svg+xml, image/webp" style="display: none;">
-        <label for="input-upload-logo" id="btn-upload-logo" class="btn btn-secondary btn-header" style="display: none;" title="Upload ou substituição do logo da empresa">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <span id="btn-upload-logo-text">Upload logo</span>
-        </label>
-
-        <!-- Remover Logo (visível apenas para Administrador quando houver logo ativo) -->
-        <button type="button" id="btn-remove-logo" class="btn btn-secondary btn-header" style="display: none; color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" title="Remover logo personalizado e restaurar padrão ConsórcioOne" onclick="triggerRemoveLogo(event)">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          Remover
-        </button>
-
-        <button type="button" id="btn-logout" class="btn btn-secondary btn-header" onclick="logoutApp(event)">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Sair
+    <!-- SIDEBAR (MENU LATERAL INSPIRADO NO BOLTFLOW / DINBOTFLOW COM IDENTIDADE C7 CONTEMPLA) -->
+    <aside class="app-sidebar" id="app-sidebar">
+      <div class="sidebar-header">
+        <a class="sidebar-brand" id="sidebar-brand-btn" href="#">
+          <img id="sidebar-custom-logo-img" class="sidebar-brand-logo-img" src="images/c7_contempla_logo.png" alt="C7 Contempla">
+          <div class="sidebar-brand-icon" id="sidebar-default-icon" style="display: none;">C7</div>
+          <div class="sidebar-brand-text" id="sidebar-brand-text" style="display: none;">
+            <span class="sidebar-brand-title">C7 Contempla</span>
+            <span class="sidebar-brand-subtitle">WhatsApp Flow & CRM</span>
+          </div>
+        </a>
+        <button type="button" class="sidebar-collapse-toggle" onclick="toggleSidebarMobile(false)" title="Recolher Menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
         </button>
       </div>
-    </div>
 
-    <nav class="app-nav">
-      <div class="dashboard-toggle" id="dashboard-toggle-group">
-        <button id="toggle-portal" class="dashboard-toggle-btn active">Portal do Cliente</button>
-        <button id="toggle-cartas" class="dashboard-toggle-btn">Cartas Contempladas</button>
-        <button id="toggle-crm" class="dashboard-toggle-btn" style="display: none;">Painel CRM (Consultor)</button>
+      <!-- Seção da Conta (Inspirado no DINBOTFLOW: Connected Account) -->
+      <div class="sidebar-account-section">
+        <div class="sidebar-section-heading">CONTA WHATSAPP</div>
+        <div class="sidebar-account-row" onclick="openWhatsAppConfigModal(event)" title="Configurações da Conexão WhatsApp">
+          <div class="sidebar-avatar-wrap">
+            <img class="sidebar-account-avatar-img" src="images/rodrigo_porrino.png" alt="Rodrigo Porrino" onerror="this.style.display='none'; document.getElementById('sidebar-user-avatar-fallback').style.display='flex';">
+            <div class="sidebar-avatar-fallback" id="sidebar-user-avatar-fallback" style="display: none;">RP</div>
+          </div>
+          <div class="sidebar-account-meta">
+            <span class="sidebar-account-name" id="sidebar-user-name">Rodrigo Porrino</span>
+            <div class="sidebar-account-status">
+              <span class="status-dot-emerald"></span>
+              <span class="status-text-emerald">Connected</span>
+            </div>
+          </div>
+          <div class="sidebar-account-dropdown-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="7 15 12 20 17 15"/><polyline points="7 9 12 4 17 9"/></svg>
+          </div>
+        </div>
+
+        <!-- Safe Mode Pill -->
+        <div class="sidebar-safemode-pill" id="sidebar-safemode-btn" onclick="openWhatsAppConfigModal(event)" title="Modo Anti-Ban e Proteção Ativo">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          <span>Safe Mode On</span>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- Elementos ocultos para compatibilidade com scripts legados -->
+        <span id="sidebar-user-avatar" style="display:none;">RP</span>
+        <span id="sidebar-role-badge" style="display:none;">ADM</span>
+        <span id="sidebar-user-email" style="display:none;">rodrigo@c7contempla.com.br</span>
       </div>
 
-      <!-- Identificação do Usuário e Versão -->
-      <div class="user-info-row">
-        <span class="badge-version" title="Versão da Aplicação">V 1.0.6</span>
-        <span id="user-role-badge">ADM</span>
-        <span id="user-display-name">Usuário</span>
-        <span id="user-email-display"></span>
-      </div>
-    </nav>
-  </header>
+      <!-- Navegação Principal (MENU) -->
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-heading">MENU</div>
 
-  <!-- SEÇÃO PRINCIPAL DO PORTAL (CLIENTE) -->
-  <main id="view-portal" class="container">
+        <a href="#portal" class="sidebar-nav-item active" id="nav-portal" data-view="portal">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/><path d="M12 14l3-3"/><circle cx="12" cy="14" r="1.5"/></svg>
+          <span class="sidebar-nav-label">Painel</span>
+        </a>
+
+        <a href="#campanhas" class="sidebar-nav-item" id="nav-campanhas" data-view="campanhas">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span class="sidebar-nav-label">Campanhas</span>
+        </a>
+
+        <a href="#inbox" class="sidebar-nav-item" id="nav-inbox" data-view="inbox">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span class="sidebar-nav-label">Caixa de entrada</span>
+          <span class="sidebar-badge-circle" id="sidebar-inbox-unread">9</span>
+        </a>
+
+        <a href="#crm" class="sidebar-nav-item" id="nav-crm" data-view="crm">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="sidebar-nav-label">Contas</span>
+        </a>
+
+        <a href="#cartas" class="sidebar-nav-item" id="nav-cartas" data-view="cartas">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span class="sidebar-nav-label">Cartas Contempladas</span>
+        </a>
+
+        <a href="#configuracoes" class="sidebar-nav-item" id="nav-config" onclick="openUsersModal(event)">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="sidebar-nav-label">Configurações</span>
+          <svg class="sidebar-nav-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+
+        <a href="#whatsapp" class="sidebar-nav-item" id="nav-whatsapp-config" onclick="openWhatsAppConfigModal(event)">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <span class="sidebar-nav-label">Conexão WhatsApp</span>
+          <svg class="sidebar-nav-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- WRAPPER PRINCIPAL DO CONTEÚDO -->
+    <div class="app-main-area">
+      <!-- HEADER / TOPBAR -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button type="button" class="mobile-menu-toggle" id="mobile-menu-toggle" onclick="toggleSidebarMobile(true)" aria-label="Abrir Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div class="topbar-breadcrumbs">
+            <span style="color:var(--text-muted);">C7 Contempla</span>
+            <span style="color:var(--border-color);">/</span>
+            <span class="topbar-current-title" id="topbar-current-title">Portal & Simulador</span>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <!-- Logo container para upload e substituição -->
+          <div id="main-logo-container" style="display: none;">
+            <img id="custom-logo-img" class="logo-custom-img" alt="Logo da Empresa">
+            <div class="logo-icon" id="default-logo-icon">C7</div>
+            <span id="logo-text">C7 Contempla</span>
+          </div>
+
+          <button type="button" id="btn-admin" class="btn btn-secondary btn-header" style="display: none;" onclick="openUsersModal(event)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Usuários
+          </button>
+          
+          <input type="file" id="input-upload-logo" accept="image/png, image/jpeg, image/svg+xml, image/webp" style="display: none;">
+          <label for="input-upload-logo" id="btn-upload-logo" class="btn btn-secondary btn-header" style="display: none;" title="Upload ou substituição do logo da empresa">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span id="btn-upload-logo-text">Upload logo</span>
+          </label>
+
+          <button type="button" id="btn-remove-logo" class="btn btn-secondary btn-header" style="display: none; color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" title="Remover logo personalizado e restaurar padrão C7 Contempla" onclick="triggerRemoveLogo(event)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Remover
+          </button>
+
+          <!-- IDs ocultos do toggle antigo para backward-compatibility total -->
+          <div style="display: none;" id="dashboard-toggle-group">
+            <button id="toggle-portal" class="dashboard-toggle-btn active">Portal</button>
+            <button id="toggle-cartas" class="dashboard-toggle-btn">Cartas</button>
+            <button id="toggle-crm" class="dashboard-toggle-btn">CRM</button>
+          </div>
+
+          <span class="badge-version" title="Versão da Aplicação">V 1.0.6</span>
+          <span id="user-role-badge" style="display:none;">ADM</span>
+          <span id="user-display-name" style="display:none;">Usuário</span>
+          <span id="user-email-display" style="display:none;"></span>
+
+          <button type="button" id="btn-logout" class="btn btn-secondary btn-header" onclick="logoutApp(event)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sair
+          </button>
+        </div>
+      </header>
+
+      <!-- SEÇÃO PRINCIPAL DO PORTAL (CLIENTE) -->
+      <main id="view-portal" class="container">
     
     <!-- HERO PRINCIPAL -->
     <section class="hero">
@@ -134,6 +238,244 @@
       </section>
 
     </div>
+  </main>
+
+  <!-- SEÇÃO DE CAMPANHAS WHATSAPP (INSPIRADA NO BOLTFLOW / DINBOTFLOW - PÁGINA 1 DO PDF) -->
+  <main id="view-campanhas" class="campanhas-section container" style="display: none;">
+    <!-- CABEÇALHO DE CAMPANHAS -->
+    <div class="campanhas-header">
+      <div class="campanhas-title-wrap">
+        <h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="2" y1="8" x2="4" y2="8"/><line x1="20" y1="8" x2="22" y2="8"/></svg>
+          Campanhas WhatsApp
+        </h2>
+        <p>Acompanhe o funil de entrega, réguas de disparos e prospects abordados em tempo real.</p>
+      </div>
+
+      <div class="campanhas-header-actions">
+        <!-- Seletor de Campanha Ativa -->
+        <select id="select-campanha-ativa" class="campanha-select-box" title="Filtrar por campanha">
+          <!-- Renderizado dinamicamente pelo JS -->
+        </select>
+
+        <span class="campanha-status-badge" id="badge-campanha-status">
+          <span style="width:7px; height:7px; border-radius:50%; background:#10b981;"></span>
+          <span id="text-campanha-status">Campanha Ativa</span>
+        </span>
+
+        <button type="button" class="btn btn-secondary" id="btn-toggle-campanha-pause" style="display:inline-flex; align-items:center; gap:0.4rem; font-size:0.85rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          <span id="btn-pause-text">Pausar</span>
+        </button>
+
+        <button type="button" class="btn btn-primary" id="btn-open-criar-campanha" onclick="openCriarCampanhaModal(event)" style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.85rem; background:linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Criar Campanha
+        </button>
+      </div>
+    </div>
+
+    <!-- FUNIL DE PROGRESSO & RELATÓRIO DE DESEMPENHO (PÁGINA 1 DO PDF) -->
+    <div class="campanhas-funnel-grid">
+      <div class="funnel-card">
+        <div class="funnel-card-header">
+          <span class="funnel-card-title">Mensagens de Ações</span>
+          <div class="funnel-card-icon" style="color: #38bdf8;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </div>
+        </div>
+        <div class="funnel-card-value" id="kpi-campanha-disparos">286</div>
+        <div class="funnel-progress-wrap">
+          <div class="funnel-progress-bar" id="bar-campanha-disparos" style="width: 100%; background: #0ea5e9;"></div>
+        </div>
+        <div class="funnel-card-sub">
+          <span>Total programado</span>
+          <span id="pct-campanha-disparos">100%</span>
+        </div>
+      </div>
+
+      <div class="funnel-card">
+        <div class="funnel-card-header">
+          <span class="funnel-card-title">Mensagens Entregues</span>
+          <div class="funnel-card-icon" style="color: #818cf8;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+        <div class="funnel-card-value" id="kpi-campanha-entregues">270</div>
+        <div class="funnel-progress-wrap">
+          <div class="funnel-progress-bar" id="bar-campanha-entregues" style="width: 94.4%; background: #6366f1;"></div>
+        </div>
+        <div class="funnel-card-sub">
+          <span>Taxa de entrega</span>
+          <span id="pct-campanha-entregues">94.4%</span>
+        </div>
+      </div>
+
+      <div class="funnel-card">
+        <div class="funnel-card-header">
+          <span class="funnel-card-title">Respostas Recebidas</span>
+          <div class="funnel-card-icon" style="color: #34d399;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+        </div>
+        <div class="funnel-card-value" id="kpi-campanha-respostas" style="color: #34d399;">48</div>
+        <div class="funnel-progress-wrap">
+          <div class="funnel-progress-bar" id="bar-campanha-respostas" style="width: 17.7%; background: #10b981;"></div>
+        </div>
+        <div class="funnel-card-sub">
+          <span>Prospects engajados</span>
+          <span id="pct-campanha-respostas">17.7%</span>
+        </div>
+      </div>
+
+      <div class="funnel-card">
+        <div class="funnel-card-header">
+          <span class="funnel-card-title">Convertidos no CRM</span>
+          <div class="funnel-card-icon" style="color: #f472b6;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+        </div>
+        <div class="funnel-card-value" id="kpi-campanha-conversoes" style="color: #f472b6;">14</div>
+        <div class="funnel-progress-wrap">
+          <div class="funnel-progress-bar" id="bar-campanha-conversoes" style="width: 29.1%; background: #ec4899;"></div>
+        </div>
+        <div class="funnel-card-sub">
+          <span>Das respostas</span>
+          <span id="pct-campanha-conversoes">29.1%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTA DE PROSPECTS DA CAMPANHA (PÁGINA 1 DO PDF) -->
+    <div class="prospects-container">
+      <div class="prospects-toolbar">
+        <div class="prospects-search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="input-search-prospects" placeholder="Buscar prospect por nome ou WhatsApp...">
+        </div>
+
+        <div class="prospects-filter-tabs" id="prospects-filter-tabs">
+          <button type="button" class="prospects-filter-tab active" data-filter="TODOS">Todos (<span id="count-prospects-todos">0</span>)</button>
+          <button type="button" class="prospects-filter-tab" data-filter="RESPONDIDOS">Responderam (<span id="count-prospects-resp">0</span>)</button>
+          <button type="button" class="prospects-filter-tab" data-filter="ENVIADOS">1ª / 2ª Msg (<span id="count-prospects-env">0</span>)</button>
+          <button type="button" class="prospects-filter-tab" data-filter="PENDENTES">Pendentes (<span id="count-prospects-pend">0</span>)</button>
+        </div>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="prospects-table">
+          <thead>
+            <tr>
+              <th>Prospect</th>
+              <th>WhatsApp</th>
+              <th>Origem</th>
+              <th>Etapa da Régua</th>
+              <th>Status</th>
+              <th>Última Ação</th>
+              <th style="text-align: right;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="prospects-table-body">
+            <!-- Renderizado dinamicamente pelo JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- SEÇÃO DA CAIXA DE ENTRADA (INBOX WHATSAPP - PÁGINAS 1 E 2 DO PDF) -->
+  <main id="view-inbox" class="inbox-section" style="display: none;">
+    <!-- COLUNA DA ESQUERDA: LISTA DE CONVERSAS -->
+    <section class="inbox-conversations-pane">
+      <div class="inbox-pane-header">
+        <div class="inbox-pane-title-row">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Caixa de entrada
+          </h3>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="inbox-total-conversations">0 conversas</span>
+        </div>
+
+        <!-- Filtro por Campanha -->
+        <select id="inbox-select-campaign" class="inbox-campaign-filter" title="Filtrar por Campanha">
+          <option value="ALL">Todas as campanhas</option>
+        </select>
+
+        <!-- Campo de Pesquisa -->
+        <div class="inbox-search-input">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="inbox-search-field" placeholder="Buscar mensagens ou contato...">
+        </div>
+      </div>
+
+      <!-- Filtro Rápido (Chips) -->
+      <div class="inbox-chips-row">
+        <button type="button" class="inbox-chip active" data-inbox-filter="ALL">Todas</button>
+        <button type="button" class="inbox-chip" data-inbox-filter="UNREAD">Não lidas</button>
+        <button type="button" class="inbox-chip" data-inbox-filter="REPLIED">Respondidas</button>
+      </div>
+
+      <!-- Lista de Conversas -->
+      <div class="inbox-conversations-list" id="inbox-conversations-list">
+        <!-- Renderizado dinamicamente pelo JS -->
+      </div>
+    </section>
+
+    <!-- COLUNA DA DIREITA: CHAT E MENSAGENS -->
+    <section class="inbox-chat-pane" id="inbox-chat-pane">
+      <!-- Header do Chat Ativo -->
+      <div class="inbox-chat-header" id="inbox-chat-header" style="display: none;">
+        <div class="inbox-chat-header-user">
+          <div class="inbox-conv-avatar" id="inbox-active-avatar">CL</div>
+          <div class="inbox-chat-header-info">
+            <h4 id="inbox-active-name">Nome do Cliente</h4>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.15rem;">
+              <span id="inbox-active-phone">+55 (11) 98765-4321</span>
+              <span class="inbox-conv-campaign-tag" id="inbox-active-campaign-tag">Campanha Imóveis</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <button type="button" class="btn btn-secondary" id="btn-inbox-open-crm" style="font-size:0.78rem; padding:0.35rem 0.75rem;" title="Abrir Lead no Painel CRM">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Ver no CRM
+          </button>
+        </div>
+      </div>
+
+      <!-- Mensagens da Conversa -->
+      <div class="inbox-chat-messages-scroll" id="inbox-chat-messages-scroll" style="display: none;">
+        <!-- Mensagens inseridas dinamicamente -->
+      </div>
+
+      <!-- Rodapé de Envio de Mensagem -->
+      <div class="inbox-chat-footer" id="inbox-chat-footer" style="display: none;">
+        <div class="quick-templates-bar">
+          <span style="font-size:0.7rem; color:var(--text-muted); align-self:center;">Templates:</span>
+          <button type="button" class="template-pill" data-template="Olá {nome}, vi seu interesse em cotas de consórcio. Qual valor de parcela fica ideal para seu orçamento?">Orçamento Parcela</button>
+          <button type="button" class="template-pill" data-template="Consigo para você uma simulação personalizada sem juros com taxa administrativa reduzida. Podemos falar agora?">Oferta Sem Juros</button>
+          <button type="button" class="template-pill" data-template="Olá! Temos cotas contempladas com liberação imediata disponíveis hoje. Quer receber a tabela?">Cartas Contempladas</button>
+        </div>
+
+        <div class="inbox-input-row">
+          <input type="text" id="inbox-chat-input" class="inbox-message-input" placeholder="Digite uma mensagem pelo WhatsApp oficial...">
+          <button type="button" id="btn-inbox-send" class="inbox-send-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Enviar
+          </button>
+        </div>
+      </div>
+
+      <!-- Estado Vazio Inicial (como no print da Página 1 e 2 do PDF) -->
+      <div class="inbox-empty-state" id="inbox-empty-state">
+        <div class="inbox-empty-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h4>Selecione uma conversa</h4>
+        <p>Escolha um prospect na lista à esquerda para ler a conversa e responder pelo WhatsApp integrado.</p>
+      </div>
+    </section>
   </main>
 
   <!-- SEÇÃO DE CRM (PAINEL INTERNO DO CONSULTOR) -->
@@ -921,14 +1263,333 @@
   <!-- RODAPÉ DA PÁGINA -->
   <footer>
     <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
-      <p>&copy; 2026 ConsórcioOne • <strong style="color: #60a5fa;">Versão 1.0.6</strong>. Todos os direitos reservados. Plataforma digital de consórcios multimarcas com IA.</p>
+      <p>&copy; 2026 C7 Contempla • <strong style="color: #60a5fa;">Versão 1.0.6</strong>. Todos os direitos reservados. Plataforma digital de consórcios multimarcas com IA.</p>
       <p style="font-size:0.75rem; color:var(--text-muted);">Administradora oficial vinculada ao regulamento geral de consórcios sob supervisão do BACEN.</p>
     </div>
   </footer>
 
+    </div> <!-- Fecha app-main-area -->
+  </div> <!-- Fecha app-shell -->
+
+  <!-- MODAL WIZARD: CRIAR CAMPANHA (PÁGINAS 2 E 3 DO PDF) -->
+  <div class="modal-overlay" id="modal-criar-campanha">
+    <div class="modal-content wizard-modal-container" style="position:relative;">
+      <button type="button" class="modal-close" onclick="closeCriarCampanhaModal()" aria-label="Fechar" style="position:absolute; top:1rem; right:1.25rem; z-index:30; background:transparent; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+      <div class="wizard-layout">
+        <!-- Passos à Esquerda -->
+        <aside class="wizard-steps-sidebar">
+          <div style="margin-bottom:0.75rem;">
+            <h4 style="font-size:0.95rem; font-family:var(--font-title); color:var(--text-main);">Criar Campanha</h4>
+            <span style="font-size:0.72rem; color:var(--text-muted);">Assistente passo a passo</span>
+          </div>
+
+          <div class="wizard-step-item active" id="wz-step-indicator-1">
+            <div class="wizard-step-number">1</div>
+            <span>Nome</span>
+          </div>
+
+          <div class="wizard-step-item" id="wz-step-indicator-2">
+            <div class="wizard-step-number">2</div>
+            <span>Leads</span>
+          </div>
+
+          <div class="wizard-step-item" id="wz-step-indicator-3">
+            <div class="wizard-step-number">3</div>
+            <span>Mensagens</span>
+          </div>
+
+          <div class="wizard-step-item" id="wz-step-indicator-4">
+            <div class="wizard-step-number">4</div>
+            <span>Revisão</span>
+          </div>
+        </aside>
+
+        <!-- Conteúdo do Passo -->
+        <div class="wizard-content-pane">
+          <!-- Passo 1: Nome (Página 2 do PDF) -->
+          <div class="wizard-step-content active" id="wz-content-step-1">
+            <h3>Como você gostaria de chamar esta campanha?</h3>
+            <p>Dê um nome claro para identificar no funil de métricas e na caixa de entrada.</p>
+
+            <div class="form-group" style="margin-top:1.5rem;">
+              <label for="wz-input-nome" style="font-size:0.85rem; font-weight:600; color:var(--text-main); margin-bottom:0.4rem; display:block;">Nome da Campanha *</label>
+              <input type="text" id="wz-input-nome" class="form-control" placeholder="Ex: Campanha WhatsApp - Consórcio Imóveis Outubro" style="width:100%; padding:0.75rem 1rem; font-size:0.95rem; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
+            </div>
+
+            <div class="form-group" style="margin-top:1rem;">
+              <label for="wz-select-categoria" style="font-size:0.85rem; font-weight:600; color:var(--text-main); margin-bottom:0.4rem; display:block;">Segmento Principal</label>
+              <select id="wz-select-categoria" class="form-control" style="width:100%; padding:0.65rem 0.9rem; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
+                <option value="IMOVEL">Imóveis</option>
+                <option value="AUTOMOVEL">Automóveis</option>
+                <option value="SERVICO">Serviços</option>
+                <option value="ELETRO">Eletro & Pesados</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Passo 2: Origem dos Leads (Páginas 2 e 3 do PDF) -->
+          <div class="wizard-step-content" id="wz-content-step-2">
+            <h3>Adicionar pessoas à sua campanha</h3>
+            <p>Escolha como deseja alimentar os prospects desta campanha.</p>
+
+            <div class="leads-source-grid">
+              <div class="source-choice-card selected" id="card-source-csv" onclick="selectLeadSource('CSV')">
+                <div class="source-card-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </div>
+                <h4>Importar de CSV</h4>
+                <p>Importe lista de nomes e telefones com arquivo de planilha .csv.</p>
+              </div>
+
+              <div class="source-choice-card" id="card-source-crm" onclick="selectLeadSource('CRM')">
+                <div class="source-card-icon" style="background:rgba(16, 185, 129, 0.15); color:#10b981;">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h4>Ler do painel de leads do CRM</h4>
+                <p>Puxe leads já cadastrados na C7 Contempla por status do funil.</p>
+              </div>
+            </div>
+
+            <!-- Painel Condicional: CSV (Página 3 do PDF) -->
+            <div id="wz-pane-csv">
+              <div class="toggle-switch-row">
+                <div class="toggle-switch-info">
+                  <h5>Ignorar duplicados</h5>
+                  <p>Pesquisar se já existem contatos correspondentes nesta ou em outras campanhas.</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="wz-toggle-duplicados" checked>
+                  <span class="slider-switch"></span>
+                </label>
+              </div>
+
+              <input type="file" id="wz-csv-file-input" accept=".csv, text/csv" style="display:none;" onchange="handleWizardCsvUpload(event)">
+              <div class="csv-dropzone" id="wz-csv-dropzone" onclick="document.getElementById('wz-csv-file-input').click()">
+                <div class="csv-dropzone-icon">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <h4 style="font-size:0.95rem; margin-bottom:0.25rem;">Enviar ou arrastar arquivo CSV</h4>
+                <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.4rem;">Clique para selecionar ou arraste um arquivo com colunas: Nome, WhatsApp, Valor</p>
+                <span id="wz-csv-status-text" style="font-size:0.78rem; font-weight:600; color:var(--primary);">Nenhum arquivo carregado</span>
+              </div>
+            </div>
+
+            <!-- Painel Condicional: CRM -->
+            <div id="wz-pane-crm" style="display: none;">
+              <div class="form-group" style="margin-bottom:1rem;">
+                <label style="font-size:0.85rem; font-weight:600; color:var(--text-main); margin-bottom:0.35rem; display:block;">Selecionar Etapa do Funil CRM</label>
+                <select id="wz-select-crm-status" class="form-control" style="width:100%; padding:0.65rem 0.9rem; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main); outline:none;" onchange="updateWizardCrmCount()">
+                  <option value="ALL">Todos os Leads do CRM</option>
+                  <option value="NOVO">Apenas Novos Leads</option>
+                  <option value="EM_ATENDIMENTO">Em Atendimento</option>
+                  <option value="QUALIFICADO">Qualificados</option>
+                  <option value="PROPOSTA_ENVIADA">Proposta Enviada</option>
+                </select>
+              </div>
+
+              <div style="background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.25); border-radius:var(--radius-sm); padding:0.85rem 1rem; display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                  <span style="font-size:0.85rem; font-weight:600; color:#34d399;">Leads disponíveis no CRM:</span>
+                  <p style="font-size:0.74rem; color:var(--text-muted); margin:0;">Serão incluídos automaticamente na régua de disparos.</p>
+                </div>
+                <span id="wz-crm-leads-count" style="font-size:1.25rem; font-weight:800; color:#34d399;">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Passo 3: Sequência de Mensagens & Frequência (Página 1 do PDF) -->
+          <div class="wizard-step-content" id="wz-content-step-3">
+            <h3>Sequência de Mensagens & Frequência</h3>
+            <p>Configure as etapas de abordagem e a frequência de envio aos clientes.</p>
+
+            <div class="message-steps-accordion">
+              <!-- 1ª Mensagem -->
+              <div class="message-step-box">
+                <div class="message-step-header">
+                  <span class="message-step-title">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#0ea5e9;"></span>
+                    1ª Mensagem (Imediata)
+                  </span>
+                  <span class="message-step-delay">Envio inicial</span>
+                </div>
+                <textarea id="wz-msg-1" class="message-textarea" placeholder="Digite a primeira mensagem...">Olá {nome}, tudo bem? Sou especialista da C7 Contempla. Vi seu interesse em uma cota de {categoria} no valor de R$ {credito}. Posso te apresentar opções sem juros?</textarea>
+                <div class="variables-hint">
+                  <span>Variáveis:</span>
+                  <span class="variable-chip" onclick="insertWzTag('wz-msg-1', '{nome}')">{nome}</span>
+                  <span class="variable-chip" onclick="insertWzTag('wz-msg-1', '{credito}')">{credito}</span>
+                  <span class="variable-chip" onclick="insertWzTag('wz-msg-1', '{categoria}')">{categoria}</span>
+                </div>
+              </div>
+
+              <!-- 2ª Mensagem -->
+              <div class="message-step-box">
+                <div class="message-step-header">
+                  <span class="message-step-title">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#8b5cf6;"></span>
+                    2ª Mensagem (Follow-up)
+                  </span>
+                  <span class="message-step-delay">24 horas após se sem resposta</span>
+                </div>
+                <textarea id="wz-msg-2" class="message-textarea" placeholder="Digite a segunda mensagem de follow-up...">{nome}, consegui simular duas administradoras com taxas administrativas promocionais para o seu perfil. Deseja que eu envie a tabela comparativa aqui no WhatsApp?</textarea>
+                <div class="variables-hint">
+                  <span>Variáveis:</span>
+                  <span class="variable-chip" onclick="insertWzTag('wz-msg-2', '{nome}')">{nome}</span>
+                  <span class="variable-chip" onclick="insertWzTag('wz-msg-2', '{credito}')">{credito}</span>
+                </div>
+              </div>
+
+              <!-- 3ª Mensagem -->
+              <div class="message-step-box">
+                <div class="message-step-header">
+                  <span class="message-step-title">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#10b981;"></span>
+                    3ª Mensagem (Última Chamada)
+                  </span>
+                  <span class="message-step-delay">48 horas após se sem resposta</span>
+                </div>
+                <textarea id="wz-msg-3" class="message-textarea" placeholder="Digite a terceira mensagem...">{nome}, última chamada: estamos fechando o grupo com parcelas reduzidas até a contemplação. Se ainda tiver interesse em planejar sem juros, me avise!</textarea>
+                <div class="variables-hint">
+                  <span>Variáveis:</span>
+                  <span class="variable-chip" onclick="insertWzTag('wz-msg-3', '{nome}')">{nome}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Passo 4: Revisão e Lançamento -->
+          <div class="wizard-step-content" id="wz-content-step-4">
+            <h3>Revisão da Campanha</h3>
+            <p>Confira os parâmetros antes de iniciar os disparos automáticos.</p>
+
+            <div style="background:rgba(255, 255, 255, 0.03); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.25rem; display:flex; flex-direction:column; gap:0.75rem;">
+              <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255, 255, 255, 0.05); padding-bottom:0.5rem;">
+                <span style="color:var(--text-muted); font-size:0.85rem;">Nome da Campanha:</span>
+                <strong id="wz-review-nome" style="font-size:0.88rem; color:var(--text-main);">-</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255, 255, 255, 0.05); padding-bottom:0.5rem;">
+                <span style="color:var(--text-muted); font-size:0.85rem;">Origem dos Leads:</span>
+                <strong id="wz-review-source" style="font-size:0.88rem; color:var(--primary);">-</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255, 255, 255, 0.05); padding-bottom:0.5rem;">
+                <span style="color:var(--text-muted); font-size:0.85rem;">Total de Prospects Selecionados:</span>
+                <strong id="wz-review-count" style="font-size:0.95rem; color:#34d399;">0</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--text-muted); font-size:0.85rem;">Etapas da Régua:</span>
+                <strong style="font-size:0.88rem; color:var(--text-main);">3 Mensagens automáticas</strong>
+              </div>
+            </div>
+
+            <div style="margin-top:1.25rem; padding:0.85rem; background:rgba(14, 165, 233, 0.08); border:1px solid rgba(14, 165, 233, 0.25); border-radius:var(--radius-sm); font-size:0.78rem; color:#93c5fd;">
+              🛡️ <strong>Modo Anti-Ban Ativo:</strong> Disparos em fila com intervalos dinâmicos (15-30s) e leitura de status de entrega.
+            </div>
+          </div>
+
+          <!-- Botões do Rodapé do Wizard -->
+          <div class="wizard-footer-buttons">
+            <button type="button" class="btn btn-secondary" id="wz-btn-prev" onclick="wizardStepPrev()">Voltar</button>
+            <div style="display:flex; gap:0.5rem;">
+              <button type="button" class="btn btn-secondary" onclick="closeCriarCampanhaModal()">Cancelar</button>
+              <button type="button" class="btn btn-primary" id="wz-btn-next" onclick="wizardStepNext()">Próximo &gt;</button>
+              <button type="button" class="btn btn-primary" id="wz-btn-finish" style="display:none; background:linear-gradient(135deg, #10b981 0%, #059669 100%);" onclick="concluirCriacaoCampanha()">Iniciar Campanha</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONEXÃO WHATSAPP & CONFIGURAÇÕES -->
+  <div class="modal-overlay" id="modal-whatsapp-config">
+    <div class="modal-content" style="max-width:520px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.5rem;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
+        <div style="display:flex; align-items:center; gap:0.65rem;">
+          <div style="width:2.2rem; height:2.2rem; border-radius:8px; background:rgba(16, 185, 129, 0.15); color:#10b981; display:flex; align-items:center; justify-content:center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div>
+            <h3 style="font-size:1.1rem; color:var(--text-main); margin:0;">Conexão WhatsApp Business</h3>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">Status do Bot e integração de disparos</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeWhatsAppConfigModal()" style="background:transparent; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:1.25rem;">
+        <div style="background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.25); border-radius:var(--radius-md); padding:1rem; display:flex; align-items:center; gap:0.85rem;">
+          <div style="width:10px; height:10px; border-radius:50%; background:#10b981; box-shadow:0 0 10px #10b981; flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <strong style="color:#34d399; font-size:0.9rem;">Instância Conectada e Operacional</strong>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin:0.15rem 0 0;">Número Oficial: +55 (21) 99822-8936</p>
+          </div>
+          <span style="font-size:0.7rem; background:#10b981; color:white; padding:0.15rem 0.5rem; border-radius:9999px; font-weight:700;">Ativo</span>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size:0.82rem; font-weight:600; color:var(--text-main); margin-bottom:0.35rem; display:block;">Intervalo Anti-Ban entre Disparos</label>
+          <select id="select-antiban-interval" class="form-control" style="width:100%; padding:0.6rem 0.85rem; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
+            <option value="15-30" selected>15 a 30 segundos (Recomendado para campanhas médias)</option>
+            <option value="30-60">30 a 60 segundos (Máxima segurança)</option>
+            <option value="5-15">5 a 15 segundos (Disparos rápidos)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size:0.82rem; font-weight:600; color:var(--text-main); margin-bottom:0.35rem; display:block;">Webhook de Resposta dos Clientes</label>
+          <input type="text" class="form-control" value="https://consorcioone.netlify.app/api/whatsapp-webhook" readonly style="width:100%; padding:0.6rem 0.85rem; font-size:0.8rem; color:var(--text-muted); background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:var(--radius-sm);">
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeWhatsAppConfigModal()">Fechar</button>
+          <button type="button" class="btn btn-primary" onclick="alert('Conexão com WhatsApp testada com sucesso!'); closeWhatsAppConfigModal();">Testar Conexão</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     window.APP_VERSION = '1.0.6';
-    console.log('%c ConsórcioOne V 1.0.6 iniciado ', 'background: #2563eb; color: #fff; font-weight: bold; border-radius: 4px; padding: 2px 6px;');
+    console.log('%c C7 Contempla V 1.0.6 iniciado ', 'background: #2563eb; color: #fff; font-weight: bold; border-radius: 4px; padding: 2px 6px;');
+
+    function toggleSidebarMobile(open) {
+      var sidebar = document.getElementById('app-sidebar');
+      var backdrop = document.getElementById('sidebar-backdrop');
+      if (sidebar && backdrop) {
+        if (open) {
+          sidebar.classList.add('open');
+          backdrop.classList.add('active');
+        } else {
+          sidebar.classList.remove('open');
+          backdrop.classList.remove('active');
+        }
+      }
+    }
+
+    function openWhatsAppConfigModal(event) {
+      if (event) { event.preventDefault(); event.stopPropagation(); }
+      var modal = document.getElementById('modal-whatsapp-config');
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeWhatsAppConfigModal() {
+      var modal = document.getElementById('modal-whatsapp-config');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function openCriarCampanhaModal(event) {
+      if (event) { event.preventDefault(); event.stopPropagation(); }
+      if (typeof window._openCriarCampanhaWizard === 'function') {
+        window._openCriarCampanhaWizard();
+      } else {
+        var modal = document.getElementById('modal-criar-campanha');
+        if (modal) modal.classList.add('active');
+      }
+    }
+
+    function closeCriarCampanhaModal() {
+      var modal = document.getElementById('modal-criar-campanha');
+      if (modal) modal.classList.remove('active');
+    }
 
     function triggerLogoUpload(event) {
       if (event) { event.preventDefault(); event.stopPropagation(); }

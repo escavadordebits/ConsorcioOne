@@ -4,9 +4,9 @@
   "description": "ConsórcioOne - Simulação e Contratação 100% Digital com IA",
   "type": "module",
   "scripts": {
-    "start": "npx -y serve -l 3000 .",
-    "serve": "npx -y serve -l 3000 .",
-    "dev": "npx -y serve -l 3000 ."
+    "start": "npx -y serve -l 3001 .",
+    "serve": "npx -y serve -l 3001 .",
+    "dev": "npx -y serve -l 3001 ."
   },
   "keywords": [
     "consorcio",

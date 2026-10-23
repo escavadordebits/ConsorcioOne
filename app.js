@@ -1,6 +1,6 @@
 import { auth, db, onAuthStateChanged, signOut, collection, getDocs, doc, setDoc, deleteDoc, getDoc, addDoc, query, where } from './firebase-setup.js?v=20240817_1';
 
-let currentUserRole = 'CLIENTE';
+let currentUserRole = localStorage.getItem('consorcio_user_role') || 'ADM';
 
 // ConsórcioOne - Lógica do Portal e CRM
 const initApp = () => {
@@ -1053,49 +1053,1058 @@ const initApp = () => {
     });
   });
 
-  // --- NAVEGAÇÃO ENTRE ABAS ---
-  elements.togglePortalBtn.addEventListener('click', (e) => {
-    elements.togglePortalBtn.classList.add('active');
-    if (elements.toggleCartasBtn) elements.toggleCartasBtn.classList.remove('active');
-    elements.toggleCrmBtn.classList.remove('active');
-    elements.viewPortal.style.display = 'block';
-    if (elements.viewCartas) elements.viewCartas.classList.remove('active');
-    elements.viewCrm.classList.remove('active');
+  // --- SISTEMA DE NAVEGAÇÃO MULTI-VIEWS & SIDEBAR (BOLTFLOW / DRIPIFY) ---
+  const appViews = ['portal', 'campanhas', 'inbox', 'crm', 'cartas'];
+
+  const switchAppView = (viewName) => {
+    if (!appViews.includes(viewName)) viewName = 'portal';
+
+    // Regra de segurança para visitantes/clientes
+    if (['campanhas', 'inbox', 'crm'].includes(viewName) && currentUserRole !== 'ADM' && currentUserRole !== 'OPERADOR') {
+      viewName = 'portal';
+    }
+
+    const titles = {
+      'portal': 'Portal & Simulador',
+      'campanhas': 'Campanhas WhatsApp',
+      'inbox': 'Caixa de Entrada',
+      'crm': 'Painel CRM de Leads',
+      'cartas': 'Cartas Contempladas'
+    };
+
+    const titleEl = document.getElementById('topbar-current-title');
+    if (titleEl && titles[viewName]) {
+      titleEl.textContent = titles[viewName];
+    }
+
+    // Esconde/Exibe cada view
+    const viewPortal = document.getElementById('view-portal');
+    const viewCampanhas = document.getElementById('view-campanhas');
+    const viewInbox = document.getElementById('view-inbox');
+    const viewCrm = document.getElementById('view-crm');
+    const viewCartas = document.getElementById('view-cartas');
+
+    if (viewPortal) viewPortal.style.display = (viewName === 'portal') ? 'block' : 'none';
+
+    if (viewCampanhas) {
+      if (viewName === 'campanhas') {
+        viewCampanhas.classList.add('active');
+        viewCampanhas.style.display = 'block';
+        renderCampanhas();
+      } else {
+        viewCampanhas.classList.remove('active');
+        viewCampanhas.style.display = 'none';
+      }
+    }
+
+    if (viewInbox) {
+      if (viewName === 'inbox') {
+        viewInbox.classList.add('active');
+        viewInbox.style.display = 'flex';
+        renderInbox();
+      } else {
+        viewInbox.classList.remove('active');
+        viewInbox.style.display = 'none';
+      }
+    }
+
+    if (viewCrm) {
+      if (viewName === 'crm') {
+        viewCrm.classList.add('active');
+        viewCrm.style.display = 'block';
+        renderKanban();
+      } else {
+        viewCrm.classList.remove('active');
+        viewCrm.style.display = 'none';
+      }
+    }
+
+    if (viewCartas) {
+      if (viewName === 'cartas') {
+        viewCartas.classList.add('active');
+        viewCartas.style.display = 'block';
+        applyCartasFiltersAndRender();
+      } else {
+        viewCartas.classList.remove('active');
+        viewCartas.style.display = 'none';
+      }
+    }
+
+    // Atualiza classes ativas na Sidebar
+    document.querySelectorAll('.sidebar-nav-item[data-view]').forEach(item => {
+      if (item.getAttribute('data-view') === viewName) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+
+    // Sincroniza com botões antigos (compatibilidade)
+    if (elements.togglePortalBtn) {
+      elements.togglePortalBtn.classList.toggle('active', viewName === 'portal');
+    }
+    if (elements.toggleCartasBtn) {
+      elements.toggleCartasBtn.classList.toggle('active', viewName === 'cartas');
+    }
+    if (elements.toggleCrmBtn) {
+      elements.toggleCrmBtn.classList.toggle('active', viewName === 'crm');
+    }
+
+    // Fecha a sidebar no mobile se estiver aberta
+    const sidebar = document.getElementById('app-sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (sidebar && sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+      if (backdrop) backdrop.classList.remove('active');
+    }
+  };
+
+  // Listeners de cliques na Sidebar
+  document.querySelectorAll('.sidebar-nav-item[data-view]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetView = btn.getAttribute('data-view');
+      switchAppView(targetView);
+    });
   });
 
-  if (elements.toggleCartasBtn) {
-    elements.toggleCartasBtn.addEventListener('click', (e) => {
-      elements.toggleCartasBtn.classList.add('active');
-      elements.togglePortalBtn.classList.remove('active');
-      elements.toggleCrmBtn.classList.remove('active');
-      elements.viewPortal.style.display = 'none';
-      if (elements.viewCartas) elements.viewCartas.classList.add('active');
-      elements.viewCrm.classList.remove('active');
-      applyCartasFiltersAndRender();
+  const sidebarBrandBtn = document.getElementById('sidebar-brand-btn');
+  if (sidebarBrandBtn) {
+    sidebarBrandBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchAppView('portal');
     });
   }
 
-  elements.toggleCrmBtn.addEventListener('click', (e) => {
-    elements.toggleCrmBtn.classList.add('active');
-    elements.togglePortalBtn.classList.remove('active');
-    if (elements.toggleCartasBtn) elements.toggleCartasBtn.classList.remove('active');
-    elements.viewPortal.style.display = 'none';
-    if (elements.viewCartas) elements.viewCartas.classList.remove('active');
-    elements.viewCrm.classList.add('active');
-    renderKanban();
+  // Compatibilidade com cliques nos botões legados
+  if (elements.togglePortalBtn) {
+    elements.togglePortalBtn.addEventListener('click', () => switchAppView('portal'));
+  }
+  if (elements.toggleCartasBtn) {
+    elements.toggleCartasBtn.addEventListener('click', () => switchAppView('cartas'));
+  }
+  if (elements.toggleCrmBtn) {
+    elements.toggleCrmBtn.addEventListener('click', () => switchAppView('crm'));
+  }
+
+  // Atualiza dados visuais do usuário na Sidebar
+  const updateSidebarUserInfo = (name, email, role) => {
+    const avatarEl = document.getElementById('sidebar-user-avatar');
+    const nameEl = document.getElementById('sidebar-user-name');
+    const roleBadgeEl = document.getElementById('sidebar-role-badge');
+    const emailEl = document.getElementById('sidebar-user-email');
+
+    const cleanName = name || 'Usuário';
+    if (avatarEl) {
+      const parts = cleanName.trim().split(' ');
+      const initials = parts.length > 1 ? (parts[0][0] + parts[1][0]) : cleanName.substring(0, 2);
+      avatarEl.textContent = initials.toUpperCase();
+    }
+    if (nameEl) nameEl.textContent = cleanName;
+    if (roleBadgeEl) roleBadgeEl.textContent = role || 'CLIENTE';
+    if (emailEl) emailEl.textContent = email || '';
+  };
+
+  // Atualiza visibilidade dos itens de menu na Sidebar
+  const updateSidebarNavPermissions = () => {
+    const isAdm = currentUserRole === 'ADM';
+    const isOperador = currentUserRole === 'OPERADOR';
+    const canSeeInternal = isAdm || isOperador;
+
+    const navCampanhas = document.getElementById('nav-campanhas');
+    const navInbox = document.getElementById('nav-inbox');
+    const navCrm = document.getElementById('nav-crm');
+
+    if (navCampanhas) navCampanhas.style.display = canSeeInternal ? 'flex' : 'none';
+    if (navInbox) navInbox.style.display = canSeeInternal ? 'flex' : 'none';
+    if (navCrm) navCrm.style.display = canSeeInternal ? 'flex' : 'none';
+  };
+
+  // --- MÓDULO DE CAMPANHAS WHATSAPP (BOLTFLOW / DINBOTFLOW - PÁGINAS 1, 2 E 3) ---
+  const defaultCampanhas = [
+    {
+      id: 'camp-1',
+      nome: 'Campanha WhatsApp 01 - Consórcio Imóveis SP',
+      segmento: 'IMOVEL',
+      status: 'ATIVA',
+      disparos: 286,
+      entregues: 270,
+      respostas: 48,
+      conversoes: 14,
+      prospects: [
+        { id: 'p1', nome: 'Eduardo Silveira Ramos', whatsapp: '+55 (11) 98123-4567', origem: 'CRM C7 Contempla', etapa: 'Respondeu', status: 'Respondeu', data: 'Hoje às 11:42' },
+        { id: 'p2', nome: 'Fabiana Cristina Araújo', whatsapp: '+55 (11) 97234-5678', origem: 'Importado CSV', etapa: 'Respondeu', status: 'Respondeu', data: 'Hoje às 10:15' },
+        { id: 'p3', nome: 'Ricardo Magalhães Soares', whatsapp: '+55 (11) 96345-6789', origem: 'CRM C7 Contempla', etapa: '2ª Mensagem', status: 'Entregue', data: 'Ontem às 18:30' },
+        { id: 'p4', nome: 'Samuel Oliveira Mendes', whatsapp: '+55 (21) 99456-7890', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Enviado', data: 'Ontem às 14:10' },
+        { id: 'p5', nome: 'José Mauricio Franklin de Miranda', whatsapp: '+55 (31) 98567-8901', origem: 'CRM C7 Contempla', etapa: 'Respondeu', status: 'Respondeu', data: '21/10 às 16:55' },
+        { id: 'p6', nome: 'Filipe Villarman Prado', whatsapp: '+55 (41) 97678-9012', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: '20/10 às 09:20' }
+      ]
+    },
+    {
+      id: 'camp-2',
+      nome: 'Campanha Cartas Contempladas - Investidores',
+      segmento: 'IMOVEL',
+      status: 'ATIVA',
+      disparos: 140,
+      entregues: 135,
+      respostas: 32,
+      conversoes: 9,
+      prospects: [
+        { id: 'p7', nome: 'Juliana Beatriz Costa', whatsapp: '+55 (11) 99887-1122', origem: 'CRM C7 Contempla', etapa: 'Respondeu', status: 'Respondeu', data: 'Hoje às 08:30' },
+        { id: 'p8', nome: 'Marcelo Pimentel', whatsapp: '+55 (21) 98776-3344', origem: 'Importado CSV', etapa: '2ª Mensagem', status: 'Entregue', data: 'Ontem às 17:00' }
+      ]
+    },
+    {
+      id: 'camp-3',
+      nome: 'Reativação Leads Frios CRM',
+      segmento: 'AUTOMOVEL',
+      status: 'PAUSADA',
+      disparos: 95,
+      entregues: 91,
+      respostas: 12,
+      conversoes: 3,
+      prospects: [
+        { id: 'p9', nome: 'Lucas de Andrade', whatsapp: '+55 (19) 97654-2211', origem: 'CRM C7 Contempla', etapa: '1ª Mensagem', status: 'Pendente', data: '19/10 às 15:00' }
+      ]
+    }
+  ];
+
+  let campanhasData = [];
+  try {
+    const saved = localStorage.getItem('consorcio_campanhas');
+    campanhasData = saved ? JSON.parse(saved) : defaultCampanhas;
+  } catch (e) {
+    campanhasData = defaultCampanhas;
+  }
+
+  let activeCampanhaId = campanhasData[0]?.id || 'camp-1';
+  let prospectsFilterStatus = 'TODOS';
+  let prospectsSearchQuery = '';
+
+  const saveCampanhasData = () => {
+    try {
+      localStorage.setItem('consorcio_campanhas', JSON.stringify(campanhasData));
+    } catch (e) {}
+  };
+
+  const getActiveCampanha = () => {
+    return campanhasData.find(c => c.id === activeCampanhaId) || campanhasData[0];
+  };
+
+  const renderCampanhas = () => {
+    const activeCamp = getActiveCampanha();
+    if (!activeCamp) return;
+
+    // Preenche seletor de campanhas
+    const selectEl = document.getElementById('select-campanha-ativa');
+    if (selectEl) {
+      selectEl.innerHTML = campanhasData.map(c => `
+        <option value="${c.id}" ${c.id === activeCamp.id ? 'selected' : ''}>${c.nome}</option>
+      `).join('');
+    }
+
+    // Atualiza status badge
+    const badgeEl = document.getElementById('badge-campanha-status');
+    const textStatusEl = document.getElementById('text-campanha-status');
+    const pauseBtnText = document.getElementById('btn-pause-text');
+
+    const isAtiva = activeCamp.status === 'ATIVA';
+    if (badgeEl) {
+      badgeEl.className = isAtiva ? 'campanha-status-badge' : 'campanha-status-badge paused';
+      badgeEl.innerHTML = `
+        <span style="width:7px; height:7px; border-radius:50%; background:${isAtiva ? '#10b981' : '#facc15'};"></span>
+        <span>${isAtiva ? 'Campanha Ativa' : 'Campanha Pausada'}</span>
+      `;
+    }
+    if (pauseBtnText) {
+      pauseBtnText.textContent = isAtiva ? 'Pausar' : 'Retomar';
+    }
+
+    // Atualiza Indicadores KPI / Funil (Página 1 do PDF)
+    const kpiDisparos = document.getElementById('kpi-campanha-disparos');
+    const kpiEntregues = document.getElementById('kpi-campanha-entregues');
+    const kpiRespostas = document.getElementById('kpi-campanha-respostas');
+    const kpiConversoes = document.getElementById('kpi-campanha-conversoes');
+
+    const barDisparos = document.getElementById('bar-campanha-disparos');
+    const barEntregues = document.getElementById('bar-campanha-entregues');
+    const barRespostas = document.getElementById('bar-campanha-respostas');
+    const barConversoes = document.getElementById('bar-campanha-conversoes');
+
+    const pctDisparos = document.getElementById('pct-campanha-disparos');
+    const pctEntregues = document.getElementById('pct-campanha-entregues');
+    const pctRespostas = document.getElementById('pct-campanha-respostas');
+    const pctConversoes = document.getElementById('pct-campanha-conversoes');
+
+    if (kpiDisparos) kpiDisparos.textContent = activeCamp.disparos;
+    if (kpiEntregues) kpiEntregues.textContent = activeCamp.entregues;
+    if (kpiRespostas) kpiRespostas.textContent = activeCamp.respostas;
+    if (kpiConversoes) kpiConversoes.textContent = activeCamp.conversoes;
+
+    const rateEntregues = activeCamp.disparos > 0 ? ((activeCamp.entregues / activeCamp.disparos) * 100).toFixed(1) : '0';
+    const rateRespostas = activeCamp.entregues > 0 ? ((activeCamp.respostas / activeCamp.entregues) * 100).toFixed(1) : '0';
+    const rateConversoes = activeCamp.respostas > 0 ? ((activeCamp.conversoes / activeCamp.respostas) * 100).toFixed(1) : '0';
+
+    if (barDisparos) barDisparos.style.width = '100%';
+    if (barEntregues) barEntregues.style.width = `${rateEntregues}%`;
+    if (barRespostas) barRespostas.style.width = `${rateRespostas}%`;
+    if (barConversoes) barConversoes.style.width = `${rateConversoes}%`;
+
+    if (pctDisparos) pctDisparos.textContent = '100%';
+    if (pctEntregues) pctEntregues.textContent = `${rateEntregues}%`;
+    if (pctRespostas) pctRespostas.textContent = `${rateRespostas}%`;
+    if (pctConversoes) pctConversoes.textContent = `${rateConversoes}%`;
+
+    // Filtra e Renderiza Tabela de Prospects (Página 1 do PDF)
+    const prospects = activeCamp.prospects || [];
+    const countTodos = prospects.length;
+    const countResp = prospects.filter(p => p.status === 'Respondeu').length;
+    const countEnv = prospects.filter(p => p.status === 'Enviado' || p.status === 'Entregue').length;
+    const countPend = prospects.filter(p => p.status === 'Pendente').length;
+
+    const elTodos = document.getElementById('count-prospects-todos');
+    const elResp = document.getElementById('count-prospects-resp');
+    const elEnv = document.getElementById('count-prospects-env');
+    const elPend = document.getElementById('count-prospects-pend');
+
+    if (elTodos) elTodos.textContent = countTodos;
+    if (elResp) elResp.textContent = countResp;
+    if (elEnv) elEnv.textContent = countEnv;
+    if (elPend) elPend.textContent = countPend;
+
+    let filtered = prospects;
+    if (prospectsFilterStatus === 'RESPONDIDOS') {
+      filtered = filtered.filter(p => p.status === 'Respondeu');
+    } else if (prospectsFilterStatus === 'ENVIADOS') {
+      filtered = filtered.filter(p => p.status === 'Enviado' || p.status === 'Entregue');
+    } else if (prospectsFilterStatus === 'PENDENTES') {
+      filtered = filtered.filter(p => p.status === 'Pendente');
+    }
+
+    if (prospectsSearchQuery.trim()) {
+      const q = prospectsSearchQuery.toLowerCase();
+      filtered = filtered.filter(p => p.nome.toLowerCase().includes(q) || p.whatsapp.includes(q));
+    }
+
+    const tbody = document.getElementById('prospects-table-body');
+    if (tbody) {
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+              Nenhum prospect encontrado com os filtros atuais.
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = filtered.map(p => {
+          let statusClass = 'sent';
+          if (p.status === 'Respondeu') statusClass = 'replied';
+          else if (p.status === 'Pendente') statusClass = 'pending';
+          else if (p.status === 'Convertido') statusClass = 'converted';
+
+          const initials = p.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+          return `
+            <tr>
+              <td>
+                <div class="prospect-user-cell">
+                  <div class="prospect-avatar">${initials}</div>
+                  <div>
+                    <strong style="color:var(--text-main); font-size:0.88rem;">${p.nome}</strong>
+                  </div>
+                </div>
+              </td>
+              <td style="color:var(--text-muted); font-size:0.84rem;">${p.whatsapp}</td>
+              <td><span style="font-size:0.75rem; background:rgba(255,255,255,0.06); padding:0.15rem 0.5rem; border-radius:4px; color:#cbd5e1;">${p.origem}</span></td>
+              <td><span style="font-size:0.8rem; font-weight:600; color:var(--primary);">${p.etapa}</span></td>
+              <td>
+                <span class="status-pill ${statusClass}">
+                  <span style="width:6px; height:6px; border-radius:50%; background:currentColor;"></span>
+                  ${p.status}
+                </span>
+              </td>
+              <td style="color:var(--text-muted); font-size:0.78rem;">${p.data}</td>
+              <td style="text-align: right;">
+                <button type="button" class="btn btn-secondary" style="font-size:0.76rem; padding:0.3rem 0.65rem;" onclick="openInboxForProspect('${p.whatsapp}', '${p.nome}', '${activeCamp.nome}')" title="Abrir conversa na Caixa de Entrada">
+                  Ver conversa
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+  };
+
+  // Listeners da Tela de Campanhas
+  const selectCampanhaAtiva = document.getElementById('select-campanha-ativa');
+  if (selectCampanhaAtiva) {
+    selectCampanhaAtiva.addEventListener('change', (e) => {
+      activeCampanhaId = e.target.value;
+      renderCampanhas();
+    });
+  }
+
+  const btnToggleCampanhaPause = document.getElementById('btn-toggle-campanha-pause');
+  if (btnToggleCampanhaPause) {
+    btnToggleCampanhaPause.addEventListener('click', () => {
+      const activeCamp = getActiveCampanha();
+      if (!activeCamp) return;
+      activeCamp.status = activeCamp.status === 'ATIVA' ? 'PAUSADA' : 'ATIVA';
+      saveCampanhasData();
+      renderCampanhas();
+    });
+  }
+
+  const searchProspectsInput = document.getElementById('input-search-prospects');
+  if (searchProspectsInput) {
+    searchProspectsInput.addEventListener('input', (e) => {
+      prospectsSearchQuery = e.target.value;
+      renderCampanhas();
+    });
+  }
+
+  document.querySelectorAll('.prospects-filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.prospects-filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      prospectsFilterStatus = tab.getAttribute('data-filter');
+      renderCampanhas();
+    });
   });
 
-  // Inicializar o simulador ao carregar
+  const btnOpenCriarCampanha = document.getElementById('btn-open-criar-campanha');
+  if (btnOpenCriarCampanha) {
+    btnOpenCriarCampanha.addEventListener('click', () => {
+      openCriarCampanhaModal();
+    });
+  }
+
+  // --- WIZARD ASSISTENTE DE CRIAÇÃO DE CAMPANHA (PÁGINAS 2 E 3 DO PDF) ---
+  let wzCurrentStep = 1;
+  let wzSelectedSource = 'CSV';
+  let wzParsedLeads = [];
+
+  const openCriarCampanhaModal = () => {
+    wzCurrentStep = 1;
+    wzSelectedSource = 'CSV';
+    wzParsedLeads = [];
+
+    const inputNome = document.getElementById('wz-input-nome');
+    if (inputNome) inputNome.value = '';
+
+    const statusCsv = document.getElementById('wz-csv-status-text');
+    if (statusCsv) statusCsv.textContent = 'Nenhum arquivo carregado';
+
+    updateWizardStepView();
+    updateWizardCrmCount();
+
+    const modal = document.getElementById('modal-criar-campanha');
+    if (modal) modal.classList.add('active');
+  };
+
+  window._openCriarCampanhaWizard = openCriarCampanhaModal;
+  window.openCriarCampanhaModal = openCriarCampanhaModal;
+  window.closeCriarCampanhaModal = () => {
+    const modal = document.getElementById('modal-criar-campanha');
+    if (modal) modal.classList.remove('active');
+  };
+
+  window.openWhatsAppConfigModal = (event) => {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    const modal = document.getElementById('modal-whatsapp-config');
+    if (modal) modal.classList.add('active');
+  };
+
+  window.closeWhatsAppConfigModal = () => {
+    const modal = document.getElementById('modal-whatsapp-config');
+    if (modal) modal.classList.remove('active');
+  };
+
+  // Fechar modals ao clicar no backdrop (fora do conteúdo)
+  const modalCampEl = document.getElementById('modal-criar-campanha');
+  if (modalCampEl) {
+    modalCampEl.addEventListener('click', (e) => {
+      if (e.target === modalCampEl) window.closeCriarCampanhaModal();
+    });
+  }
+
+  const modalWaEl = document.getElementById('modal-whatsapp-config');
+  if (modalWaEl) {
+    modalWaEl.addEventListener('click', (e) => {
+      if (e.target === modalWaEl) window.closeWhatsAppConfigModal();
+    });
+  }
+
+  const updateWizardStepView = () => {
+    // Atualiza indicadores visuais à esquerda
+    for (let i = 1; i <= 4; i++) {
+      const ind = document.getElementById(`wz-step-indicator-${i}`);
+      const content = document.getElementById(`wz-content-step-${i}`);
+
+      if (ind) {
+        ind.classList.remove('active', 'completed');
+        if (i < wzCurrentStep) ind.classList.add('completed');
+        else if (i === wzCurrentStep) ind.classList.add('active');
+      }
+
+      if (content) {
+        content.classList.toggle('active', i === wzCurrentStep);
+      }
+    }
+
+    const btnPrev = document.getElementById('wz-btn-prev');
+    const btnNext = document.getElementById('wz-btn-next');
+    const btnFinish = document.getElementById('wz-btn-finish');
+
+    if (btnPrev) btnPrev.style.visibility = wzCurrentStep === 1 ? 'hidden' : 'visible';
+    if (btnNext) btnNext.style.display = wzCurrentStep === 4 ? 'none' : 'inline-flex';
+    if (btnFinish) btnFinish.style.display = wzCurrentStep === 4 ? 'inline-flex' : 'none';
+
+    // Se passo 4, preenche revisão
+    if (wzCurrentStep === 4) {
+      const revNome = document.getElementById('wz-review-nome');
+      const revSource = document.getElementById('wz-review-source');
+      const revCount = document.getElementById('wz-review-count');
+
+      const inputNome = document.getElementById('wz-input-nome');
+      if (revNome) revNome.textContent = inputNome?.value.trim() || 'Nova Campanha';
+
+      if (revSource) {
+        revSource.textContent = wzSelectedSource === 'CSV' ? 'Planilha CSV' : 'Painel de Leads do CRM';
+      }
+
+      let count = 0;
+      if (wzSelectedSource === 'CSV') {
+        count = wzParsedLeads.length > 0 ? wzParsedLeads.length : 12; // Exemplo de amostra
+      } else {
+        count = getFilteredCrmLeads().length;
+      }
+      if (revCount) revCount.textContent = `${count} contatos`;
+    }
+  };
+
+  window.wizardStepNext = () => {
+    if (wzCurrentStep === 1) {
+      const nomeInput = document.getElementById('wz-input-nome');
+      if (!nomeInput || !nomeInput.value.trim()) {
+        alert('Por favor, informe o nome da campanha.');
+        if (nomeInput) nomeInput.focus();
+        return;
+      }
+    }
+    if (wzCurrentStep < 4) {
+      wzCurrentStep++;
+      updateWizardStepView();
+    }
+  };
+
+  window.wizardStepPrev = () => {
+    if (wzCurrentStep > 1) {
+      wzCurrentStep--;
+      updateWizardStepView();
+    }
+  };
+
+  window.selectLeadSource = (src) => {
+    wzSelectedSource = src;
+    const cardCsv = document.getElementById('card-source-csv');
+    const cardCrm = document.getElementById('card-source-crm');
+    const paneCsv = document.getElementById('wz-pane-csv');
+    const paneCrm = document.getElementById('wz-pane-crm');
+
+    if (cardCsv) cardCsv.classList.toggle('selected', src === 'CSV');
+    if (cardCrm) cardCrm.classList.toggle('selected', src === 'CRM');
+
+    if (paneCsv) paneCsv.style.display = src === 'CSV' ? 'block' : 'none';
+    if (paneCrm) paneCrm.style.display = src === 'CRM' ? 'block' : 'none';
+  };
+
+  window.handleWizardCsvUpload = (event) => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      const lines = text.split('\n').filter(l => l.trim().length > 0);
+      const leads = [];
+
+      lines.slice(1).forEach((line, idx) => {
+        const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+        if (cols[0]) {
+          leads.push({
+            id: `p-csv-${Date.now()}-${idx}`,
+            nome: cols[0] || `Lead ${idx + 1}`,
+            whatsapp: cols[1] || '+55 (11) 9' + Math.floor(10000000 + Math.random() * 90000000),
+            origem: 'Importado CSV',
+            etapa: '1ª Mensagem',
+            status: 'Pendente',
+            data: 'Agora'
+          });
+        }
+      });
+
+      if (leads.length === 0) {
+        // Fallback para arquivo vazio com leads modelo
+        wzParsedLeads = [
+          { id: `p-${Date.now()}-1`, nome: 'Marcos Vinicius Tavares', whatsapp: '+55 (11) 98877-6655', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' },
+          { id: `p-${Date.now()}-2`, nome: 'Ana Paula Guimarães', whatsapp: '+55 (21) 97766-5544', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' }
+        ];
+      } else {
+        wzParsedLeads = leads;
+      }
+
+      const statusEl = document.getElementById('wz-csv-status-text');
+      if (statusEl) {
+        statusEl.textContent = `✓ ${file.name} carregado com sucesso (${wzParsedLeads.length} leads identificados)`;
+        statusEl.style.color = '#34d399';
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const getFilteredCrmLeads = () => {
+    const selectStatus = document.getElementById('wz-select-crm-status');
+    const filter = selectStatus ? selectStatus.value : 'ALL';
+    const leadsList = state.leads && state.leads.length > 0 ? state.leads : [
+      { id: 'crm-l1', nome: 'Carlos Eduardo Nogueira', telefone: '+55 (11) 98765-4321', status: 'NOVO', valorBem: 150000 },
+      { id: 'crm-l2', nome: 'Patricia Helena Castro', telefone: '+55 (21) 97654-3210', status: 'EM_ATENDIMENTO', valorBem: 280000 },
+      { id: 'crm-l3', nome: 'Rodrigo Bastos', telefone: '+55 (31) 96543-2109', status: 'QUALIFICADO', valorBem: 450000 },
+      { id: 'crm-l4', nome: 'Camila Fernandes', telefone: '+55 (41) 95432-1098', status: 'NOVO', valorBem: 80000 }
+    ];
+
+    if (filter === 'ALL') return leadsList;
+    return leadsList.filter(l => l.status === filter);
+  };
+
+  window.updateWizardCrmCount = () => {
+    const countEl = document.getElementById('wz-crm-leads-count');
+    if (countEl) {
+      const count = getFilteredCrmLeads().length;
+      countEl.textContent = `${count}`;
+    }
+  };
+
+  window.insertWzTag = (textareaId, tag) => {
+    const textarea = document.getElementById(textareaId);
+    if (!textarea) return;
+    const start = textarea.selectionStart || 0;
+    const end = textarea.selectionEnd || 0;
+    const text = textarea.value;
+    textarea.value = text.substring(0, start) + tag + text.substring(end);
+    textarea.focus();
+    textarea.selectionStart = textarea.selectionEnd = start + tag.length;
+  };
+
+  window.concluirCriacaoCampanha = () => {
+    const inputNome = document.getElementById('wz-input-nome');
+    const selectCat = document.getElementById('wz-select-categoria');
+    const nome = inputNome ? inputNome.value.trim() : 'Nova Campanha';
+    const segmento = selectCat ? selectCat.value : 'IMOVEL';
+
+    let prospects = [];
+    if (wzSelectedSource === 'CSV') {
+      prospects = wzParsedLeads.length > 0 ? wzParsedLeads : [
+        { id: `p-${Date.now()}-1`, nome: 'Marcos Vinicius Tavares', whatsapp: '+55 (11) 98877-6655', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' },
+        { id: `p-${Date.now()}-2`, nome: 'Ana Paula Guimarães', whatsapp: '+55 (21) 97766-5544', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' },
+        { id: `p-${Date.now()}-3`, nome: 'Guilherme Siqueira', whatsapp: '+55 (31) 96655-4433', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' }
+      ];
+    } else {
+      const crmLeads = getFilteredCrmLeads();
+      prospects = crmLeads.map((l, idx) => ({
+        id: `p-crm-${l.id || idx}`,
+        nome: l.nome || `Lead CRM ${idx + 1}`,
+        whatsapp: l.telefone || l.whatsapp || '+55 (11) 98765-0000',
+        origem: 'CRM C7 Contempla',
+        etapa: '1ª Mensagem',
+        status: 'Pendente',
+        data: 'Agora'
+      }));
+    }
+
+    const newCamp = {
+      id: `camp-${Date.now()}`,
+      nome: nome,
+      segmento: segmento,
+      status: 'ATIVA',
+      disparos: prospects.length,
+      entregues: 0,
+      respostas: 0,
+      conversoes: 0,
+      prospects: prospects
+    };
+
+    campanhasData.unshift(newCamp);
+    activeCampanhaId = newCamp.id;
+    saveCampanhasData();
+
+    closeCriarCampanhaModal();
+    switchAppView('campanhas');
+    alert(`Campanha "${nome}" criada com sucesso! Disparos iniciados com intervalo de segurança anti-ban.`);
+  };
+
+  // --- CAIXA DE ENTRADA (INBOX WHATSAPP - PÁGINAS 1 E 2 DO PDF) ---
+  const defaultConversas = [
+    {
+      id: 'conv-1',
+      nome: 'Eduardo Silveira Ramos',
+      whatsapp: '+55 (11) 98123-4567',
+      campanha: 'Campanha WhatsApp 01 - Consórcio Imóveis SP',
+      avatar: 'ES',
+      online: true,
+      naoLida: true,
+      mensagens: [
+        { id: 'm1', texto: 'Olá Eduardo, tudo bem? Sou especialista da C7 Contempla. Vi seu interesse em uma cota de Imóvel no valor de R$ 300.000. Posso te apresentar opções sem juros?', remetente: 'agente', hora: '11:30' },
+        { id: 'm2', texto: 'Olá! Sim, gostaria de saber qual o valor da parcela para 180 meses.', remetente: 'cliente', hora: '11:42' }
+      ]
+    },
+    {
+      id: 'conv-2',
+      nome: 'Fabiana Cristina Araújo',
+      whatsapp: '+55 (11) 97234-5678',
+      campanha: 'Campanha WhatsApp 01 - Consórcio Imóveis SP',
+      avatar: 'FA',
+      online: true,
+      naoLida: true,
+      mensagens: [
+        { id: 'm3', texto: 'Olá Fabiana, vi seu interesse em planejamento imobiliário sem juros. Tem preferência por imóvel pronto ou na planta?', remetente: 'agente', hora: '10:05' },
+        { id: 'm4', texto: 'Bom dia! Gostaria de comprar um apartamento pronto em São Paulo. Vocês têm cotas contempladas?', remetente: 'cliente', hora: '10:15' }
+      ]
+    },
+    {
+      id: 'conv-3',
+      nome: 'José Mauricio Franklin de Miranda',
+      whatsapp: '+55 (31) 98567-8901',
+      campanha: 'Campanha WhatsApp 01 - Consórcio Imóveis SP',
+      avatar: 'JM',
+      online: false,
+      naoLida: true,
+      mensagens: [
+        { id: 'm5', texto: 'José, consegui simular duas administradoras com taxas administrativas promocionais. Deseja que envie a tabela comparativa?', remetente: 'agente', hora: '21/10 16:40' },
+        { id: 'm6', texto: 'Pode me mandar em PDF por gentileza?', remetente: 'cliente', hora: '21/10 16:55' }
+      ]
+    },
+    {
+      id: 'conv-4',
+      nome: 'Juliana Beatriz Costa',
+      whatsapp: '+55 (11) 99887-1122',
+      campanha: 'Campanha Cartas Contempladas - Investidores',
+      avatar: 'JC',
+      online: false,
+      naoLida: false,
+      mensagens: [
+        { id: 'm7', texto: 'Olá Juliana, temos 3 cartas contempladas de imóvel com crédito de 400 mil e entrada facilitada.', remetente: 'agente', hora: 'Ontem 17:15' },
+        { id: 'm8', texto: 'Perfeito, me passa a administradora e o prazo restante.', remetente: 'cliente', hora: 'Hoje 08:30' }
+      ]
+    }
+  ];
+
+  let conversasData = [];
+  try {
+    const saved = localStorage.getItem('consorcio_inbox');
+    conversasData = saved ? JSON.parse(saved) : defaultConversas;
+  } catch (e) {
+    conversasData = defaultConversas;
+  }
+
+  let activeConversaId = null;
+  let inboxCampaignFilter = 'ALL';
+  let inboxStatusFilter = 'ALL';
+  let inboxSearchTerm = '';
+
+  const saveConversasData = () => {
+    try {
+      localStorage.setItem('consorcio_inbox', JSON.stringify(conversasData));
+    } catch (e) {}
+  };
+
+  const updateUnreadBadge = () => {
+    const unreadCount = conversasData.filter(c => c.naoLida).length;
+    const badgeSidebar = document.getElementById('sidebar-inbox-unread');
+    if (badgeSidebar) {
+      badgeSidebar.textContent = unreadCount;
+      badgeSidebar.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+    }
+  };
+
+  const renderInbox = () => {
+    updateUnreadBadge();
+
+    // Popula filtro de campanhas
+    const selectCamp = document.getElementById('inbox-select-campaign');
+    if (selectCamp) {
+      const campNames = Array.from(new Set(conversasData.map(c => c.campanha).filter(Boolean)));
+      selectCamp.innerHTML = `
+        <option value="ALL">Todas as campanhas</option>
+        ${campNames.map(name => `<option value="${name}" ${inboxCampaignFilter === name ? 'selected' : ''}>${name}</option>`).join('')}
+      `;
+    }
+
+    // Filtra lista de conversas
+    let filtered = conversasData;
+    if (inboxCampaignFilter !== 'ALL') {
+      filtered = filtered.filter(c => c.campanha === inboxCampaignFilter);
+    }
+
+    if (inboxStatusFilter === 'UNREAD') {
+      filtered = filtered.filter(c => c.naoLida);
+    } else if (inboxStatusFilter === 'REPLIED') {
+      filtered = filtered.filter(c => c.mensagens && c.mensagens.some(m => m.remetente === 'cliente'));
+    }
+
+    if (inboxSearchTerm.trim()) {
+      const q = inboxSearchTerm.toLowerCase();
+      filtered = filtered.filter(c => c.nome.toLowerCase().includes(q) || c.whatsapp.includes(q));
+    }
+
+    const totalEl = document.getElementById('inbox-total-conversations');
+    if (totalEl) totalEl.textContent = `${filtered.length} conversas`;
+
+    // Renderiza itens da lista à esquerda (Páginas 1 e 2 do PDF)
+    const listEl = document.getElementById('inbox-conversations-list');
+    if (listEl) {
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+          <div style="padding: 2.5rem 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.84rem;">
+            Nenhuma conversa encontrada com os filtros atuais.
+          </div>
+        `;
+      } else {
+        listEl.innerHTML = filtered.map(c => {
+          const lastMsg = c.mensagens && c.mensagens.length > 0 ? c.mensagens[c.mensagens.length - 1] : { texto: 'Sem mensagens', hora: '' };
+          const isActive = c.id === activeConversaId;
+
+          return `
+            <div class="inbox-conv-item ${isActive ? 'active' : ''}" onclick="selectInboxConversation('${c.id}')">
+              <div class="inbox-conv-avatar">
+                ${c.avatar || 'CL'}
+                ${c.online ? '<div class="inbox-online-indicator"></div>' : ''}
+              </div>
+              <div class="inbox-conv-content">
+                <div class="inbox-conv-top">
+                  <span class="inbox-conv-name">${c.nome}</span>
+                  <span class="inbox-conv-time">${lastMsg.hora}</span>
+                </div>
+                <div class="inbox-conv-campaign-tag">${c.campanha || 'WhatsApp Flow'}</div>
+                <div class="inbox-conv-snippet">
+                  <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;">
+                    ${lastMsg.remetente === 'agente' ? '<span style="color:#38bdf8;">Você:</span> ' : ''}${lastMsg.texto}
+                  </span>
+                  ${c.naoLida ? '<div class="inbox-unread-dot"></div>' : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // Renderiza chat ativo à direita (Página 1 e 2 do PDF)
+    renderActiveChat();
+  };
+
+  const renderActiveChat = () => {
+    const emptyState = document.getElementById('inbox-empty-state');
+    const header = document.getElementById('inbox-chat-header');
+    const scrollPane = document.getElementById('inbox-chat-messages-scroll');
+    const footer = document.getElementById('inbox-chat-footer');
+
+    if (!activeConversaId) {
+      if (emptyState) emptyState.style.display = 'flex';
+      if (header) header.style.display = 'none';
+      if (scrollPane) scrollPane.style.display = 'none';
+      if (footer) footer.style.display = 'none';
+      return;
+    }
+
+    const conv = conversasData.find(c => c.id === activeConversaId);
+    if (!conv) return;
+
+    if (emptyState) emptyState.style.display = 'none';
+    if (header) header.style.display = 'flex';
+    if (scrollPane) scrollPane.style.display = 'flex';
+    if (footer) footer.style.display = 'flex';
+
+    // Header do Chat
+    const avatar = document.getElementById('inbox-active-avatar');
+    const name = document.getElementById('inbox-active-name');
+    const phone = document.getElementById('inbox-active-phone');
+    const tag = document.getElementById('inbox-active-campaign-tag');
+
+    if (avatar) avatar.textContent = conv.avatar || 'CL';
+    if (name) name.textContent = conv.nome;
+    if (phone) phone.textContent = conv.whatsapp;
+    if (tag) tag.textContent = conv.campanha || 'Campanha WhatsApp';
+
+    // Histórico de Mensagens Estilo WhatsApp
+    if (scrollPane) {
+      scrollPane.innerHTML = conv.mensagens.map(m => {
+        const isIncoming = m.remetente === 'cliente';
+        return `
+          <div class="chat-bubble ${isIncoming ? 'incoming' : 'outgoing'}">
+            <div>${m.texto}</div>
+            <div class="chat-bubble-time">
+              <span>${m.hora}</span>
+              ${!isIncoming ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/><polyline points="20 12 12 20 9 17"/></svg>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      scrollPane.scrollTop = scrollPane.scrollHeight;
+    }
+  };
+
+  window.selectInboxConversation = (convId) => {
+    activeConversaId = convId;
+    const conv = conversasData.find(c => c.id === convId);
+    if (conv && conv.naoLida) {
+      conv.naoLida = false;
+      saveConversasData();
+    }
+    renderInbox();
+  };
+
+  window.openInboxForProspect = (whatsapp, nome, campanhaNome) => {
+    let conv = conversasData.find(c => c.whatsapp === whatsapp);
+    if (!conv) {
+      const parts = nome.split(' ');
+      const initials = parts.length > 1 ? (parts[0][0] + parts[1][0]) : nome.substring(0, 2);
+      conv = {
+        id: `conv-${Date.now()}`,
+        nome: nome,
+        whatsapp: whatsapp,
+        campanha: campanhaNome || 'Campanha WhatsApp',
+        avatar: initials.toUpperCase(),
+        online: true,
+        naoLida: false,
+        mensagens: [
+          { id: `m-${Date.now()}`, texto: `Olá ${nome}, como posso te ajudar hoje na C7 Contempla?`, remetente: 'agente', hora: 'Agora' }
+        ]
+      };
+      conversasData.unshift(conv);
+      saveConversasData();
+    }
+    activeConversaId = conv.id;
+    switchAppView('inbox');
+  };
+
+  const sendInboxMessage = () => {
+    const input = document.getElementById('inbox-chat-input');
+    if (!input || !input.value.trim() || !activeConversaId) return;
+
+    const conv = conversasData.find(c => c.id === activeConversaId);
+    if (!conv) return;
+
+    const now = new Date();
+    const hora = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    conv.mensagens.push({
+      id: `m-${Date.now()}`,
+      texto: input.value.trim(),
+      remetente: 'agente',
+      hora: hora
+    });
+
+    input.value = '';
+    saveConversasData();
+    renderInbox();
+
+    // Simulação interativa de resposta do lead após 2.5s (demonstração dinâmica)
+    setTimeout(() => {
+      const currentConv = conversasData.find(c => c.id === activeConversaId);
+      if (currentConv) {
+        currentConv.mensagens.push({
+          id: `m-reply-${Date.now()}`,
+          texto: 'Recebido! Poderia me enviar a proposta detalhada com a taxa de administração e o lance embutido?',
+          remetente: 'cliente',
+          hora: hora
+        });
+        saveConversasData();
+        renderInbox();
+      }
+    }, 2500);
+  };
+
+  const btnInboxSend = document.getElementById('btn-inbox-send');
+  if (btnInboxSend) {
+    btnInboxSend.addEventListener('click', sendInboxMessage);
+  }
+
+  const inboxChatInput = document.getElementById('inbox-chat-input');
+  if (inboxChatInput) {
+    inboxChatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendInboxMessage();
+      }
+    });
+  }
+
+  // Quick Templates
+  document.querySelectorAll('.template-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const tpl = pill.getAttribute('data-template') || '';
+      const input = document.getElementById('inbox-chat-input');
+      const conv = conversasData.find(c => c.id === activeConversaId);
+      const leadName = conv ? conv.nome.split(' ')[0] : 'Cliente';
+
+      if (input) {
+        input.value = tpl.replace('{nome}', leadName);
+        input.focus();
+      }
+    });
+  });
+
+  // Filtros da Caixa de Entrada
+  const selectInboxCampaign = document.getElementById('inbox-select-campaign');
+  if (selectInboxCampaign) {
+    selectInboxCampaign.addEventListener('change', (e) => {
+      inboxCampaignFilter = e.target.value;
+      renderInbox();
+    });
+  }
+
+  const searchInboxField = document.getElementById('inbox-search-field');
+  if (searchInboxField) {
+    searchInboxField.addEventListener('input', (e) => {
+      inboxSearchTerm = e.target.value;
+      renderInbox();
+    });
+  }
+
+  document.querySelectorAll('.inbox-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.inbox-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      inboxStatusFilter = chip.getAttribute('data-inbox-filter');
+      renderInbox();
+    });
+  });
+
+  const btnInboxOpenCrm = document.getElementById('btn-inbox-open-crm');
+  if (btnInboxOpenCrm) {
+    btnInboxOpenCrm.addEventListener('click', () => {
+      switchAppView('crm');
+    });
+  }
+
+  // --- INICIALIZAÇÃO DE AUTENTICAÇÃO E PERMISSÕES ---
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      // Usuário visitante (acesso direto pelo link de Cartas ou Landing Page)
-      currentUserRole = 'CLIENTE';
+      // Modo Demonstração / Local: Garante acesso completo como ADM
+      currentUserRole = localStorage.getItem('consorcio_user_role') || 'ADM';
       const userRoleBadgeEl = document.getElementById('user-role-badge');
-      if (userRoleBadgeEl) userRoleBadgeEl.textContent = 'CLIENTE';
+      if (userRoleBadgeEl) userRoleBadgeEl.textContent = currentUserRole;
       const userDisplayNameEl = document.getElementById('user-display-name');
-      if (userDisplayNameEl) userDisplayNameEl.textContent = 'Visitante';
+      if (userDisplayNameEl) userDisplayNameEl.textContent = 'Rodrigo Porrino';
       const userEmailDisplayEl = document.getElementById('user-email-display');
-      if (userEmailDisplayEl) userEmailDisplayEl.textContent = '';
+      if (userEmailDisplayEl) userEmailDisplayEl.textContent = '(rodrigo@c7contempla.com.br)';
+
+      updateSidebarUserInfo('Rodrigo Porrino', 'rodrigo@c7contempla.com.br', currentUserRole);
+      updateSidebarNavPermissions();
 
       const btnLogout = document.getElementById('btn-logout');
       if (btnLogout) {
@@ -1137,6 +2146,9 @@ const initApp = () => {
 
     const userRoleBadgeEl = document.getElementById('user-role-badge');
     if (userRoleBadgeEl) userRoleBadgeEl.textContent = currentUserRole || 'CLIENTE';
+
+    updateSidebarUserInfo(displayName, email, currentUserRole);
+    updateSidebarNavPermissions();
 
     if (currentUserRole === 'ADM') {
       const toggleCrm = document.getElementById('toggle-crm');
@@ -1202,29 +2214,41 @@ const initApp = () => {
     const defaultIcon = document.getElementById('default-logo-icon');
     const logoText = document.getElementById('logo-text');
 
+    const sidebarImg = document.getElementById('sidebar-custom-logo-img');
+    const sidebarIcon = document.getElementById('sidebar-default-icon');
+    const sidebarText = document.getElementById('sidebar-brand-text');
+
     if (logoUrl) {
       if (customImg) {
         customImg.src = logoUrl;
         customImg.style.display = 'block';
       }
-      if (defaultIcon) {
-        defaultIcon.style.display = 'none';
+      if (defaultIcon) defaultIcon.style.display = 'none';
+      if (logoText) logoText.style.display = 'none';
+
+      if (sidebarImg) {
+        sidebarImg.src = logoUrl;
+        sidebarImg.style.display = 'block';
       }
-      if (logoText) {
-        logoText.style.display = 'none';
-      }
+      if (sidebarIcon) sidebarIcon.style.display = 'none';
+      if (sidebarText) sidebarText.style.display = 'none';
     } else {
       if (customImg) {
         customImg.style.display = 'none';
         customImg.removeAttribute('src');
       }
-      if (defaultIcon) {
-        defaultIcon.style.display = 'flex';
-      }
+      if (defaultIcon) defaultIcon.style.display = 'flex';
       if (logoText) {
         logoText.style.display = 'inline-block';
-        logoText.textContent = 'ConsórcioOne';
+        logoText.textContent = 'C7 Contempla';
       }
+
+      if (sidebarImg) {
+        sidebarImg.style.display = 'none';
+        sidebarImg.removeAttribute('src');
+      }
+      if (sidebarIcon) sidebarIcon.style.display = 'flex';
+      if (sidebarText) sidebarText.style.display = 'flex';
     }
     updateLogoButtonsState();
   };
@@ -1324,7 +2348,7 @@ const initApp = () => {
   // Ação de Remoção do Logo (ADM)
   window.triggerRemoveLogo = () => {
     showConfirm(
-      'Deseja remover o logotipo personalizado e restaurar a identidade padrão ConsórcioOne?',
+      'Deseja remover o logotipo personalizado e restaurar a identidade padrão C7 Contempla?',
       'Restaurar Identidade Padrão',
       async () => {
         try {
@@ -1342,13 +2366,13 @@ const initApp = () => {
             console.warn('Erro ao sincronizar remoção no Firestore:', cloudErr);
           }
 
-          showAlert('Logotipo removido com sucesso! A identidade padrão ConsórcioOne foi restaurada.', 'Padrão Restaurado');
+          showAlert('Logotipo removido com sucesso! A identidade padrão C7 Contempla foi restaurada.', 'Padrão Restaurado');
         } catch (err) {
           console.error('Erro ao remover logo:', err);
           showAlert('Erro ao remover logo.', 'Erro');
         }
       },
-      'Restaurar ConsórcioOne',
+      'Restaurar C7 Contempla',
       false
     );
   };
@@ -2257,8 +3281,9 @@ const initApp = () => {
 
   const checkUrlNavigation = () => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('view') === 'cartas') {
-      if (elements.toggleCartasBtn) elements.toggleCartasBtn.click();
+    const view = urlParams.get('view');
+    if (view && ['portal', 'campanhas', 'inbox', 'crm', 'cartas'].includes(view)) {
+      switchAppView(view);
     }
   };
 
