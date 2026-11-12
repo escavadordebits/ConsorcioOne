@@ -30,20 +30,42 @@ const initApp = () => {
   };
 
   // Carregar dados salvos do localStorage se existirem
+  const getLocalLeads = () => {
+    try {
+      const saved = localStorage.getItem('consorcio_leads_local');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  };
 
-  // Async load leads from Firestore
+  const saveLocalLeads = (leadsArr) => {
+    try {
+      localStorage.setItem('consorcio_leads_local', JSON.stringify(leadsArr));
+    } catch (e) {}
+  };
+
+  // Async load leads from Firestore + LocalStorage (Chatbot Landing Page)
   const loadLeads = async () => {
+    const localLeads = getLocalLeads();
+    const mergedMap = new Map();
+    localLeads.forEach(l => {
+      if (l && l.id) mergedMap.set(l.id, l);
+    });
+
     try {
       const querySnapshot = await getDocs(collection(db, 'leads'));
-      const firestoreLeads = [];
-      querySnapshot.forEach((doc) => {
-        firestoreLeads.push({ id: doc.id, ...doc.data() });
+      querySnapshot.forEach((docSnap) => {
+        const data = { id: docSnap.id, ...docSnap.data() };
+        mergedMap.set(data.id, { ...(mergedMap.get(data.id) || {}), ...data });
       });
-      state.leads = firestoreLeads;
-      renderKanban();
     } catch (e) {
-      console.error("Error loading leads", e);
+      console.error("Error loading leads from Firestore, using local leads:", e);
     }
+
+    state.leads = Array.from(mergedMap.values());
+    saveLocalLeads(state.leads);
+    renderKanban();
   };
 
 
@@ -540,6 +562,7 @@ const initApp = () => {
     };
 
     state.leads.push(newLead);
+    saveLocalLeads(state.leads);
 
     // sync to firestore
     try {
@@ -741,6 +764,7 @@ const initApp = () => {
       const lead = state.leads.find(l => l.id === id);
       if (lead && lead.status !== key) {
         lead.status = key;
+        saveLocalLeads(state.leads);
 
         // sync to firestore
         try {
@@ -778,20 +802,43 @@ const initApp = () => {
   // --- DETALHES DO LEAD (SLIDE OVER) ---
   const openLeadDetails = (lead) => {
     state.leadCorrente = lead;
-    elements.leadPanelName.textContent = lead.nomeCompleto || 'Sem Nome';
+    elements.leadPanelName.textContent = lead.nomeCompleto || lead.apelido || 'Sem Nome';
 
-    // Renderizar informações básicas
+    const chatHistoryHtml = (lead.chatHistory && lead.chatHistory.length > 0) ? `
+      <div style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid var(--border-color);">
+        <div style="font-size: 0.78rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem;">Histórico do Chat / Atendimento IA</div>
+        <div class="history-chat-list">
+          ${lead.chatHistory.map(m => `
+            <div class="history-chat-msg ${m.remetente === 'CLIENTE' ? 'client' : 'ia'}">
+              <strong style="font-size:0.7rem; opacity:0.75; display:block; margin-bottom:2px;">${m.remetente === 'CLIENTE' ? (lead.apelido || 'Visitante') : 'Assistente C7'}</strong>
+              ${m.conteudo}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : '';
+
+    // Renderizar informações básicas e dados pessoais enriquecidos pelo Chatbot
     elements.leadDetailsBox.innerHTML = `
-      <div class="detail-row"><span class="detail-label">Telefone:</span><span class="detail-value">${lead.telefone}</span></div>
+      ${lead.apelido ? `<div class="detail-row"><span class="detail-label">Como prefere ser chamado:</span><span class="detail-value">${lead.apelido}</span></div>` : ''}
+      <div class="detail-row"><span class="detail-label">Nome Completo:</span><span class="detail-value">${lead.nomeCompleto || 'N/A'}</span></div>
+      <div class="detail-row"><span class="detail-label">Telefone / WhatsApp:</span><span class="detail-value">${lead.telefone || 'N/A'}</span></div>
       <div class="detail-row"><span class="detail-label">E-mail:</span><span class="detail-value">${lead.email || 'N/A'}</span></div>
       <div class="detail-row"><span class="detail-label">CPF/CNPJ:</span><span class="detail-value">${lead.cpfCnpj || 'N/A'}</span></div>
-      <div class="detail-row"><span class="detail-label">Renda declarada:</span><span class="detail-value">${formatCurrency(lead.rendaMensal)}</span></div>
-      <div class="detail-row"><span class="detail-label">Administradora:</span><span class="detail-value">${lead.administradora}</span></div>
+      ${lead.dataNascimento ? `<div class="detail-row"><span class="detail-label">Data de Nascimento:</span><span class="detail-value">${lead.dataNascimento}</span></div>` : ''}
+      ${lead.cep ? `<div class="detail-row"><span class="detail-label">CEP:</span><span class="detail-value">${lead.cep}</span></div>` : ''}
+      ${lead.endereco ? `<div class="detail-row"><span class="detail-label">Endereço / Localidade:</span><span class="detail-value">${lead.endereco}</span></div>` : ''}
+      ${lead.titularPlano ? `<div class="detail-row"><span class="detail-label">Titular do Plano:</span><span class="detail-value">${lead.titularPlano}</span></div>` : ''}
+      <div class="detail-row"><span class="detail-label">Renda declarada:</span><span class="detail-value">${formatCurrency(lead.rendaMensal || 0)}</span></div>
+      <div class="detail-row"><span class="detail-label">Administradora:</span><span class="detail-value">${lead.administradora || 'C7 Contempla Multimarcas'}</span></div>
       <div class="detail-row"><span class="detail-label">Tipos de Consórcio:</span><span class="detail-value">${(lead.tiposConsorcio && lead.tiposConsorcio.length > 0) ? lead.tiposConsorcio.join(', ') : (lead.categoriaBem || 'N/A')}</span></div>
-      <div class="detail-row"><span class="detail-label">Crédito Simulado:</span><span class="detail-value">${formatCurrency(lead.valorCredito)}</span></div>
-      <div class="detail-row"><span class="detail-label">Plano/Prazo:</span><span class="detail-value">${lead.prazoMeses} meses</span></div>
-      <div class="detail-row"><span class="detail-label">Parcela Estimada:</span><span class="detail-valueHighlight" style="color:var(--accent); font-weight:700;">${formatCurrency(lead.valorParcela)}</span></div>
-      <div class="detail-row"><span class="detail-label">Origem do Lead:</span><span class="detail-value">${lead.origem}</span></div>
+      ${lead.tipoPlano ? `<div class="detail-row"><span class="detail-label">Modalidade do Plano:</span><span class="detail-value">${lead.tipoPlano}</span></div>` : ''}
+      <div class="detail-row"><span class="detail-label">Crédito Simulado:</span><span class="detail-value">${formatCurrency(lead.valorCredito || 0)}</span></div>
+      <div class="detail-row"><span class="detail-label">Plano/Prazo:</span><span class="detail-value">${lead.prazoMeses || 60} meses</span></div>
+      <div class="detail-row"><span class="detail-label">Parcela Estimada:</span><span class="detail-valueHighlight" style="color:var(--accent); font-weight:700;">${formatCurrency(lead.valorParcela || 0)}</span></div>
+      ${lead.aceitouRegulamento ? `<div class="detail-row"><span class="detail-label">Termos / Regulamento:</span><span class="detail-value" style="color:#10b981; font-weight:600;">✓ Aceito pelo Visitante</span></div>` : ''}
+      <div class="detail-row"><span class="detail-label">Origem do Lead:</span><span class="detail-value">${lead.origem || 'WEB'}</span></div>
+      ${chatHistoryHtml}
     `;
 
     // Renderizar seção de documentos / OCR
@@ -980,6 +1027,7 @@ const initApp = () => {
       state.leads[leadIndex].telefone = formData.get('telefone');
       state.leads[leadIndex].rendaMensal = parseFloat(formData.get('renda'));
       state.leads[leadIndex].tiposConsorcio = formData.getAll('edit_tipo_consorcio');
+      saveLocalLeads(state.leads);
 
       // Salvar no firestore
       try {
@@ -1020,6 +1068,7 @@ const initApp = () => {
     const leadToDelete = state.leadCorrente;
     showConfirm(`Tem certeza que deseja excluir o lead ${leadToDelete.nomeCompleto || 'selecionado'}?`, 'Excluir Lead', async () => {
       state.leads = state.leads.filter(l => l.id !== leadToDelete.id);
+      saveLocalLeads(state.leads);
 
       // sync to firestore
       try {
@@ -2114,6 +2163,7 @@ const initApp = () => {
 
       updateCartasPermissions();
       loadCartasData();
+      loadLeads();
       checkUrlNavigation();
       return;
     }

@@ -448,6 +448,724 @@
         height: 340px;
       }
     }
+
+    /* ==========================================================================
+       CHATBOT INTERATIVO C7 CONTEMPLA (INSPIRADO NO FLUXO CONVERSACIONAL MYCON
+       COM IDENTIDADE VISUAL C7 CONTEMPLA - CAPTURA AVANÇADA DE LEADS)
+       ========================================================================== */
+    .c7-chatbot-section {
+      padding: 1rem 1.5rem 3.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 20;
+    }
+
+    .c7-chat-shell {
+      background: linear-gradient(180deg, #111827 0%, #0b0f19 100%);
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      border-radius: 24px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 0 0 40px rgba(14, 165, 233, 0.12);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 680px;
+      max-height: 85vh;
+      position: relative;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Modo Tela Cheia (Idêntico à experiência imersiva do vídeo de referência) */
+    .c7-chat-shell.fullscreen-mode {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      max-height: 100vh;
+      border-radius: 0;
+      border: none;
+      z-index: 9995;
+      background: #181f2e;
+    }
+
+    /* Top Header do Chat C7 */
+    .c7-chat-topbar {
+      background: rgba(11, 15, 25, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+
+    .c7-chat-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .c7-chat-brand-logo {
+      height: 44px;
+      width: auto;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    .c7-chat-brand-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .c7-chat-brand-title {
+      font-family: var(--font-title);
+      font-size: 1rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .c7-chat-online-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      display: inline-block;
+    }
+
+    .c7-chat-brand-sub {
+      font-size: 0.76rem;
+      color: #94a3b8;
+    }
+
+    .c7-chat-progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+    }
+
+    .c7-chat-progress-label {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      white-space: nowrap;
+    }
+
+    .c7-chat-progress-bar-bg {
+      width: 80px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .c7-chat-progress-bar-fill {
+      height: 100%;
+      width: 10%;
+      background: linear-gradient(90deg, #0ea5e9, #10b981);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .c7-chat-top-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .c7-chat-top-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      padding: 0.45rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+    }
+
+    .c7-chat-top-btn:hover {
+      background: rgba(14, 165, 233, 0.18);
+      border-color: rgba(14, 165, 233, 0.45);
+      color: #ffffff;
+    }
+
+    /* Área de Rolagem da Conversa (Estilo Mycon Centralizado com Identidade C7) */
+    .c7-chat-stream-viewport {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.75rem 1.25rem 2rem;
+      background: 
+        radial-gradient(circle at 15% 15%, rgba(14, 165, 233, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.07) 0%, transparent 45%),
+        #182030;
+      scroll-behavior: smooth;
+    }
+
+    .c7-chat-stream-container {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    /* Banner Hero Interno do Chat (Inspirado no 00:00 do vídeo Mycon com visual C7) */
+    .c7-chat-welcome-banner {
+      background: #ffffff;
+      border-radius: 16px;
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      margin-bottom: 0.75rem;
+      min-height: 138px;
+      border: 1px solid rgba(14, 165, 233, 0.25);
+    }
+
+    .c7-banner-left {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+    }
+
+    .c7-banner-brand-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-right: 1rem;
+      border-right: 2px solid #e2e8f0;
+      min-width: 78px;
+    }
+
+    .c7-banner-brand-pill img {
+      width: 68px;
+      height: auto;
+      object-fit: contain;
+      background: #0b0f19;
+      padding: 6px;
+      border-radius: 8px;
+    }
+
+    .c7-banner-headline {
+      color: #0f172a;
+      font-family: var(--font-title);
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.38;
+    }
+
+    .c7-banner-headline span {
+      color: #0284c7;
+    }
+
+    .c7-banner-right {
+      width: 175px;
+      background: linear-gradient(135deg, #0ea5e9 0%, #4f46e5 100%);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .c7-banner-right img {
+      width: 100%;
+      height: 145px;
+      object-fit: cover;
+      object-position: center 18%;
+      display: block;
+    }
+
+    /* Linha de Mensagem do Bot (com ícone C7 à esquerda como no vídeo) */
+    .c7-msg-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.65rem;
+      width: 100%;
+      animation: c7FadeSlideUp 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes c7FadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .c7-msg-row.bot {
+      justify-content: flex-start;
+    }
+
+    .c7-msg-row.user {
+      justify-content: flex-end;
+    }
+
+    .c7-bot-avatar-col {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .c7-bot-avatar-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+      color: #ffffff;
+      font-family: var(--font-title);
+      font-weight: 800;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    /* Balão do Bot (Branco/Gelo de alto contraste como no vídeo do concorrente) */
+    .c7-bubble-bot {
+      background: #ffffff;
+      color: #1e293b;
+      padding: 1rem 1.25rem;
+      border-radius: 14px;
+      border-bottom-left-radius: 4px;
+      font-size: 0.94rem;
+      line-height: 1.52;
+      max-width: 520px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.18);
+    }
+
+    .c7-bubble-bot strong {
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .c7-bubble-bot .c7-highlight-blue {
+      color: #0284c7;
+      font-weight: 700;
+    }
+
+    /* Balão do Usuário / Visitante (À direita, escuro elegante com borda C7) */
+    .c7-bubble-user {
+      background: #0f172a;
+      color: #ffffff;
+      border: 1px solid rgba(14, 165, 233, 0.45);
+      padding: 0.85rem 1.35rem;
+      border-radius: 12px;
+      border-bottom-right-radius: 4px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 1.45;
+      max-width: 440px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+      text-align: right;
+    }
+
+    /* Botões de Ação / Resposta Rápida dentro da conversa (alinhados à direita como no Mycon) */
+    .c7-actions-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      margin-top: 0.35rem;
+      margin-bottom: 0.35rem;
+      padding-left: 2.5rem;
+      animation: c7FadeSlideUp 0.3s ease forwards;
+    }
+
+    .c7-action-choice-btn {
+      background: #0f172a;
+      color: #ffffff;
+      border: 1.5px solid rgba(14, 165, 233, 0.55);
+      padding: 0.8rem 1.35rem;
+      border-radius: 10px;
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-align: left;
+    }
+
+    .c7-action-choice-btn:hover {
+      background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+      border-color: transparent;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+    }
+
+    .c7-action-choice-btn.primary-cta {
+      background: linear-gradient(135deg, #0ea5e9 0%, #4f46e5 100%);
+      border-color: rgba(255, 255, 255, 0.2);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .c7-action-choice-btn.primary-cta:hover {
+      filter: brightness(1.1);
+    }
+
+    /* Cards de Planos Selecionáveis no Chat (Passo de Escolha de Parcela) */
+    .c7-plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+      gap: 0.75rem;
+      width: 100%;
+      padding-left: 2.5rem;
+      margin: 0.4rem 0;
+    }
+
+    .c7-plan-option-card {
+      background: #0f172a;
+      border: 1.5px solid rgba(14, 165, 233, 0.4);
+      border-radius: 12px;
+      padding: 1rem 1.15rem;
+      color: #ffffff;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .c7-plan-option-card:hover {
+      border-color: #38bdf8;
+      background: #162238;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(14, 165, 233, 0.28);
+    }
+
+    .c7-plan-option-badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(14, 165, 233, 0.2);
+      color: #38bdf8;
+      margin-bottom: 0.45rem;
+    }
+
+    .c7-plan-option-credit {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.15rem;
+    }
+
+    .c7-plan-option-installment {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+    }
+
+    .c7-plan-option-installment strong {
+      color: #34d399;
+      font-size: 0.96rem;
+    }
+
+    .c7-plan-option-meta {
+      margin-top: 0.55rem;
+      padding-top: 0.45rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.74rem;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Botão Azul Largo de CONFIRMAR (Idêntico ao 00:31-00:41 do vídeo Mycon) */
+    .c7-confirm-final-btn {
+      width: 100%;
+      max-width: 520px;
+      margin-left: 2.6rem;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%);
+      color: #ffffff;
+      font-family: var(--font-title);
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.45);
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .c7-confirm-final-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(59, 130, 246, 0.65);
+      filter: brightness(1.08);
+    }
+
+    /* Indicador de Digitando (Typing) */
+    .c7-typing-bubble {
+      background: #ffffff;
+      padding: 0.75rem 1.1rem;
+      border-radius: 14px;
+      border-bottom-left-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .c7-typing-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #64748b;
+      animation: c7DotPulse 1.3s infinite ease-in-out;
+    }
+
+    .c7-typing-dot:nth-child(2) { animation-delay: 0.18s; }
+    .c7-typing-dot:nth-child(3) { animation-delay: 0.36s; }
+
+    @keyframes c7DotPulse {
+      0%, 80%, 100% { opacity: 0.25; transform: scale(0.85); }
+      40% { opacity: 1; transform: scale(1.15); }
+    }
+
+    /* Barra Inferior de Entrada de Dados e Perguntas */
+    .c7-chat-input-bar {
+      background: rgba(11, 15, 25, 0.96);
+      border-top: 1px solid rgba(255, 255, 255, 0.09);
+      padding: 0.9rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      flex-shrink: 0;
+    }
+
+    .c7-input-helper-row {
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .c7-input-step-hint {
+      color: #38bdf8;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .c7-chat-form-row {
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      gap: 0.65rem;
+      align-items: center;
+    }
+
+    .c7-chat-main-input {
+      flex: 1;
+      background: #1e293b;
+      border: 1.5px solid rgba(14, 165, 233, 0.35);
+      border-radius: 12px;
+      padding: 0.85rem 1.15rem;
+      color: #ffffff;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .c7-chat-main-input:focus {
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+      outline: none;
+    }
+
+    .c7-chat-main-input::placeholder {
+      color: #64748b;
+    }
+
+    .c7-chat-submit-btn {
+      background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 0.85rem 1.35rem;
+      font-family: var(--font-title);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+      white-space: nowrap;
+    }
+
+    .c7-chat-submit-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(14, 165, 233, 0.55);
+    }
+
+    /* Gatilho Flutuante do Chatbot C7 (Acima do botão de WhatsApp mantido intacto) */
+    .c7-floating-launcher-wrap {
+      position: fixed;
+      bottom: 6.4rem;
+      right: 2rem;
+      z-index: 101;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      pointer-events: none;
+    }
+
+    .c7-floating-callout {
+      background: #0f172a;
+      color: #ffffff;
+      border: 1px solid rgba(14, 165, 233, 0.45);
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      pointer-events: auto;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .c7-floating-callout:hover {
+      border-color: #0ea5e9;
+      transform: translateX(-3px);
+    }
+
+    .c7-floating-btn {
+      width: 3.6rem;
+      height: 3.6rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      pointer-events: auto;
+      box-shadow: 0 8px 24px rgba(14, 165, 233, 0.5);
+      position: relative;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .c7-floating-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 10px 28px rgba(139, 92, 246, 0.7);
+    }
+
+    .c7-floating-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ef4444;
+      color: #ffffff;
+      font-size: 0.7rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #0b0f19;
+    }
+
+    @media (max-width: 768px) {
+      .c7-chatbot-section {
+        padding: 0.5rem 0.75rem 2.5rem;
+      }
+
+      .c7-chat-shell {
+        height: 620px;
+      }
+
+      .c7-chat-progress-wrap {
+        display: none;
+      }
+
+      .c7-chat-welcome-banner {
+        flex-direction: column;
+      }
+
+      .c7-banner-right {
+        width: 100%;
+        height: 130px;
+      }
+
+      .c7-plans-grid {
+        padding-left: 0;
+        grid-template-columns: 1fr;
+      }
+
+      .c7-actions-group {
+        padding-left: 0.5rem;
+      }
+
+      .c7-confirm-final-btn {
+        margin-left: 0;
+        max-width: 100%;
+      }
+
+      .c7-floating-launcher-wrap {
+        right: 1rem;
+        bottom: 5.5rem;
+      }
+
+      .c7-floating-callout {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -487,9 +1205,94 @@
       <h1>Planeje seu Futuro Sem Juros com IA</h1>
       <p style="max-width: 600px; margin: 1.5rem auto;">Acesse nossa plataforma inteligente para simular e comparar em tempo real os melhores consórcios das principais administradoras brasileiras.</p>
       
-      <button id="btn-cta" class="btn-login" style="margin: 2rem auto; font-size: 1.1rem; padding: 1rem 2rem;">
-        Acessar Simulador Inteligente
-      </button>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 2rem auto;">
+        <button id="btn-open-c7-chat-hero" class="btn-login" style="font-size: 1.08rem; padding: 1rem 2rem; background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%); box-shadow: 0 8px 25px rgba(14, 165, 233, 0.35);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Simular ou Tirar Dúvidas no Chat IA
+        </button>
+        <button id="btn-cta" class="btn-login" style="font-size: 1.05rem; padding: 1rem 1.85rem; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.16);">
+          Acessar Simulador Inteligente
+        </button>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         CHATBOT CONVERSACIONAL C7 CONTEMPLA (INSPIRADO NO CONCORRENTE MYCON
+         COM IDENTIDADE VISUAL C7 CONTEMPLA - SIMULAÇÃO, DÚVIDAS E CAPTURA DE LEAD)
+         ======================================================================= -->
+    <section class="c7-chatbot-section" id="c7-chatbot-section">
+      <div class="c7-chat-shell" id="c7-chat-shell">
+        
+        <!-- TOPBAR DO CHAT C7 -->
+        <div class="c7-chat-topbar">
+          <div class="c7-chat-brand">
+            <img src="images/c7_contempla_logo.png" alt="C7 Contempla" class="c7-chat-brand-logo" id="c7-chat-header-logo">
+            <div class="c7-chat-brand-info">
+              <div class="c7-chat-brand-title">
+                <span>C7 Assistente Digital</span>
+                <span class="c7-chat-online-dot" title="Online agora"></span>
+              </div>
+              <span class="c7-chat-brand-sub">Simulação Sem Juros &bull; Comparativo Financiamento &bull; Dúvidas 24h</span>
+            </div>
+          </div>
+
+          <!-- Barra de Progresso de Qualificação do Lead -->
+          <div class="c7-chat-progress-wrap" title="Progresso da sua simulação personalizada">
+            <span class="c7-chat-progress-label" id="c7-chat-progress-text">Simulação: 10%</span>
+            <div class="c7-chat-progress-bar-bg">
+              <div class="c7-chat-progress-bar-fill" id="c7-chat-progress-fill"></div>
+            </div>
+          </div>
+
+          <!-- Ações Rápidas do Header -->
+          <div class="c7-chat-top-actions">
+            <button type="button" class="c7-chat-top-btn" id="c7-btn-mode-duvidas" title="Tirar dúvidas sobre consórcio ou financiamento">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Tirar Dúvida
+            </button>
+            <button type="button" class="c7-chat-top-btn" id="c7-btn-restart" title="Reiniciar conversa">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              Reiniciar
+            </button>
+            <button type="button" class="c7-chat-top-btn" id="c7-btn-fullscreen" title="Alternar modo Tela Cheia">
+              <svg id="c7-icon-expand" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              <span id="c7-text-fullscreen">Tela Cheia</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ÁREA CENTRAL DE MENSAGENS DO CHAT -->
+        <div class="c7-chat-stream-viewport" id="c7-chat-viewport">
+          <div class="c7-chat-stream-container" id="c7-chat-stream">
+            <!-- Banner de Boas-Vindas e mensagens inseridas dinamicamente pelo JS -->
+          </div>
+        </div>
+
+        <!-- BARRA INFERIOR DE DIGITAÇÃO (COM MÁSCARAS INTELIGENTES E ENVIO LIVRE DE DÚVIDAS) -->
+        <div class="c7-chat-input-bar">
+          <div class="c7-input-helper-row">
+            <span class="c7-input-step-hint" id="c7-input-step-hint">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Clique em uma opção acima ou digite sua dúvida abaixo
+            </span>
+            <span>🔒 Dados protegidos (LGPD &amp; BACEN)</span>
+          </div>
+          <form class="c7-chat-form-row" id="c7-chat-form" onsubmit="return false;">
+            <input 
+              type="text" 
+              id="c7-chat-input" 
+              class="c7-chat-main-input" 
+              placeholder="Digite aqui sua resposta ou tire qualquer dúvida..." 
+              autocomplete="off"
+            >
+            <button type="submit" id="c7-chat-send-btn" class="c7-chat-submit-btn">
+              <span>Enviar</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </form>
+        </div>
+
+      </div>
     </section>
 
     <!-- BANNER DE ANÚNCIO: CARTAS CONTEMPLADAS -->
@@ -906,9 +1709,30 @@
     </div>
   </div>
 
+  <!-- MODAL DO REGULAMENTO GERAL DO CONSÓRCIO -->
+  <div class="modal-overlay" id="regulamento-modal" style="z-index: 10002;">
+    <div class="modal-content" style="background: #0f172a; padding: 2rem; border-radius: 16px; width: 100%; max-width: 640px; border: 1px solid rgba(14, 165, 233, 0.35); position: relative; max-height: 85vh; overflow-y: auto;">
+      <button type="button" id="close-regulamento-modal" style="position:absolute; top:1rem; right:1rem; background:none; border:none; color:#94a3b8; cursor:pointer; font-size:1.5rem;" title="Fechar">&times;</button>
+      <h3 style="margin-bottom: 0.75rem; font-family: var(--font-title); color: #fff; font-size: 1.35rem;">Regulamento Geral do Consórcio &bull; C7 Contempla</h3>
+      <p style="font-size: 0.85rem; color: #38bdf8; margin-bottom: 1.25rem; font-weight: 600;">Regido pela Lei nº 11.795/2008 e normativos do Banco Central do Brasil (BACEN)</p>
+      <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65; display: flex; flex-direction: column; gap: 0.85rem;">
+        <p><strong>1. Do Objeto e Constituição do Grupo:</strong> O consórcio é a reunião de pessoas naturais e jurídicas em grupo fechado, promovida pela Administradora parceira credenciada pelo Banco Central do Brasil, com a finalidade de propiciar a seus integrantes, de forma isonômica, a aquisição de bens ou serviços por meio de autofinanciamento sem juros.</p>
+        <p><strong>2. Das Contribuições Mensais e Taxa de Administração:</strong> Nas parcelas mensais incidem exclusivamente o Fundo Comum (destinado à formação do crédito), a Taxa de Administração diluída no prazo do plano e, quando aplicável, o Fundo de Reserva e Seguro Prestamista/Quebra de Garantia conforme condições do grupo.</p>
+        <p><strong>3. Das Assembleias e Formas de Contemplação:</strong> A contemplação ocorre mensalmente mediante <strong>Sorteio</strong> (em igualdade de condições para todos os consorciados adimplentes) e por <strong>Lance</strong> (Lance Livre de até 99% do crédito ou Lance Fixo de 30% do crédito), sendo permitido o uso de até 30% do próprio crédito (Lance Embutido) e recursos do FGTS nos grupos imobiliários elegíveis.</p>
+        <p><strong>4. Da Proteção de Dados (LGPD - Lei nº 13.709/2018):</strong> Os dados pessoais informados nesta simulação (nome, apelido, CPF/CNPJ, data de nascimento, endereço/CEP, renda, telefone e e-mail) são utilizados exclusivamente para análise de elegibilidade, geração da proposta de adesão e atendimento consultivo pela equipe C7 Contempla.</p>
+      </div>
+      <div style="margin-top: 1.5rem; text-align: right;">
+        <button type="button" id="btn-ok-regulamento" class="btn-login" style="display: inline-flex; padding: 0.65rem 1.5rem;">Li e Compreendi os Termos</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { 
       auth, 
+      db,
+      doc,
+      setDoc,
       googleProvider, 
       signInWithPopup, 
       signInWithEmailAndPassword, 
@@ -1387,9 +2211,1494 @@
         window.open('https://wa.me/5521998228936?text=' + msg, '_blank');
       });
     }
+
+    // =========================================================================
+    // MOTOR DO CHATBOT CONVERSACIONAL C7 CONTEMPLA (INSPIRADO NO CONCORRENTE
+    // MYCON COM IDENTIDADE VISUAL C7 - SIMULAÇÃO, DÚVIDAS & CAPTURA DE LEADS)
+    // =========================================================================
+    const chatStream = document.getElementById('c7-chat-stream');
+    const chatViewport = document.getElementById('c7-chat-viewport');
+    const chatForm = document.getElementById('c7-chat-form');
+    const chatInput = document.getElementById('c7-chat-input');
+    const chatShell = document.getElementById('c7-chat-shell');
+    const chatSection = document.getElementById('c7-chatbot-section');
+    const stepHintEl = document.getElementById('c7-input-step-hint');
+    const progressTextEl = document.getElementById('c7-chat-progress-text');
+    const progressFillEl = document.getElementById('c7-chat-progress-fill');
+    const btnFullscreen = document.getElementById('c7-btn-fullscreen');
+    const textFullscreen = document.getElementById('c7-text-fullscreen');
+    const btnRestart = document.getElementById('c7-btn-restart');
+    const btnModeDuvidas = document.getElementById('c7-btn-mode-duvidas');
+    const btnHeroOpenChat = document.getElementById('btn-open-c7-chat-hero');
+    const regulamentoModal = document.getElementById('regulamento-modal');
+    const closeRegulamentoBtn = document.getElementById('close-regulamento-modal');
+    const okRegulamentoBtn = document.getElementById('btn-ok-regulamento');
+
+    // Sincronizar logo do header do chat com logo customizado se existir
+    const chatHeaderLogo = document.getElementById('c7-chat-header-logo');
+    if (chatHeaderLogo && logoToUse) {
+      chatHeaderLogo.src = logoToUse;
+    }
+
+    // Configuração de Categorias (inspirado nas faixas do vídeo + portfólio C7)
+    const CATEGORY_CONFIG = {
+      'IMOVEL': {
+        label: 'Imóveis',
+        labelLower: 'imóveis',
+        min: 70000,
+        max: 1500000,
+        minLabel: 'R$ 70.000,00',
+        maxLabel: 'R$ 1.500.000,00',
+        suggestions: [150000, 300000, 500000, 800000],
+        defaultPrazo: 180,
+        prazoMax: 240,
+        taxaTotal: 12.99,
+        taxaMensal: 0.07,
+        reajuste: 'INCC / IPCA',
+        grupo: '3812'
+      },
+      'AUTOMOVEL': {
+        label: 'Automóveis',
+        labelLower: 'automóveis',
+        min: 30000,
+        max: 400000,
+        minLabel: 'R$ 30.000,00',
+        maxLabel: 'R$ 400.000,00',
+        suggestions: [50000, 80000, 120000, 180000],
+        defaultPrazo: 80,
+        prazoMax: 100,
+        taxaTotal: 12.00,
+        taxaMensal: 0.15,
+        reajuste: 'IPCA',
+        grupo: '4120'
+      },
+      'MOTOCICLETA': {
+        label: 'Motocicletas',
+        labelLower: 'motocicletas',
+        min: 10000,
+        max: 110000,
+        minLabel: 'R$ 10.000,00',
+        maxLabel: 'R$ 110.000,00',
+        suggestions: [15000, 20000, 30000, 50000],
+        defaultPrazo: 60,
+        prazoMax: 60,
+        taxaTotal: 12.99,
+        taxaMensal: 0.22,
+        reajuste: 'IPCA',
+        grupo: '4596'
+      },
+      'SERVICO': {
+        label: 'Serviços',
+        labelLower: 'serviços',
+        min: 15000,
+        max: 100000,
+        minLabel: 'R$ 15.000,00',
+        maxLabel: 'R$ 100.000,00',
+        suggestions: [15000, 25000, 40000, 60000],
+        defaultPrazo: 48,
+        prazoMax: 70,
+        taxaTotal: 13.50,
+        taxaMensal: 0.23,
+        reajuste: 'IPCA',
+        grupo: '5091'
+      }
+    };
+
+    // Base de Conhecimento Consultiva (FAQ + Comparativo Financiamento)
+    const FAQ_TOPICS = [
+      {
+        id: 'financiamento',
+        title: 'Consórcio vs Financiamento',
+        question: 'Qual a vantagem do consórcio sobre o financiamento?',
+        answer: 'No <strong>financiamento tradicional</strong> você chega a pagar de <strong>2 a 3 vezes o valor do bem</strong> por conta dos juros compostos bancários (CET médio acima de 18% a 24% ao ano).<br><br>Já na <strong>C7 Contempla</strong> você tem <strong>ZERO JUROS</strong> e sem entrada obrigatória: paga apenas uma pequena taxa administrativa diluída (a partir de 0,07% a 0,22% ao mês), gerando uma <strong>economia real de até 62%</strong> no custo final!'
+      },
+      {
+        id: 'fgts_lance',
+        title: 'Uso do FGTS e Lances',
+        question: 'Posso usar meu FGTS ou o próprio crédito para dar lance?',
+        answer: '<strong>Sim!</strong> Você pode acelerar sua contemplação de 3 formas estratégicas:<br>• <strong>FGTS:</strong> Use até 100% do seu saldo do FGTS como lance nos planos de Imóveis.<br>• <strong>Lance Facilitado (Embutido):</strong> Utilize até <strong>30% da própria carta de crédito</strong> para pagar o lance sem tirar dinheiro do bolso.<br>• <strong>Lance Fixo (30%) ou Livre (até 99%):</strong> Você só paga o lance se for contemplado!'
+      },
+      {
+        id: 'contempladas',
+        title: 'Cartas Já Contempladas',
+        question: 'Como funcionam as Cartas Já Contempladas?',
+        answer: 'Se você precisa do crédito <strong>imediatamente</strong> para comprar seu imóvel ou veículo sem aguardar sorteio ou assembleia, a C7 Contempla possui um catálogo exclusivo com mais de <strong>1.700 cotas já contempladas</strong> das maiores administradoras (Itaú, Bradesco, Porto Seguro, Caixa, Embracon), prontas para transferência e faturamento.'
+      },
+      {
+        id: 'exterior_leilao',
+        title: 'Exterior, Leilão e Regras',
+        question: 'Moro no exterior ou quero comprar em leilão. É possível?',
+        answer: '<strong>Com certeza!</strong> Brasileiros que moram no exterior podem contratar 100% digitalmente (basta CPF ativo). Além disso, a carta contemplada tem poder de <strong>compra à vista</strong> e pode ser utilizada inclusive para arrematação de imóveis em leilão (conforme regras do edital e administradora).'
+      },
+      {
+        id: 'contemplar_rapido',
+        title: 'Como Contemplar Rápido?',
+        question: 'Consigo planejar para ser contemplado rápido?',
+        answer: '<strong>Sim!</strong> Nossa IA e nossos especialistas analisam a média histórica dos grupos com menor concorrência e combinam <strong>Lance Fixo (30%) + Lance Embutido (até 30% do crédito) + FGTS</strong> para maximizar suas chances já nas primeiras assembleias mensais!'
+      }
+    ];
+
+    // Estado da Conversa e Dados Pessoais Capturados do Lead
+    let chatState = {
+      leadId: `lead-chat-${Date.now()}`,
+      step: 'WELCOME', // WELCOME -> CATEGORY -> NICKNAME -> CREDIT -> INCOME -> EMAIL -> PHONE -> PLAN_SELECT -> PRE_CONFIRM -> HOLDER -> FULL_NAME -> CPF -> CEP -> BIRTHDATE -> FINAL_REVIEW -> COMPLETED
+      apelido: '',
+      nomeCompleto: '',
+      categoria: 'MOTOCICLETA',
+      categoriaLabel: 'Motocicletas',
+      valorCredito: 30000,
+      rendaMensal: 0,
+      email: '',
+      telefone: '',
+      planoEscolhido: null,
+      titularPlano: 'EU MESMO',
+      cpf: '',
+      cep: '',
+      enderecoCompleto: '',
+      dataNascimento: '',
+      aceitouRegulamento: false,
+      protocolo: '',
+      chatHistory: []
+    };
+
+    const formatBRL = (val) => {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
+    };
+
+    // Calcula próxima data de assembleia elegível (ex: dia 15 do mês) sem nunca dar "Invalid Date"
+    const getNextAssemblyDateFormatted = () => {
+      const now = new Date();
+      let target = new Date(now.getFullYear(), now.getMonth(), 20);
+      if (now.getDate() >= 18) {
+        target = new Date(now.getFullYear(), now.getMonth() + 1, 15);
+      }
+      const d = String(target.getDate()).padStart(2, '0');
+      const m = String(target.getMonth() + 1).padStart(2, '0');
+      const y = target.getFullYear();
+      return `${d}/${m}/${y}`;
+    };
+
+    // Atualiza barra de progresso no topo do chat
+    const setChatProgress = (pct, hintText, placeholderText, inputMode = 'text') => {
+      if (progressTextEl) progressTextEl.textContent = `Simulação: ${pct}%`;
+      if (progressFillEl) progressFillEl.style.width = `${pct}%`;
+      if (stepHintEl && hintText) {
+        stepHintEl.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${hintText}`;
+      }
+      if (chatInput && placeholderText) {
+        chatInput.placeholder = placeholderText;
+        chatInput.setAttribute('data-mask', inputMode);
+      }
+    };
+
+    const scrollToBottom = () => {
+      if (!chatViewport) return;
+      setTimeout(() => {
+        chatViewport.scrollTo({
+          top: chatViewport.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 60);
+    };
+
+    // Persiste e atualiza progressivamente o Lead no Firestore, LocalStorage e Caixa de Entrada WhatsApp
+    const persistLeadData = async (statusOverride = null) => {
+      const catConf = CATEGORY_CONFIG[chatState.categoria] || CATEGORY_CONFIG['MOTOCICLETA'];
+      const chosenPlan = chatState.planoEscolhido || {
+        credito: chatState.valorCredito || 30000,
+        prazo: catConf.defaultPrazo || 60,
+        parcela: Math.round(((chatState.valorCredito || 30000) * 1.1299) / (catConf.defaultPrazo || 60)),
+        administradora: 'C7 Contempla Multimarcas',
+        tipo: 'Integral'
+      };
+
+      const leadStatus = statusOverride || (chatState.cpf ? 'QUALIFICADO' : 'NOVO');
+
+      const leadRecord = {
+        id: chatState.leadId,
+        apelido: chatState.apelido || '',
+        nomeCompleto: chatState.nomeCompleto || chatState.apelido || 'Visitante Chat C7',
+        cpfCnpj: chatState.cpf || 'Em preenchimento',
+        dataNascimento: chatState.dataNascimento || '',
+        email: chatState.email || '',
+        telefone: chatState.telefone || '',
+        cep: chatState.cep || '',
+        endereco: chatState.enderecoCompleto || (chatState.cep ? `CEP: ${chatState.cep}` : ''),
+        titularPlano: chatState.titularPlano || 'EU MESMO',
+        rendaMensal: chatState.rendaMensal || 0,
+        status: leadStatus,
+        origem: 'CHATBOT IA LANDING PAGE',
+        tiposConsorcio: [chatState.categoria === 'MOTOCICLETA' ? 'AUTOMOVEL' : chatState.categoria],
+        categoriaBem: chatState.categoriaLabel || catConf.label,
+        tipoPlano: `${chosenPlan.tipo || 'Integral'} (${chosenPlan.taxaMensal || catConf.taxaMensal}% a.m.)`,
+        valorCredito: chosenPlan.credito || chatState.valorCredito || 30000,
+        prazoMeses: chosenPlan.prazo || catConf.defaultPrazo || 60,
+        administradora: chosenPlan.administradora || 'C7 Contempla Multimarcas',
+        valorParcela: chosenPlan.parcela || 0,
+        aceitouRegulamento: !!chatState.aceitouRegulamento,
+        protocolo: chatState.protocolo || '',
+        created_at: new Date().toISOString(),
+        chatHistory: chatState.chatHistory.slice(-30),
+        documentos: [
+          { id: 'doc-cpf', tipo: 'CPF / IDENTIDADE', nome: 'documento_identidade.pdf', status: 'PENDENTE', ocrLog: null },
+          { id: 'doc-renda', tipo: 'COMPROVANTE DE RENDA', nome: 'extrato_bancario.jpg', status: 'PENDENTE', ocrLog: null }
+        ]
+      };
+
+      // 1. Salvar no LocalStorage para sincronia imediata com o CRM (app.html)
+      try {
+        const rawLocal = localStorage.getItem('consorcio_leads_local');
+        const list = rawLocal ? JSON.parse(rawLocal) : [];
+        const existingIdx = list.findIndex(item => item.id === leadRecord.id);
+        if (existingIdx > -1) {
+          list[existingIdx] = { ...list[existingIdx], ...leadRecord };
+        } else {
+          list.unshift(leadRecord);
+        }
+        localStorage.setItem('consorcio_leads_local', JSON.stringify(list));
+      } catch (e) {
+        console.warn('Erro ao salvar lead localmente:', e);
+      }
+
+      // 2. Sincronizar também na Caixa de Entrada do WhatsApp (consorcio_inbox) quando houver telefone
+      if (chatState.telefone) {
+        try {
+          const rawInbox = localStorage.getItem('consorcio_inbox');
+          const inboxList = rawInbox ? JSON.parse(rawInbox) : [];
+          const convId = `conv-${chatState.leadId}`;
+          const displayNome = chatState.nomeCompleto || chatState.apelido || 'Visitante Landing Page';
+          const parts = displayNome.trim().split(' ');
+          const initials = (parts.length > 1 ? (parts[0][0] + parts[1][0]) : displayNome.substring(0, 2)).toUpperCase();
+          const now = new Date();
+          const hora = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+          const resumoMsg = `Lead capturado no Chatbot da Landing Page: ${displayNome} • ${leadRecord.categoriaBem} • Crédito: ${formatBRL(leadRecord.valorCredito)} (${leadRecord.prazoMeses}x de ${formatBRL(leadRecord.valorParcela)}) • Renda: ${formatBRL(leadRecord.rendaMensal)} • CPF: ${leadRecord.cpfCnpj} • CEP: ${leadRecord.cep || 'N/I'}`;
+
+          const existingConvIdx = inboxList.findIndex(c => c.id === convId);
+          const newConvObj = {
+            id: convId,
+            nome: displayNome,
+            whatsapp: chatState.telefone,
+            campanha: 'Chatbot IA Landing Page C7',
+            avatar: initials,
+            online: true,
+            naoLida: true,
+            mensagens: [
+              { id: `m-chat-1`, texto: resumoMsg, remetente: 'cliente', hora: hora }
+            ]
+          };
+
+          if (existingConvIdx > -1) {
+            inboxList[existingConvIdx] = newConvObj;
+          } else {
+            inboxList.unshift(newConvObj);
+          }
+          localStorage.setItem('consorcio_inbox', JSON.stringify(inboxList));
+        } catch (e) {}
+      }
+
+      // 3. Salvar no Firebase Firestore (coleção 'leads')
+      try {
+        await setDoc(doc(db, 'leads', leadRecord.id), leadRecord, { merge: true });
+      } catch (e) {
+        console.warn('Firestore sync (fallback local ativo):', e);
+      }
+    };
+
+    // Renderiza um grupo de balões do Bot (com avatar C7 no último balão do grupo, igual ao vídeo Mycon)
+    const appendBotMessagesGroup = (messagesArray, delayMs = 380) => {
+      return new Promise((resolve) => {
+        // Mostrar bolha de digitando
+        const typingRow = document.createElement('div');
+        typingRow.className = 'c7-msg-row bot';
+        typingRow.innerHTML = `
+          <div class="c7-bot-avatar-col">
+            <div class="c7-bot-avatar-badge">C7</div>
+          </div>
+          <div class="c7-typing-bubble">
+            <span class="c7-typing-dot"></span>
+            <span class="c7-typing-dot"></span>
+            <span class="c7-typing-dot"></span>
+          </div>
+        `;
+        chatStream.appendChild(typingRow);
+        scrollToBottom();
+
+        setTimeout(() => {
+          typingRow.remove();
+
+          messagesArray.forEach((htmlContent, idx) => {
+            const isLast = idx === messagesArray.length - 1;
+            const row = document.createElement('div');
+            row.className = 'c7-msg-row bot';
+            row.innerHTML = `
+              <div class="c7-bot-avatar-col">
+                ${isLast ? '<div class="c7-bot-avatar-badge" title="Assistente C7 Contempla">C7</div>' : ''}
+              </div>
+              <div class="c7-bubble-bot">${htmlContent}</div>
+            `;
+            chatStream.appendChild(row);
+
+            // Salva versão limpa no histórico do lead
+            const cleanText = htmlContent.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+            if (cleanText) {
+              chatState.chatHistory.push({ remetente: 'IA', conteudo: cleanText });
+            }
+          });
+
+          scrollToBottom();
+          resolve();
+        }, delayMs);
+      });
+    };
+
+    // Renderiza mensagem do Usuário (alinhada à direita)
+    const appendUserMessage = (text) => {
+      // Remove botões de escolha anteriores ativos para manter fluxo limpo como no vídeo
+      chatStream.querySelectorAll('.c7-interactive-slot').forEach(el => el.remove());
+
+      const row = document.createElement('div');
+      row.className = 'c7-msg-row user';
+      row.innerHTML = `<div class="c7-bubble-user">${text}</div>`;
+      chatStream.appendChild(row);
+
+      chatState.chatHistory.push({ remetente: 'CLIENTE', conteudo: text });
+      scrollToBottom();
+    };
+
+    // Renderiza grupo de botões de ação rápida
+    const appendActionButtons = (buttonsConfig) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'c7-actions-group c7-interactive-slot';
+
+      buttonsConfig.forEach(btnCfg => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `c7-action-choice-btn ${btnCfg.primary ? 'primary-cta' : ''}`;
+        btn.innerHTML = btnCfg.label;
+        btn.addEventListener('click', () => {
+          btnCfg.onClick();
+        });
+        wrap.appendChild(btn);
+      });
+
+      chatStream.appendChild(wrap);
+      scrollToBottom();
+    };
+
+    // =========================================================================
+    // ETAPAS DO FLUXO CONVERSACIONAL (INSPIRADO NO VÍDEO MYCON + C7 CONTEMPLA)
+    // =========================================================================
+
+    // Etapa 0: Boas-vindas com Banner Especialista C7
+    const startChatFlow = async () => {
+      chatState = {
+        leadId: `lead-chat-${Date.now()}`,
+        step: 'WELCOME',
+        apelido: '',
+        nomeCompleto: '',
+        categoria: 'MOTOCICLETA',
+        categoriaLabel: 'Motocicletas',
+        valorCredito: 30000,
+        rendaMensal: 0,
+        email: '',
+        telefone: '',
+        planoEscolhido: null,
+        titularPlano: 'EU MESMO',
+        cpf: '',
+        cep: '',
+        enderecoCompleto: '',
+        dataNascimento: '',
+        aceitouRegulamento: false,
+        protocolo: '',
+        chatHistory: []
+      };
+
+      chatStream.innerHTML = `
+        <div class="c7-chat-welcome-banner">
+          <div class="c7-banner-left">
+            <div class="c7-banner-brand-pill">
+              <img src="${logoToUse || 'images/c7_contempla_logo.png'}" alt="C7 Contempla">
+            </div>
+            <div class="c7-banner-headline">
+              Com a <span>C7 Contempla</span> sua conquista é sem juros, sem entrada e com tranquilidade
+            </div>
+          </div>
+          <div class="c7-banner-right">
+            <img src="images/rodrigo_porrino.png?v=2" alt="Especialista C7 Contempla">
+          </div>
+        </div>
+      `;
+
+      setChatProgress(10, 'Escolha uma opção abaixo ou digite sua dúvida', 'Digite sua dúvida ou clique em "SIMULE AGORA MESMO"...', 'text');
+
+      await appendBotMessagesGroup([
+        `Olá, eu sou o assistente da <strong>C7 Contempla</strong>! Você encontrou o lugar ideal para garantir sua conquista <strong>sem juros, sem entrada e com tranquilidade.</strong> E o melhor: <strong>é você</strong> quem escolhe o plano perfeito para seu bolso!`,
+        `Aqui é <strong>como todo consórcio deveria ser:</strong> seguro, com preço justo e total transparência nos processos! Vamos simular seu sonho ou prefere tirar alguma dúvida primeiro?`
+      ], 350);
+
+      appendActionButtons([
+        {
+          label: 'SIMULE AGORA MESMO',
+          primary: true,
+          onClick: () => {
+            appendUserMessage('SIMULE AGORA MESMO');
+            promptCategoryStep();
+          }
+        },
+        {
+          label: 'COMPARAR FINANCIAMENTO X CONSÓRCIO',
+          primary: false,
+          onClick: () => {
+            appendUserMessage('COMPARAR FINANCIAMENTO X CONSÓRCIO');
+            handleFinancingComparisonIntro();
+          }
+        },
+        {
+          label: 'SANAR DÚVIDAS',
+          primary: false,
+          onClick: () => {
+            appendUserMessage('SANAR DÚVIDAS');
+            promptFaqMenu();
+          }
+        }
+      ]);
+    };
+
+    // Fluxo de Dúvidas / Comparativo que engaja e converte em Lead
+    const handleFinancingComparisonIntro = async () => {
+      await appendBotMessagesGroup([
+        `Excelente escolha! Muita gente busca simular um <strong>financiamento</strong> sem perceber que nos bancos tradicionais os juros compostos fazem você pagar até <strong>2,5x o valor do bem</strong>.`,
+        `Na <strong>C7 Contempla</strong>, você parcela 100% do valor <strong>sem juros e sem entrada</strong>, podendo ofertar lances (inclusive com FGTS ou até 30% do próprio crédito) para retirar o bem rapidamente!`,
+        `Vamos fazer o comparativo real pro seu bolso? Escolha o que <strong>você deseja conquistar</strong>:`
+      ], 450);
+      showCategoryButtonsOnly();
+    };
+
+    const promptFaqMenu = async () => {
+      chatState.step = 'FAQ_MODE';
+      setChatProgress(15, 'Selecione um tema de dúvida ou digite sua pergunta abaixo', 'Digite sua pergunta (ex: FGTS, lance, juros, leilão)...', 'text');
+
+      await appendBotMessagesGroup([
+        `Claro! Estou aqui para responder qualquer dúvida com transparência total.`,
+        `Sobre qual assunto você gostaria de saber mais agora? (Você também pode digitar sua pergunta abaixo):`
+      ], 350);
+
+      const buttons = FAQ_TOPICS.map(topic => ({
+        label: topic.title,
+        primary: false,
+        onClick: async () => {
+          appendUserMessage(topic.question);
+          await appendBotMessagesGroup([
+            topic.answer,
+            `Quer ver na prática como ficam as parcelas sem juros para o seu perfil? Escolha o que <strong>você deseja conquistar</strong> ou escolha outra dúvida:`
+          ], 450);
+          showFaqFollowUpButtons();
+        }
+      }));
+
+      buttons.push({
+        label: 'SIMULE AGORA MESMO',
+        primary: true,
+        onClick: () => {
+          appendUserMessage('SIMULE AGORA MESMO');
+          promptCategoryStep();
+        }
+      });
+
+      appendActionButtons(buttons);
+    };
+
+    const showFaqFollowUpButtons = () => {
+      appendActionButtons([
+        {
+          label: 'SIMULAR MEU PLANO AGORA',
+          primary: true,
+          onClick: () => {
+            appendUserMessage('SIMULAR MEU PLANO AGORA');
+            promptCategoryStep();
+          }
+        },
+        {
+          label: 'VER OUTRAS DÚVIDAS',
+          primary: false,
+          onClick: () => {
+            appendUserMessage('VER OUTRAS DÚVIDAS');
+            promptFaqMenu();
+          }
+        }
+      ]);
+    };
+
+    // Passo 1: Escolher Categoria (00:01 - 00:02 do vídeo Mycon)
+    const promptCategoryStep = async () => {
+      chatState.step = 'CATEGORY';
+      setChatProgress(20, 'Selecione a categoria do bem que deseja conquistar', 'Ou digite: Imóveis, Automóveis, Motocicletas ou Serviços...', 'text');
+
+      await appendBotMessagesGroup([
+        `Agora escolha o que <strong>você deseja conquistar</strong>:`
+      ], 350);
+
+      showCategoryButtonsOnly();
+    };
+
+    const showCategoryButtonsOnly = () => {
+      chatState.step = 'CATEGORY';
+      appendActionButtons([
+        {
+          label: '🏠 Imóveis',
+          primary: false,
+          onClick: () => selectCategory('IMOVEL', 'Imóveis')
+        },
+        {
+          label: '🚗 Automóveis',
+          primary: false,
+          onClick: () => selectCategory('AUTOMOVEL', 'Automóveis')
+        },
+        {
+          label: '🏍️ Motocicletas',
+          primary: false,
+          onClick: () => selectCategory('MOTOCICLETA', 'Motocicletas')
+        },
+        {
+          label: '🛠️ Serviços',
+          primary: false,
+          onClick: () => selectCategory('SERVICO', 'Serviços')
+        }
+      ]);
+    };
+
+    const selectCategory = async (catKey, displayLabel) => {
+      chatState.categoria = catKey;
+      chatState.categoriaLabel = displayLabel;
+      appendUserMessage(displayLabel);
+
+      if (chatState.apelido) {
+        promptCreditStep();
+      } else {
+        promptNicknameStep();
+      }
+    };
+
+    // Passo 2: Como prefere que eu te chame? (00:02 do vídeo Mycon)
+    const promptNicknameStep = async () => {
+      chatState.step = 'NICKNAME';
+      setChatProgress(28, 'Digite seu nome ou como prefere ser chamado', 'Digite como prefere ser chamado (ex: Paulo, PA, Ana)...', 'text');
+
+      await appendBotMessagesGroup([
+        `Como prefere que eu te chame?`
+      ], 350);
+
+      if (chatInput) chatInput.focus();
+    };
+
+    // Passo 3: Valor aproximado do crédito (00:03 - 00:05 do vídeo Mycon)
+    const promptCreditStep = async () => {
+      chatState.step = 'CREDIT';
+      const catConf = CATEGORY_CONFIG[chatState.categoria] || CATEGORY_CONFIG['MOTOCICLETA'];
+
+      setChatProgress(38, `Informe um valor entre ${catConf.minLabel} e ${catConf.maxLabel}`, `Ex: ${formatBRL(catConf.suggestions[2])}`, 'currency');
+
+      await appendBotMessagesGroup([
+        `Muito prazer, <strong>${chatState.apelido} :)</strong>`,
+        `Vou te guiar nesse caminho para sua conquista.`,
+        `Qual é o <strong>valor aproximado do crédito de ${catConf.labelLower}</strong> que você precisa?`,
+        `Digite um valor entre:<br><br><strong>${catConf.minLabel} a ${catConf.maxLabel}</strong>`
+      ], 450);
+
+      // Botões de sugestão rápida de valor + opção de digitar na barra
+      appendActionButtons(
+        catConf.suggestions.map(val => ({
+          label: formatBRL(val),
+          primary: false,
+          onClick: () => handleCreditSubmission(val)
+        }))
+      );
+
+      if (chatInput) {
+        chatInput.value = '';
+        chatInput.focus();
+      }
+    };
+
+    const handleCreditSubmission = async (numericVal) => {
+      const catConf = CATEGORY_CONFIG[chatState.categoria] || CATEGORY_CONFIG['MOTOCICLETA'];
+      let val = numericVal;
+      if (val < catConf.min) val = catConf.min;
+      if (val > catConf.max) val = catConf.max;
+
+      chatState.valorCredito = val;
+      appendUserMessage(formatBRL(val));
+      promptIncomeStep();
+    };
+
+    // Passo 4: Renda Mensal Familiar (00:05 - 00:07 do vídeo Mycon)
+    const promptIncomeStep = async () => {
+      chatState.step = 'INCOME';
+      setChatProgress(48, 'Informe sua renda mensal familiar aproximada', 'Digite o valor da renda mensal (ex: R$ 8.500,00)...', 'currency');
+
+      await appendBotMessagesGroup([
+        `Certo, vou te mostrar planos que caibam no seu bolso e que não comprometam mais do que 30% da sua renda.`,
+        `Para isso, informe a sua <strong>renda mensal</strong>, incluindo <strong>renda extra</strong> e <strong>familiar</strong>, se houver.`,
+        `Digite o <strong>valor da renda</strong>:`
+      ], 450);
+
+      appendActionButtons([
+        { label: 'R$ 3.500,00', primary: false, onClick: () => handleIncomeSubmission(3500) },
+        { label: 'R$ 7.000,00', primary: false, onClick: () => handleIncomeSubmission(7000) },
+        { label: 'R$ 15.000,00', primary: false, onClick: () => handleIncomeSubmission(15000) },
+        { label: 'R$ 23.000,00', primary: false, onClick: () => handleIncomeSubmission(23000) }
+      ]);
+
+      if (chatInput) {
+        chatInput.value = '';
+        chatInput.focus();
+      }
+    };
+
+    const handleIncomeSubmission = async (numericIncome) => {
+      chatState.rendaMensal = numericIncome;
+      appendUserMessage(formatBRL(numericIncome));
+      promptEmailStep();
+    };
+
+    // Passo 5: Melhor E-mail (00:08 - 00:09 do vídeo Mycon)
+    const promptEmailStep = async () => {
+      chatState.step = 'EMAIL';
+      setChatProgress(58, 'Informe seu melhor e-mail para enviarmos a simulação', 'Digite seu melhor e-mail (ex: nome@gmail.com)...', 'email');
+
+      await appendBotMessagesGroup([
+        `Legal, <strong>${chatState.apelido}</strong>! Enquanto procuro os <strong>melhores planos</strong> pra você, me diz:`,
+        `Qual o seu melhor <strong>e-mail</strong>?`
+      ], 420);
+
+      if (chatInput) {
+        chatInput.value = '';
+        chatInput.focus();
+      }
+    };
+
+    // Passo 6: Celular com DDD (00:09 - 00:10 do vídeo Mycon)
+    const promptPhoneStep = async () => {
+      chatState.step = 'PHONE';
+      setChatProgress(68, 'Informe seu celular / WhatsApp com DDD', 'Ex: +55 (21) 99999-9999', 'phone');
+
+      await appendBotMessagesGroup([
+        `E qual o número do seu <strong>celular</strong> com DDD?`
+      ], 380);
+
+      if (chatInput) {
+        chatInput.value = '';
+        chatInput.focus();
+      }
+    };
+
+    // Passo 7: Seleção de Planos Calculados (00:10 - 00:13 do vídeo Mycon)
+    const promptPlanSelectionStep = async () => {
+      chatState.step = 'PLAN_SELECT';
+      setChatProgress(75, 'Clique no plano ideal para ver todos os detalhes', 'Clique em um dos planos acima ou tire uma dúvida...', 'text');
+
+      // Já salva o pré-lead com Nome, E-mail, Celular, Renda, Categoria e Crédito!
+      persistLeadData('NOVO');
+
+      const catConf = CATEGORY_CONFIG[chatState.categoria] || CATEGORY_CONFIG['MOTOCICLETA'];
+      const baseCred = chatState.valorCredito || 30000;
+      const altCred = Math.max(catConf.min, Math.round((baseCred * 0.66) / 5000) * 5000 || 20000);
+
+      // Gerar opções realistas de planos (incluindo o formato exato do vídeo)
+      const p1Prazo = catConf.defaultPrazo === 60 ? 58 : catConf.defaultPrazo;
+      const p1Parcela = (altCred * (1 + catConf.taxaTotal / 100)) / p1Prazo;
+
+      const p2Prazo = catConf.defaultPrazo;
+      const p2Parcela = (baseCred * (1 + catConf.taxaTotal / 100)) / p2Prazo;
+
+      const p3Prazo = catConf.prazoMax;
+      const p3Parcela = (baseCred * (1 + 0.12)) / p3Prazo;
+
+      const p4Prazo = catConf.defaultPrazo;
+      const p4Parcela = p2Parcela * 0.55; // Plano Meia Parcela / Reduzida até contemplação
+
+      // Cálculo de quanto custaria num financiamento bancário tradicional (1,75% a.m.) para destacar vantagem
+      const taxaFin = 0.0175;
+      const parcelaFin = (baseCred * taxaFin) / (1 - Math.pow(1 + taxaFin, -p2Prazo));
+      const economiaTotal = Math.max(8000, (parcelaFin * p2Prazo) - (p2Parcela * p2Prazo));
+
+      const plans = [
+        {
+          id: 'plan-1',
+          badge: 'Plano Econômico C7',
+          administradora: 'C7 Contempla / Porto Seguro',
+          tipo: 'Integral',
+          credito: altCred,
+          prazo: p1Prazo,
+          parcela: p1Parcela,
+          taxaTotal: catConf.taxaTotal,
+          taxaMensal: catConf.taxaMensal,
+          grupo: catConf.grupo
+        },
+        {
+          id: 'plan-2',
+          badge: 'Mais Escolhido',
+          administradora: 'Itaú Consórcios / C7',
+          tipo: 'Integral',
+          credito: baseCred,
+          prazo: p2Prazo,
+          parcela: p2Parcela,
+          taxaTotal: catConf.taxaTotal,
+          taxaMensal: catConf.taxaMensal,
+          grupo: catConf.grupo
+        },
+        {
+          id: 'plan-3',
+          badge: 'Menor Parcela Integral',
+          administradora: 'Consórcio Caixa / Bradesco',
+          tipo: 'Integral',
+          credito: baseCred,
+          prazo: p3Prazo,
+          parcela: p3Parcela,
+          taxaTotal: 12.00,
+          taxaMensal: Number((12 / p3Prazo).toFixed(2)),
+          grupo: catConf.grupo
+        },
+        {
+          id: 'plan-4',
+          badge: 'Parcela Reduzida (Paga Metade)',
+          administradora: 'Embracon / Sicoob C7',
+          tipo: 'Paga Metade',
+          credito: baseCred,
+          prazo: p4Prazo,
+          parcela: p4Parcela,
+          taxaTotal: catConf.taxaTotal,
+          taxaMensal: catConf.taxaMensal,
+          grupo: catConf.grupo
+        }
+      ];
+
+      await appendBotMessagesGroup([
+        `Obrigado!`,
+        `${chatState.apelido}, selecionei os <strong>melhores planos de ${catConf.labelLower}</strong> disponíveis pra você (com economia estimada de <strong>${formatBRL(economiaTotal)}</strong> em comparação ao financiamento bancário):`,
+        `Escolha o valor de parcela que mais se adapta ao seu orçamento para ver mais detalhes.`
+      ], 480);
+
+      const gridWrap = document.createElement('div');
+      gridWrap.className = 'c7-plans-grid c7-interactive-slot';
+
+      plans.forEach(plan => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'c7-plan-option-card';
+        card.innerHTML = `
+          <span class="c7-plan-option-badge">${plan.badge}</span>
+          <div class="c7-plan-option-credit">${formatBRL(plan.credito)}</div>
+          <div class="c7-plan-option-installment">em ${plan.prazo} parcelas de <strong>${formatBRL(plan.parcela)}</strong></div>
+          <div class="c7-plan-option-meta">
+            <span>${plan.administradora}</span>
+            <span>Taxa: ${String(plan.taxaMensal).replace('.', ',')}% a.m.</span>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          chatState.planoEscolhido = plan;
+          chatState.valorCredito = plan.credito;
+          appendUserMessage(`${formatBRL(plan.credito)}<br>em ${plan.prazo} parcelas de ${formatBRL(plan.parcela)}`);
+          persistLeadData('EM_ATENDIMENTO');
+          promptPreConfirmStep();
+        });
+        gridWrap.appendChild(card);
+      });
+
+      chatStream.appendChild(gridWrap);
+      scrollToBottom();
+    };
+
+    // Passo 8: Pré-confirmação (00:13 - 00:14 do vídeo Mycon)
+    const promptPreConfirmStep = async () => {
+      chatState.step = 'PRE_CONFIRM';
+      setChatProgress(80, 'Clique em "SEGUIR EM FRENTE" para confirmar seus dados', 'Clique em SEGUIR EM FRENTE...', 'text');
+
+      await appendBotMessagesGroup([
+        `Falta pouco para <strong>iniciar a sua conquista</strong>. Só preciso confirmar algumas informações. 😎`
+      ], 380);
+
+      appendActionButtons([
+        {
+          label: 'SEGUIR EM FRENTE',
+          primary: true,
+          onClick: () => {
+            appendUserMessage('SEGUIR EM FRENTE');
+            promptHolderStep();
+          }
+        }
+      ]);
+    };
+
+    // Passo 9: Quem será o titular do plano? (00:14 do vídeo Mycon)
+    const promptHolderStep = async () => {
+      chatState.step = 'HOLDER';
+      setChatProgress(84, 'Selecione quem será o titular do plano', 'Selecione: EU MESMO ou OUTRA PESSOA / EMPRESA...', 'text');
+
+      await appendBotMessagesGroup([
+        `Quem será o titular do plano?`
+      ], 350);
+
+      appendActionButtons([
+        {
+          label: 'EU MESMO',
+          primary: true,
+          onClick: () => {
+            chatState.titularPlano = 'EU MESMO';
+            appendUserMessage('EU MESMO');
+            promptFullNameStep();
+          }
+        },
+        {
+          label: 'MINHA EMPRESA (PJ / CNPJ)',
+          primary: false,
+          onClick: () => {
+            chatState.titularPlano = 'PESSOA JURÍDICA (CNPJ)';
+            appendUserMessage('MINHA EMPRESA (PJ / CNPJ)');
+            promptFullNameStep();
+          }
+        },
+        {
+          label: 'OUTRA PESSOA / FAMILIAR',
+          primary: false,
+          onClick: () => {
+            chatState.titularPlano = 'OUTRA PESSOA / FAMILIAR';
+            appendUserMessage('OUTRA PESSOA / FAMILIAR');
+            promptFullNameStep();
+          }
+        }
+      ]);
+    };
+
+    // Passo 10: Qual o seu nome completo? (00:14 - 00:15 do vídeo Mycon)
+    const promptFullNameStep = async () => {
+      chatState.step = 'FULL_NAME';
+      setChatProgress(88, 'Digite seu nome completo sem abreviações', 'Ex: Paulo Andre Lopes Alves Moraes', 'text');
+
+      await appendBotMessagesGroup([
+        `Qual o seu <strong>nome completo</strong>?`
+      ], 350);
+
+      if (chatInput) {
+        chatInput.value = '';
+        chatInput.focus();
+      }
+    };
+
+    // Passo 11: Informe o seu CPF (00:15 - 00:16 do vídeo Mycon)
+    const promptCpfStep = async () => {
+      chatState.step = 'CPF';
+      setChatProgress(92, 'Informe seu CPF ou CNPJ (apenas números)', 'Ex: 000.000.000-00', 'cpf');
+
+      await appendBotMessagesGroup([
+        `Informe o seu <strong>CPF</strong>`
+      ], 350);
+
+      if (chatInput) {
+        chatInput.value = '';
+        chatInput.focus();
+      }
+    };
+
+    // Passo 12: Qual é o seu CEP? (00:16 - 00:17 do vídeo Mycon)
+    const promptCepStep = async () => {
+      chatState.step = 'CEP';
+      setChatProgress(95, 'Informe seu CEP residencial ou comercial', 'Ex: 22.793-329', 'cep');
+
+      await appendBotMessagesGroup([
+        `<strong>${chatState.apelido}</strong>, qual é o seu CEP?`
+      ], 350);
+
+      if (chatInput) {
+        chatInput.value = '';
+        chatInput.focus();
+      }
+    };
+
+    // Passo 13: Data de Nascimento (00:17 - 00:19 do vídeo Mycon)
+    const promptBirthdateStep = async () => {
+      chatState.step = 'BIRTHDATE';
+      setChatProgress(98, 'Informe sua data de nascimento (DD/MM/AAAA)', 'Ex: 20/12/1981', 'date');
+
+      await appendBotMessagesGroup([
+        `Obrigado! <strong>${chatState.apelido}</strong>`,
+        `Enquanto eu registro os seus dados...`,
+        `Me informe a sua <strong>data de nascimento</strong>, por favor:`
+      ], 450);
+
+      if (chatInput) {
+        chatInput.value = '';
+        chatInput.focus();
+      }
+    };
+
+    // Passo 14: Confirmação de Dados, Assembleia, Regulamento e Detalhes do Plano (00:20 - 00:41 do vídeo Mycon)
+    const promptFinalReviewStep = async () => {
+      chatState.step = 'FINAL_REVIEW';
+      setChatProgress(100, 'Confira seus dados e clique em CONFIRMAR para concluir', 'Ou digite qualquer dúvida antes de confirmar...', 'text');
+
+      // Salva Lead como QUALIFICADO com todos os dados pessoais preenchidos
+      persistLeadData('QUALIFICADO');
+
+      const catConf = CATEGORY_CONFIG[chatState.categoria] || CATEGORY_CONFIG['MOTOCICLETA'];
+      const plan = chatState.planoEscolhido || {
+        tipo: 'Integral',
+        credito: chatState.valorCredito || 30000,
+        prazo: catConf.defaultPrazo || 60,
+        parcela: ((chatState.valorCredito || 30000) * 1.1299) / (catConf.defaultPrazo || 60),
+        taxaMensal: catConf.taxaMensal,
+        taxaTotal: catConf.taxaTotal,
+        administradora: 'C7 Contempla Multimarcas',
+        grupo: catConf.grupo
+      };
+
+      const nextAssemblyDate = getNextAssemblyDateFormatted();
+      const taxaMensalFormatted = String(plan.taxaMensal).replace('.', ',');
+
+      await appendBotMessagesGroup([
+        `${chatState.apelido}, agora é só <strong>confirmar</strong> se está tudo certo:`,
+        `
+          <div style="display:flex; flex-direction:column; gap:0.25rem; font-size:0.9rem;">
+            <div><strong>Nome:</strong> ${chatState.nomeCompleto}</div>
+            <div><strong>E-mail:</strong> ${chatState.email}</div>
+            <div><strong>Celular:</strong> ${chatState.telefone}</div>
+            <div><strong>CPF:</strong> ${chatState.cpf}</div>
+            <div><strong>Nascimento:</strong> ${chatState.dataNascimento}</div>
+            <div><strong>CEP:</strong> ${chatState.cep}${chatState.enderecoCompleto ? ` <span style="color:#64748b;">(${chatState.enderecoCompleto})</span>` : ''}</div>
+            <div><strong>Renda Declarada:</strong> ${formatBRL(chatState.rendaMensal)}</div>
+          </div>
+        `,
+        `<strong>Elegível para participação na assembleia do dia ${nextAssemblyDate}</strong>`,
+        `
+          Para finalizar, preciso que você <strong>leia</strong> e <strong>aceite</strong> os termos do Regulamento Geral do Consórcio.<br><br>
+          <a href="#regulamento" class="c7-open-regulamento-link" style="color:#2563eb; font-weight:700; text-decoration:underline;">Regulamento Geral do Consórcio</a>
+        `,
+        `
+          <div style="display:flex; flex-direction:column; gap:0.2rem;">
+            <div style="font-weight:800; font-size:0.98rem; margin-bottom:0.35rem;">Consórcio para ${catConf.label.toUpperCase()}</div>
+            <div><strong>Administradora:</strong> ${plan.administradora}</div>
+            <div><strong>Tipo:</strong> ${plan.tipo}</div>
+            <div><strong>Plano:</strong> ${formatBRL(plan.credito)}<br>em ${plan.prazo} parcelas de ${formatBRL(plan.parcela)}</div>
+            <div><strong>Taxa mensal:</strong> ${taxaMensalFormatted}%</div>
+          </div>
+        `
+      ], 500);
+
+      // Vincular clique no link do Regulamento Geral
+      chatStream.querySelectorAll('.c7-open-regulamento-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (regulamentoModal) regulamentoModal.classList.add('active');
+        });
+      });
+
+      // Botões: DETALHES DO PLANO (igual ao vídeo 00:24) ou CONFIRMAR DIRETO
+      appendActionButtons([
+        {
+          label: 'DETALHES DO PLANO',
+          primary: false,
+          onClick: () => {
+            appendUserMessage('DETALHES DO PLANO');
+            showDetailedPlanBreakdownAndConfirm(plan, catConf);
+          }
+        },
+        {
+          label: 'CONFIRMAR AGORA',
+          primary: true,
+          onClick: () => {
+            appendUserMessage('CONFIRMAR');
+            finalizeLeadProposal(plan, catConf);
+          }
+        }
+      ]);
+    };
+
+    // Exibe o card detalhado idêntico aos segundos 00:25 a 00:41 do vídeo do concorrente + botão azul CONFIRMAR
+    const showDetailedPlanBreakdownAndConfirm = async (plan, catConf) => {
+      const taxaTotalStr = String(plan.taxaTotal || 12.99).replace('.', ',');
+
+      await appendBotMessagesGroup([
+        `
+          <div style="display:flex; flex-direction:column; gap:0.85rem; font-size:0.88rem; line-height:1.5;">
+            <div>
+              <strong>Taxa de Administração</strong><br>
+              Total do Plano: <strong>${taxaTotalStr}% com 6% de antecipação em 12 meses</strong>
+            </div>
+            <div>
+              <strong>Informações do Grupo</strong><br>
+              Grupo: <strong>${plan.grupo || '4596'}</strong><br>
+              Número Participantes: <strong>2000</strong><br>
+              Prazo Máximo: <strong>${plan.prazo} meses</strong><br>
+              Fundo de Reserva: <strong>0%</strong><br>
+              Seguro de Quebra de Garantia: Após Contemplação de <strong>6,61%</strong> sobre o saldo devedor<br>
+              Seguro Prestamista: Se contratado de <strong>0,061%</strong> sobre o valor do crédito mais taxas<br>
+              Para os planos "Paga Metade", o valor do seguro será multiplicado por 2 após a contemplação<br>
+              Reajuste Anual: <strong>${catConf.reajuste || 'IPCA'}</strong>
+            </div>
+            <div>
+              <strong>Formas de Contemplação</strong><br>
+              Há <strong>1 contemplação mensal por sorteio</strong> e contemplações por <strong>lance livre e lance fixo</strong>, nessa ordem, enquanto houver saldo disponível no grupo.
+            </div>
+            <div>
+              <strong>Tipos de Lance</strong><br>
+              Lance Fixo: <strong>30% do crédito</strong><br>
+              Lance Livre: <strong>Até 99% do crédito</strong>
+            </div>
+            <div>
+              Pagamento de Lance Facilitado | <strong>É possível utilizar até 30% do próprio crédito para pagar o lance ofertado, no tipo fixo ou livre.</strong>
+            </div>
+          </div>
+        `
+      ], 420);
+
+      // Botão largo azul CONFIRMAR (igual ao 00:31 - 00:41 do vídeo)
+      const confirmWrap = document.createElement('div');
+      confirmWrap.className = 'c7-interactive-slot';
+      confirmWrap.style.marginTop = '0.5rem';
+      confirmWrap.innerHTML = `
+        <button type="button" class="c7-confirm-final-btn">CONFIRMAR</button>
+      `;
+      confirmWrap.querySelector('button').addEventListener('click', () => {
+        appendUserMessage('CONFIRMAR');
+        finalizeLeadProposal(plan, catConf);
+      });
+      chatStream.appendChild(confirmWrap);
+      scrollToBottom();
+    };
+
+    // Finaliza a proposta, grava Lead como PROPOSTA_ENVIADA e oferece envio no WhatsApp C7
+    const finalizeLeadProposal = async (plan, catConf) => {
+      chatState.step = 'COMPLETED';
+      chatState.aceitouRegulamento = true;
+      chatState.protocolo = `C7-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+
+      await persistLeadData('PROPOSTA_ENVIADA');
+
+      const wppSummary = 
+        `Olá! Acabei de concluir minha simulação no Assistente Digital da C7 Contempla (Protocolo *${chatState.protocolo}*):\n\n` +
+        `• *Nome:* ${chatState.nomeCompleto} (${chatState.apelido})\n` +
+        `• *CPF:* ${chatState.cpf}\n` +
+        `• *Nascimento:* ${chatState.dataNascimento}\n` +
+        `• *CEP:* ${chatState.cep} ${chatState.enderecoCompleto ? `(${chatState.enderecoCompleto})` : ''}\n` +
+        `• *E-mail:* ${chatState.email}\n` +
+        `• *Celular:* ${chatState.telefone}\n` +
+        `• *Renda Mensal:* ${formatBRL(chatState.rendaMensal)}\n` +
+        `• *Objetivo:* ${catConf.label}\n` +
+        `• *Plano Escolhido:* ${formatBRL(plan.credito)} em ${plan.prazo}x de ${formatBRL(plan.parcela)} (${plan.administradora})\n\n` +
+        `Gostaria de dar andamento na minha proposta!`;
+
+      await appendBotMessagesGroup([
+        `🎉 <strong>Parabéns, ${chatState.apelido}! Sua proposta foi registrada com sucesso!</strong>`,
+        `
+          <div style="display:flex; flex-direction:column; gap:0.35rem;">
+            <div><strong>Protocolo de Atendimento:</strong> <span class="c7-highlight-blue">${chatState.protocolo}</span></div>
+            <div>Seus dados e o plano escolhido (<strong>${formatBRL(plan.credito)} em ${plan.prazo}x de ${formatBRL(plan.parcela)}</strong>) já foram encaminhados para nossa mesa de especialistas da <strong>C7 Contempla</strong>.</div>
+          </div>
+        `,
+        `Deseja agilizar a liberação da sua cota falando agora mesmo com nosso especialista no WhatsApp ou quer simular outro valor?`
+      ], 450);
+
+      appendActionButtons([
+        {
+          label: '📲 ENVIAR PROPOSTA NO WHATSAPP AGORA',
+          primary: true,
+          onClick: () => {
+            window.open(`https://wa.me/5521998228936?text=${encodeURIComponent(wppSummary)}`, '_blank');
+          }
+        },
+        {
+          label: '🔄 SIMULAR OUTRO PLANO',
+          primary: false,
+          onClick: () => {
+            startChatFlow();
+          }
+        },
+        {
+          label: '❓ TIRAR OUTRA DÚVIDA',
+          primary: false,
+          onClick: () => {
+            promptFaqMenu();
+          }
+        }
+      ]);
+    };
+
+    // =========================================================================
+    // INTERPRETAÇÃO INTELIGENTE DE ENTRADAS DE TEXTO E MÁSCARAS EM TEMPO REAL
+    // =========================================================================
+    const parseDigitsToNumber = (str) => {
+      const digits = String(str).replace(/\D/g, '');
+      if (!digits) return 0;
+      return parseInt(digits, 10) / 100;
+    };
+
+    if (chatInput) {
+      chatInput.addEventListener('input', (e) => {
+        const maskMode = chatInput.getAttribute('data-mask') || 'text';
+        const val = e.target.value;
+
+        // Se o usuário começar a digitar letras numa etapa de moeda/cpf/cep/data (ex: fazendo uma pergunta), não bloqueia!
+        if (/[a-zA-Z?]/.test(val) && maskMode !== 'email' && maskMode !== 'text') {
+          return;
+        }
+
+        if (maskMode === 'currency') {
+          const digits = val.replace(/\D/g, '');
+          if (!digits) {
+            e.target.value = '';
+            return;
+          }
+          const num = parseInt(digits, 10) / 100;
+          e.target.value = formatBRL(num);
+        } else if (maskMode === 'phone') {
+          let d = val.replace(/\D/g, '');
+          if (d.startsWith('55') && d.length > 11) d = d.slice(2);
+          if (d.length > 11) d = d.slice(0, 11);
+          if (d.length === 0) {
+            e.target.value = '';
+          } else if (d.length <= 2) {
+            e.target.value = `+55 (${d}`;
+          } else if (d.length <= 7) {
+            e.target.value = `+55 (${d.slice(0, 2)}) ${d.slice(2)}`;
+          } else {
+            e.target.value = `+55 (${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+          }
+        } else if (maskMode === 'cpf') {
+          let d = val.replace(/\D/g, '');
+          if (d.length > 14) d = d.slice(0, 14);
+          if (d.length <= 11) {
+            d = d.replace(/(\d{3})(\d)/, '$1.$2');
+            d = d.replace(/(\d{3})(\d)/, '$1.$2');
+            d = d.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+          } else {
+            d = d.replace(/^(\d{2})(\d)/, '$1.$2');
+            d = d.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+            d = d.replace(/\.(\d{3})(\d)/, '.$1/$2');
+            d = d.replace(/(\d{4})(\d)/, '$1-$2');
+          }
+          e.target.value = d;
+        } else if (maskMode === 'cep') {
+          let d = val.replace(/\D/g, '').slice(0, 8);
+          if (d.length > 5) {
+            e.target.value = `${d.slice(0, 2)}.${d.slice(2, 5)}-${d.slice(5)}`;
+          } else if (d.length > 2) {
+            e.target.value = `${d.slice(0, 2)}.${d.slice(2)}`;
+          } else {
+            e.target.value = d;
+          }
+        } else if (maskMode === 'date') {
+          let d = val.replace(/\D/g, '').slice(0, 8);
+          if (d.length > 4) {
+            e.target.value = `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`;
+          } else if (d.length > 2) {
+            e.target.value = `${d.slice(0, 2)}/${d.slice(2)}`;
+          } else {
+            e.target.value = d;
+          }
+        }
+      });
+    }
+
+    // Motor NLU para responder dúvidas digitadas livremente em qualquer etapa
+    const checkFreeQuestionNLU = (rawInput) => {
+      const norm = rawInput.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      if (norm.includes('financiamento') || norm.includes('juros') || norm.includes('banco')) {
+        return FAQ_TOPICS[0].answer;
+      }
+      if (norm.includes('fgts') || norm.includes('lance') || norm.includes('embutido')) {
+        return FAQ_TOPICS[1].answer;
+      }
+      if (norm.includes('contemplada') || norm.includes('imediato') || norm.includes('ja contemplado')) {
+        return FAQ_TOPICS[2].answer;
+      }
+      if (norm.includes('exterior') || norm.includes('fora do brasil') || norm.includes('leilao')) {
+        return FAQ_TOPICS[3].answer;
+      }
+      if (norm.includes('rapido') || norm.includes('sorteio') || norm.includes('assembleia') || norm.includes('demora')) {
+        return FAQ_TOPICS[4].answer;
+      }
+      if (norm.includes('adesao') || norm.includes('taxa')) {
+        return 'Na <strong>C7 Contempla</strong> trabalhamos com planos <strong>sem taxa de adesão</strong> (onde você paga apenas a 1ª parcela na contratação) e taxas administrativas reduzidas a partir de 0,07% ao mês!';
+      }
+      return null;
+    };
+
+    if (chatForm) {
+      chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const rawText = (chatInput.value || '').trim();
+        if (!rawText) return;
+
+        chatInput.value = '';
+
+        // Verifica se o visitante digitou uma dúvida durante qualquer etapa
+        const faqMatch = checkFreeQuestionNLU(rawText);
+        if (faqMatch && (rawText.includes('?') || ['WELCOME', 'FAQ_MODE', 'CATEGORY', 'COMPLETED'].includes(chatState.step))) {
+          appendUserMessage(rawText);
+          await appendBotMessagesGroup([
+            faqMatch,
+            chatState.apelido
+              ? `Ficou claro, <strong>${chatState.apelido}</strong>? Vamos continuar sua simulação personalizada!`
+              : `Posso simular agora mesmo um plano sem juros sob medida para você! Escolha o que <strong>você deseja conquistar</strong>:`
+          ], 420);
+          if (!chatState.apelido) {
+            showCategoryButtonsOnly();
+          }
+          return;
+        }
+
+        // Processamento de acordo com a etapa atual do funil
+        switch (chatState.step) {
+          case 'WELCOME':
+          case 'FAQ_MODE': {
+            appendUserMessage(rawText);
+            const answer = faqMatch || 'Excelente pergunta! Na <strong>C7 Contempla</strong> você conta com assessoria completa e planos 100% sem juros fiscalizados pelo Banco Central.';
+            await appendBotMessagesGroup([
+              answer,
+              `Para eu calcular as parcelas ideais para o seu perfil, escolha o que <strong>você deseja conquistar</strong>:`
+            ], 400);
+            showCategoryButtonsOnly();
+            break;
+          }
+
+          case 'CATEGORY': {
+            const norm = rawText.toLowerCase();
+            if (norm.includes('imov') || norm.includes('casa') || norm.includes('apart')) {
+              selectCategory('IMOVEL', 'Imóveis');
+            } else if (norm.includes('moto')) {
+              selectCategory('MOTOCICLETA', 'Motocicletas');
+            } else if (norm.includes('serv')) {
+              selectCategory('SERVICO', 'Serviços');
+            } else {
+              selectCategory('AUTOMOVEL', 'Automóveis');
+            }
+            break;
+          }
+
+          case 'NICKNAME': {
+            chatState.apelido = rawText;
+            appendUserMessage(rawText);
+            promptCreditStep();
+            break;
+          }
+
+          case 'CREDIT': {
+            let num = parseDigitsToNumber(rawText);
+            if (num < 1000 && /\d+/.test(rawText)) {
+              num = parseInt(rawText.replace(/\D/g, ''), 10);
+            }
+            if (!num || num <= 0) num = 30000;
+            handleCreditSubmission(num);
+            break;
+          }
+
+          case 'INCOME': {
+            let inc = parseDigitsToNumber(rawText);
+            if (inc < 500 && /\d+/.test(rawText)) {
+              inc = parseInt(rawText.replace(/\D/g, ''), 10);
+            }
+            if (!inc || inc <= 0) inc = 5000;
+            handleIncomeSubmission(inc);
+            break;
+          }
+
+          case 'EMAIL': {
+            appendUserMessage(rawText);
+            if (!rawText.includes('@') || !rawText.includes('.')) {
+              await appendBotMessagesGroup([
+                `Hmm, parece que esse e-mail não está completo. Por favor, digite um <strong>e-mail válido</strong> (ex: nome@email.com):`
+              ], 320);
+              return;
+            }
+            chatState.email = rawText;
+            promptPhoneStep();
+            break;
+          }
+
+          case 'PHONE': {
+            appendUserMessage(rawText);
+            const digits = rawText.replace(/\D/g, '');
+            if (digits.length < 10) {
+              await appendBotMessagesGroup([
+                `Por favor, informe o número do seu <strong>celular com o DDD</strong> (ex: (21) 99999-9999):`
+              ], 320);
+              return;
+            }
+            chatState.telefone = rawText;
+            promptPlanSelectionStep();
+            break;
+          }
+
+          case 'FULL_NAME': {
+            appendUserMessage(rawText);
+            if (rawText.split(' ').filter(Boolean).length < 2) {
+              await appendBotMessagesGroup([
+                `Por gentileza, informe o seu <strong>nome e sobrenome completos</strong> para o registro da proposta:`
+              ], 320);
+              return;
+            }
+            chatState.nomeCompleto = rawText;
+            persistLeadData('EM_ATENDIMENTO');
+            promptCpfStep();
+            break;
+          }
+
+          case 'CPF': {
+            appendUserMessage(rawText);
+            const digits = rawText.replace(/\D/g, '');
+            if (digits.length < 11) {
+              await appendBotMessagesGroup([
+                `Por favor, digite os <strong>11 dígitos do seu CPF</strong> (ou 14 dígitos para CNPJ):`
+              ], 320);
+              return;
+            }
+            chatState.cpf = rawText;
+            persistLeadData('QUALIFICADO');
+            promptCepStep();
+            break;
+          }
+
+          case 'CEP': {
+            appendUserMessage(rawText);
+            const digits = rawText.replace(/\D/g, '');
+            if (digits.length < 8) {
+              await appendBotMessagesGroup([
+                `Por favor, informe os <strong>8 dígitos do seu CEP</strong> (ex: 22.793-329):`
+              ], 320);
+              return;
+            }
+            chatState.cep = rawText;
+
+            // Consulta enriquecida ViaCEP em background para capturar Rua, Bairro, Cidade e UF do Lead!
+            try {
+              const resp = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+              if (resp.ok) {
+                const cepData = await resp.json();
+                if (!cepData.erro) {
+                  const parts = [cepData.logradouro, cepData.bairro, `${cepData.localidade || ''}/${cepData.uf || ''}`].filter(Boolean);
+                  chatState.enderecoCompleto = parts.join(' - ');
+                }
+              }
+            } catch (err) {}
+
+            persistLeadData('QUALIFICADO');
+            promptBirthdateStep();
+            break;
+          }
+
+          case 'BIRTHDATE': {
+            appendUserMessage(rawText);
+            const digits = rawText.replace(/\D/g, '');
+            if (digits.length < 8) {
+              await appendBotMessagesGroup([
+                `Por favor, informe sua data de nascimento no formato <strong>DD/MM/AAAA</strong> (ex: 20/12/1981):`
+              ], 320);
+              return;
+            }
+            chatState.dataNascimento = rawText;
+            promptFinalReviewStep();
+            break;
+          }
+
+          default: {
+            appendUserMessage(rawText);
+            const ans = faqMatch || `Recebi sua mensagem! Você pode clicar nas opções acima para concluir sua simulação ou falar direto com nossa equipe.`;
+            await appendBotMessagesGroup([ans], 350);
+            break;
+          }
+        }
+      });
+    }
+
+    // Controles de Tela Cheia, Reiniciar, Dúvidas e Botão Flutuante C7
+    const toggleChatFullscreen = (forceState = null) => {
+      if (!chatShell) return;
+      const isFull = forceState !== null ? forceState : !chatShell.classList.contains('fullscreen-mode');
+      chatShell.classList.toggle('fullscreen-mode', isFull);
+      document.body.style.overflow = isFull ? 'hidden' : '';
+      if (textFullscreen) {
+        textFullscreen.textContent = isFull ? 'Minimizar' : 'Tela Cheia';
+      }
+      scrollToBottom();
+      if (chatInput) chatInput.focus();
+    };
+
+    if (btnFullscreen) {
+      btnFullscreen.addEventListener('click', () => toggleChatFullscreen());
+    }
+
+    if (btnRestart) {
+      btnRestart.addEventListener('click', () => startChatFlow());
+    }
+
+    if (btnModeDuvidas) {
+      btnModeDuvidas.addEventListener('click', () => {
+        appendUserMessage('Quero tirar uma dúvida');
+        promptFaqMenu();
+      });
+    }
+
+    if (btnHeroOpenChat) {
+      btnHeroOpenChat.addEventListener('click', () => {
+        if (chatSection) {
+          chatSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => {
+            if (chatInput) chatInput.focus();
+          }, 450);
+        }
+      });
+    }
+
+    // Gatilho Flutuante do Chatbot C7 (acima do botão de WhatsApp)
+    const floatingChatBtn = document.getElementById('c7-floating-chat-btn');
+    const floatingCallout = document.getElementById('c7-floating-callout');
+    if (floatingChatBtn) {
+      floatingChatBtn.addEventListener('click', () => {
+        toggleChatFullscreen(true);
+      });
+    }
+    if (floatingCallout) {
+      floatingCallout.addEventListener('click', () => {
+        toggleChatFullscreen(true);
+      });
+    }
+
+    // Modal do Regulamento Geral
+    if (closeRegulamentoBtn && regulamentoModal) {
+      closeRegulamentoBtn.addEventListener('click', () => regulamentoModal.classList.remove('active'));
+    }
+    if (okRegulamentoBtn && regulamentoModal) {
+      okRegulamentoBtn.addEventListener('click', () => regulamentoModal.classList.remove('active'));
+    }
+    if (regulamentoModal) {
+      regulamentoModal.addEventListener('click', (e) => {
+        if (e.target === regulamentoModal) regulamentoModal.classList.remove('active');
+      });
+    }
+
+    // Inicia automaticamente o fluxo conversacional na Landing Page
+    startChatFlow();
   </script>
 
-  <!-- BOTÃO FLUTUANTE WHATSAPP (LANDING PAGE) -->
+  <!-- BOTÃO FLUTUANTE DO CHATBOT IA C7 (ACIMA DO WHATSAPP) -->
+  <div class="c7-floating-launcher-wrap">
+    <div class="c7-floating-callout" id="c7-floating-callout" title="Simule seu consórcio ou tire dúvidas com a IA da C7">
+      <span class="c7-chat-online-dot"></span>
+      <span>Simule ou tire dúvidas no Chat C7</span>
+    </div>
+    <button type="button" class="c7-floating-btn" id="c7-floating-chat-btn" title="Abrir Assistente Virtual C7 Contempla" aria-label="Abrir Assistente Virtual C7 Contempla">
+      <span class="c7-floating-badge">1</span>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        <path d="M8 10h.01"/>
+        <path d="M12 10h.01"/>
+        <path d="M16 10h.01"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- BOTÃO FLUTUANTE WHATSAPP (LANDING PAGE - MANTIDO INTACTO) -->
   <div class="chat-widget" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 100;">
     <button class="chat-trigger" id="chat-trigger-landing" title="Conversar no WhatsApp (+55 21 99822-8936)" aria-label="Iniciar conversa no WhatsApp">
       <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
