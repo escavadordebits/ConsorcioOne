@@ -793,10 +793,10 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-end;
-      gap: 0.6rem;
-      margin-top: 0.35rem;
-      margin-bottom: 0.35rem;
-      padding-left: 2.5rem;
+      gap: 0.5rem;
+      margin-top: 0.3rem;
+      margin-bottom: 0.3rem;
+      padding-left: 2rem;
       animation: c7FadeSlideUp 0.3s ease forwards;
     }
 
@@ -804,18 +804,19 @@
       background: #0f172a;
       color: #ffffff;
       border: 1.5px solid rgba(14, 165, 233, 0.55);
-      padding: 0.8rem 1.35rem;
-      border-radius: 10px;
+      padding: 0.62rem 1.05rem;
+      border-radius: 9px;
       font-family: var(--font-body);
-      font-size: 0.88rem;
+      font-size: 0.84rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.22s ease;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
       text-align: left;
+      line-height: 1.25;
     }
 
     .c7-action-choice-btn:hover {
@@ -839,18 +840,18 @@
     /* Cards de Planos Selecionáveis no Chat (Passo de Escolha de Parcela) */
     .c7-plans-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.65rem;
       width: 100%;
-      padding-left: 2.5rem;
-      margin: 0.4rem 0;
+      padding-left: 2rem;
+      margin: 0.35rem 0;
     }
 
     .c7-plan-option-card {
       background: #0f172a;
       border: 1.5px solid rgba(14, 165, 233, 0.4);
       border-radius: 12px;
-      padding: 1rem 1.15rem;
+      padding: 0.85rem 1rem;
       color: #ffffff;
       cursor: pointer;
       transition: all 0.25s ease;
@@ -868,39 +869,39 @@
 
     .c7-plan-option-badge {
       display: inline-block;
-      font-size: 0.68rem;
+      font-size: 0.66rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      padding: 0.18rem 0.55rem;
+      padding: 0.16rem 0.5rem;
       border-radius: 999px;
       background: rgba(14, 165, 233, 0.2);
       color: #38bdf8;
-      margin-bottom: 0.45rem;
+      margin-bottom: 0.35rem;
     }
 
     .c7-plan-option-credit {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 800;
       color: #ffffff;
-      margin-bottom: 0.15rem;
+      margin-bottom: 0.12rem;
     }
 
     .c7-plan-option-installment {
-      font-size: 0.88rem;
+      font-size: 0.84rem;
       color: #cbd5e1;
     }
 
     .c7-plan-option-installment strong {
       color: #34d399;
-      font-size: 0.96rem;
+      font-size: 0.92rem;
     }
 
     .c7-plan-option-meta {
-      margin-top: 0.55rem;
-      padding-top: 0.45rem;
+      margin-top: 0.45rem;
+      padding-top: 0.4rem;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       color: #94a3b8;
       display: flex;
       justify-content: space-between;
@@ -911,14 +912,14 @@
     .c7-confirm-final-btn {
       width: 100%;
       max-width: 520px;
-      margin-left: 2.6rem;
-      padding: 1rem 1.5rem;
+      margin-left: 2.2rem;
+      padding: 0.85rem 1.25rem;
       border-radius: 10px;
       border: none;
       background: linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%);
       color: #ffffff;
       font-family: var(--font-title);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 800;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -937,7 +938,7 @@
     /* Indicador de Digitando (Typing) */
     .c7-typing-bubble {
       background: #ffffff;
-      padding: 0.75rem 1.1rem;
+      padding: 0.7rem 1rem;
       border-radius: 14px;
       border-bottom-left-radius: 4px;
       display: inline-flex;
@@ -966,11 +967,13 @@
     .c7-chat-input-bar {
       background: rgba(11, 15, 25, 0.96);
       border-top: 1px solid rgba(255, 255, 255, 0.09);
-      padding: 0.9rem 1.25rem;
+      padding: 0.75rem 1rem;
       display: flex;
       flex-direction: column;
-      gap: 0.55rem;
+      gap: 0.45rem;
       flex-shrink: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .c7-input-helper-row {
@@ -981,7 +984,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 0.5rem;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       color: #94a3b8;
     }
 
@@ -991,6 +994,13 @@
       display: flex;
       align-items: center;
       gap: 0.35rem;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .c7-input-lgpd-tag {
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .c7-chat-form-row {
@@ -998,19 +1008,30 @@
       width: 100%;
       margin: 0 auto;
       display: flex;
-      gap: 0.65rem;
+      gap: 0.5rem;
+      align-items: center;
+      box-sizing: border-box;
+    }
+
+    .c7-input-field-wrap {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+      display: flex;
       align-items: center;
     }
 
     .c7-chat-main-input {
-      flex: 1;
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
       background: #1e293b;
       border: 1.5px solid rgba(14, 165, 233, 0.35);
-      border-radius: 12px;
-      padding: 0.85rem 1.15rem;
+      border-radius: 10px;
+      padding: 0.72rem 2.2rem 0.72rem 0.9rem;
       color: #ffffff;
       font-family: var(--font-body);
-      font-size: 0.95rem;
+      font-size: 16px; /* Evita zoom automático no iOS/Android */
       transition: all 0.2s ease;
     }
 
@@ -1022,21 +1043,49 @@
 
     .c7-chat-main-input::placeholder {
       color: #64748b;
+      font-size: 0.86rem;
+    }
+
+    .c7-chat-clear-btn {
+      position: absolute;
+      right: 0.45rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      border: none;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .c7-chat-clear-btn:hover {
+      background: rgba(239, 68, 68, 0.25);
+      color: #ffffff;
     }
 
     .c7-chat-submit-btn {
+      flex-shrink: 0;
       background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
       color: #ffffff;
       border: none;
-      border-radius: 12px;
-      padding: 0.85rem 1.35rem;
+      border-radius: 10px;
+      padding: 0.72rem 1.05rem;
       font-family: var(--font-title);
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.86rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.45rem;
+      justify-content: center;
+      gap: 0.35rem;
       transition: all 0.2s ease;
       box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
       white-space: nowrap;
@@ -1050,22 +1099,29 @@
     /* Gatilho Flutuante do Chatbot C7 (Acima do botão de WhatsApp mantido intacto) */
     .c7-floating-launcher-wrap {
       position: fixed;
-      bottom: 6.4rem;
+      bottom: 6.2rem;
       right: 2rem;
       z-index: 101;
       display: flex;
       align-items: center;
       gap: 0.65rem;
       pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .c7-floating-launcher-wrap.hidden-near-chat {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.85);
     }
 
     .c7-floating-callout {
       background: #0f172a;
       color: #ffffff;
       border: 1px solid rgba(14, 165, 233, 0.45);
-      padding: 0.5rem 0.9rem;
+      padding: 0.45rem 0.85rem;
       border-radius: 999px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
       pointer-events: auto;
@@ -1083,8 +1139,8 @@
     }
 
     .c7-floating-btn {
-      width: 3.6rem;
-      height: 3.6rem;
+      width: 3.3rem;
+      height: 3.3rem;
       border-radius: 50%;
       background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
       color: #ffffff;
@@ -1108,12 +1164,12 @@
       position: absolute;
       top: -4px;
       right: -4px;
-      width: 20px;
-      height: 20px;
+      width: 19px;
+      height: 19px;
       border-radius: 50%;
       background: #ef4444;
       color: #ffffff;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 800;
       display: flex;
       align-items: center;
@@ -1122,48 +1178,222 @@
     }
 
     @media (max-width: 768px) {
+      .landing-header {
+        padding: 0.75rem 1rem;
+      }
+
+      .btn-login, .btn-cartas-top {
+        padding: 0.5rem 0.85rem;
+        font-size: 0.8rem;
+      }
+
       .c7-chatbot-section {
-        padding: 0.5rem 0.75rem 2.5rem;
+        padding: 0.35rem 0.5rem 2rem;
       }
 
       .c7-chat-shell {
-        height: 620px;
+        height: 540px;
+        max-height: 78vh;
+        border-radius: 16px;
+      }
+
+      .c7-chat-topbar {
+        padding: 0.6rem 0.75rem;
+        gap: 0.4rem;
+      }
+
+      .c7-chat-brand {
+        gap: 0.5rem;
+      }
+
+      .c7-chat-brand-logo {
+        height: 30px;
+      }
+
+      .c7-chat-brand-title {
+        font-size: 0.84rem;
+      }
+
+      .c7-chat-brand-sub {
+        display: none;
       }
 
       .c7-chat-progress-wrap {
         display: none;
       }
 
+      .c7-chat-top-actions {
+        gap: 0.3rem;
+      }
+
+      .c7-chat-top-btn {
+        padding: 0.32rem 0.52rem;
+        font-size: 0.7rem;
+        border-radius: 6px;
+        gap: 0.22rem;
+      }
+
+      .c7-chat-stream-viewport {
+        padding: 0.85rem 0.65rem 1rem;
+      }
+
+      .c7-chat-stream-container {
+        gap: 0.6rem;
+      }
+
+      /* Banner horizontal enxuto no celular para não ocupar a tela toda */
       .c7-chat-welcome-banner {
-        flex-direction: column;
+        flex-direction: row;
+        min-height: 80px;
+        margin-bottom: 0.35rem;
+        border-radius: 12px;
+      }
+
+      .c7-banner-left {
+        padding: 0.6rem 0.75rem;
+        gap: 0.55rem;
+      }
+
+      .c7-banner-brand-pill {
+        padding-right: 0.55rem;
+        min-width: 50px;
+      }
+
+      .c7-banner-brand-pill img {
+        width: 44px;
+        padding: 4px;
+      }
+
+      .c7-banner-headline {
+        font-size: 0.78rem;
+        line-height: 1.28;
       }
 
       .c7-banner-right {
-        width: 100%;
-        height: 130px;
+        width: 78px;
+        height: auto;
+      }
+
+      .c7-banner-right img {
+        height: 84px;
+      }
+
+      .c7-bot-avatar-col,
+      .c7-bot-avatar-badge {
+        width: 26px;
+        height: 26px;
+        font-size: 0.68rem;
+        border-radius: 7px;
+      }
+
+      .c7-bubble-bot {
+        padding: 0.65rem 0.85rem;
+        font-size: 0.83rem;
+        line-height: 1.42;
+        border-radius: 11px;
+      }
+
+      .c7-bubble-user {
+        padding: 0.55rem 0.85rem;
+        font-size: 0.82rem;
+        border-radius: 10px;
+      }
+
+      /* Botões de escolha mais compactos e responsivos no celular */
+      .c7-actions-group {
+        padding-left: 0;
+        gap: 0.4rem;
+      }
+
+      .c7-action-choice-btn {
+        padding: 0.48rem 0.78rem;
+        font-size: 0.76rem;
+        border-radius: 8px;
+        gap: 0.3rem;
       }
 
       .c7-plans-grid {
         padding-left: 0;
         grid-template-columns: 1fr;
+        gap: 0.5rem;
       }
 
-      .c7-actions-group {
-        padding-left: 0.5rem;
+      .c7-plan-option-card {
+        padding: 0.7rem 0.85rem;
+      }
+
+      .c7-plan-option-credit {
+        font-size: 0.92rem;
+      }
+
+      .c7-plan-option-installment {
+        font-size: 0.8rem;
       }
 
       .c7-confirm-final-btn {
         margin-left: 0;
         max-width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.84rem;
+      }
+
+      /* Barra de digitação 100% ajustada ao celular com botão Enviar sempre visível */
+      .c7-chat-input-bar {
+        padding: 0.55rem 0.65rem;
+        gap: 0.35rem;
+      }
+
+      .c7-input-helper-row {
+        font-size: 0.7rem;
+      }
+
+      .c7-input-lgpd-tag {
+        display: none;
+      }
+
+      .c7-chat-form-row {
+        gap: 0.4rem;
+      }
+
+      .c7-chat-main-input {
+        padding: 0.6rem 2rem 0.6rem 0.75rem;
+        font-size: 16px;
+        border-radius: 9px;
+      }
+
+      .c7-chat-submit-btn {
+        padding: 0.6rem 0.85rem;
+        font-size: 0.8rem;
+        border-radius: 9px;
       }
 
       .c7-floating-launcher-wrap {
-        right: 1rem;
-        bottom: 5.5rem;
+        right: 0.75rem;
+        bottom: 4.3rem;
+      }
+
+      .c7-floating-btn {
+        width: 2.75rem;
+        height: 2.75rem;
       }
 
       .c7-floating-callout {
         display: none;
+      }
+
+      .chat-widget {
+        right: 0.75rem !important;
+        bottom: 0.85rem !important;
+      }
+
+      .chat-trigger {
+        width: 2.75rem !important;
+        height: 2.75rem !important;
+      }
+
+      .chat-trigger svg {
+        width: 1.4rem !important;
+        height: 1.4rem !important;
       }
     }
   </style>
@@ -1275,19 +1505,22 @@
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               Clique em uma opção acima ou digite sua dúvida abaixo
             </span>
-            <span>🔒 Dados protegidos (LGPD &amp; BACEN)</span>
+            <span class="c7-input-lgpd-tag">🔒 Dados protegidos (LGPD &amp; BACEN)</span>
           </div>
           <form class="c7-chat-form-row" id="c7-chat-form" onsubmit="return false;">
-            <input 
-              type="text" 
-              id="c7-chat-input" 
-              class="c7-chat-main-input" 
-              placeholder="Digite aqui sua resposta ou tire qualquer dúvida..." 
-              autocomplete="off"
-            >
+            <div class="c7-input-field-wrap">
+              <input 
+                type="text" 
+                id="c7-chat-input" 
+                class="c7-chat-main-input" 
+                placeholder="Digite aqui sua resposta ou dúvida..." 
+                autocomplete="off"
+              >
+              <button type="button" id="c7-chat-clear-btn" class="c7-chat-clear-btn" title="Limpar campo" aria-label="Limpar campo">&times;</button>
+            </div>
             <button type="submit" id="c7-chat-send-btn" class="c7-chat-submit-btn">
               <span>Enviar</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
           </form>
         </div>
@@ -2365,6 +2598,36 @@
       return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
     };
 
+    const formatWholeBRL = (val) => {
+      return 'R$ ' + new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(Math.round(val || 0));
+    };
+
+    const chatClearBtn = document.getElementById('c7-chat-clear-btn');
+    const updateClearBtnVisibility = () => {
+      if (!chatClearBtn || !chatInput) return;
+      chatClearBtn.style.display = chatInput.value && chatInput.value.length > 0 ? 'flex' : 'none';
+    };
+
+    if (chatClearBtn && chatInput) {
+      chatClearBtn.addEventListener('click', () => {
+        chatInput.value = '';
+        updateClearBtnVisibility();
+        chatInput.focus();
+      });
+    }
+
+    // No celular/touch, NÃO abre o teclado automaticamente ao trocar de etapa para não esconder a conversa
+    const isMobileTouchDevice = () => {
+      return window.innerWidth <= 768 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    };
+
+    const focusInputIfDesktop = () => {
+      if (!chatInput) return;
+      if (!isMobileTouchDevice()) {
+        chatInput.focus();
+      }
+    };
+
     // Calcula próxima data de assembleia elegível (ex: dia 15 do mês) sem nunca dar "Invalid Date"
     const getNextAssemblyDateFormatted = () => {
       const now = new Date();
@@ -2378,17 +2641,25 @@
       return `${d}/${m}/${y}`;
     };
 
-    // Atualiza barra de progresso no topo do chat
+    // Atualiza barra de progresso, máscara e teclado apropriado no celular (numérico vs texto)
     const setChatProgress = (pct, hintText, placeholderText, inputMode = 'text') => {
       if (progressTextEl) progressTextEl.textContent = `Simulação: ${pct}%`;
       if (progressFillEl) progressFillEl.style.width = `${pct}%`;
       if (stepHintEl && hintText) {
-        stepHintEl.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${hintText}`;
+        stepHintEl.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> <span>${hintText}</span>`;
       }
       if (chatInput && placeholderText) {
         chatInput.placeholder = placeholderText;
         chatInput.setAttribute('data-mask', inputMode);
+        if (['currency', 'phone', 'cpf', 'cep', 'date'].includes(inputMode)) {
+          chatInput.setAttribute('inputmode', 'numeric');
+        } else if (inputMode === 'email') {
+          chatInput.setAttribute('inputmode', 'email');
+        } else {
+          chatInput.setAttribute('inputmode', 'text');
+        }
       }
+      updateClearBtnVisibility();
     };
 
     const scrollToBottom = () => {
@@ -2783,13 +3054,17 @@
     // Passo 2: Como prefere que eu te chame? (00:02 do vídeo Mycon)
     const promptNicknameStep = async () => {
       chatState.step = 'NICKNAME';
-      setChatProgress(28, 'Digite seu nome ou como prefere ser chamado', 'Digite como prefere ser chamado (ex: Paulo, PA, Ana)...', 'text');
+      setChatProgress(28, 'Digite seu nome ou como prefere ser chamado', 'Como prefere ser chamado (ex: Bruno, PA)...', 'text');
 
       await appendBotMessagesGroup([
         `Como prefere que eu te chame?`
       ], 350);
 
-      if (chatInput) chatInput.focus();
+      if (chatInput) {
+        chatInput.value = '';
+        updateClearBtnVisibility();
+        focusInputIfDesktop();
+      }
     };
 
     // Passo 3: Valor aproximado do crédito (00:03 - 00:05 do vídeo Mycon)
@@ -2797,7 +3072,7 @@
       chatState.step = 'CREDIT';
       const catConf = CATEGORY_CONFIG[chatState.categoria] || CATEGORY_CONFIG['MOTOCICLETA'];
 
-      setChatProgress(38, `Informe um valor entre ${catConf.minLabel} e ${catConf.maxLabel}`, `Ex: ${formatBRL(catConf.suggestions[2])}`, 'currency');
+      setChatProgress(38, `Valor entre ${catConf.minLabel} e ${catConf.maxLabel}`, `Ex: ${formatWholeBRL(catConf.suggestions[2])}`, 'currency');
 
       await appendBotMessagesGroup([
         `Muito prazer, <strong>${chatState.apelido} :)</strong>`,
@@ -2817,7 +3092,8 @@
 
       if (chatInput) {
         chatInput.value = '';
-        chatInput.focus();
+        updateClearBtnVisibility();
+        focusInputIfDesktop();
       }
     };
 
@@ -2835,7 +3111,7 @@
     // Passo 4: Renda Mensal Familiar (00:05 - 00:07 do vídeo Mycon)
     const promptIncomeStep = async () => {
       chatState.step = 'INCOME';
-      setChatProgress(48, 'Informe sua renda mensal familiar aproximada', 'Digite o valor da renda mensal (ex: R$ 8.500,00)...', 'currency');
+      setChatProgress(48, 'Informe sua renda mensal familiar aproximada', 'Digite o valor da renda (ex: 10000)...', 'currency');
 
       await appendBotMessagesGroup([
         `Certo, vou te mostrar planos que caibam no seu bolso e que não comprometam mais do que 30% da sua renda.`,
@@ -2852,7 +3128,8 @@
 
       if (chatInput) {
         chatInput.value = '';
-        chatInput.focus();
+        updateClearBtnVisibility();
+        focusInputIfDesktop();
       }
     };
 
@@ -2865,7 +3142,7 @@
     // Passo 5: Melhor E-mail (00:08 - 00:09 do vídeo Mycon)
     const promptEmailStep = async () => {
       chatState.step = 'EMAIL';
-      setChatProgress(58, 'Informe seu melhor e-mail para enviarmos a simulação', 'Digite seu melhor e-mail (ex: nome@gmail.com)...', 'email');
+      setChatProgress(58, 'Informe seu melhor e-mail para a simulação', 'Seu melhor e-mail (ex: nome@gmail.com)...', 'email');
 
       await appendBotMessagesGroup([
         `Legal, <strong>${chatState.apelido}</strong>! Enquanto procuro os <strong>melhores planos</strong> pra você, me diz:`,
@@ -2874,14 +3151,15 @@
 
       if (chatInput) {
         chatInput.value = '';
-        chatInput.focus();
+        updateClearBtnVisibility();
+        focusInputIfDesktop();
       }
     };
 
     // Passo 6: Celular com DDD (00:09 - 00:10 do vídeo Mycon)
     const promptPhoneStep = async () => {
       chatState.step = 'PHONE';
-      setChatProgress(68, 'Informe seu celular / WhatsApp com DDD', 'Ex: +55 (21) 99999-9999', 'phone');
+      setChatProgress(68, 'Informe seu celular / WhatsApp com DDD', 'Ex: (21) 99999-9999', 'phone');
 
       await appendBotMessagesGroup([
         `E qual o número do seu <strong>celular</strong> com DDD?`
@@ -2889,7 +3167,8 @@
 
       if (chatInput) {
         chatInput.value = '';
-        chatInput.focus();
+        updateClearBtnVisibility();
+        focusInputIfDesktop();
       }
     };
 
@@ -3074,7 +3353,7 @@
     // Passo 10: Qual o seu nome completo? (00:14 - 00:15 do vídeo Mycon)
     const promptFullNameStep = async () => {
       chatState.step = 'FULL_NAME';
-      setChatProgress(88, 'Digite seu nome completo sem abreviações', 'Ex: Paulo Andre Lopes Alves Moraes', 'text');
+      setChatProgress(88, 'Digite seu nome completo sem abreviações', 'Seu nome completo...', 'text');
 
       await appendBotMessagesGroup([
         `Qual o seu <strong>nome completo</strong>?`
@@ -3082,7 +3361,8 @@
 
       if (chatInput) {
         chatInput.value = '';
-        chatInput.focus();
+        updateClearBtnVisibility();
+        focusInputIfDesktop();
       }
     };
 
@@ -3097,7 +3377,8 @@
 
       if (chatInput) {
         chatInput.value = '';
-        chatInput.focus();
+        updateClearBtnVisibility();
+        focusInputIfDesktop();
       }
     };
 
@@ -3112,7 +3393,8 @@
 
       if (chatInput) {
         chatInput.value = '';
-        chatInput.focus();
+        updateClearBtnVisibility();
+        focusInputIfDesktop();
       }
     };
 
@@ -3129,7 +3411,8 @@
 
       if (chatInput) {
         chatInput.value = '';
-        chatInput.focus();
+        updateClearBtnVisibility();
+        focusInputIfDesktop();
       }
     };
 
@@ -3327,19 +3610,25 @@
     // =========================================================================
     // INTERPRETAÇÃO INTELIGENTE DE ENTRADAS DE TEXTO E MÁSCARAS EM TEMPO REAL
     // =========================================================================
-    const parseDigitsToNumber = (str) => {
-      const digits = String(str).replace(/\D/g, '');
+    const parseWholeReaisToNumber = (str) => {
+      if (!str) return 0;
+      // Remove centavos caso o usuário tenha digitado ",00"
+      const withoutCents = String(str).trim().replace(/,\d{1,2}$/, '');
+      const digits = withoutCents.replace(/\D/g, '');
       if (!digits) return 0;
-      return parseInt(digits, 10) / 100;
+      return parseInt(digits, 10);
     };
 
     if (chatInput) {
       chatInput.addEventListener('input', (e) => {
         const maskMode = chatInput.getAttribute('data-mask') || 'text';
         const val = e.target.value;
+        const isDeleting = e.inputType && e.inputType.startsWith('delete');
+
+        updateClearBtnVisibility();
 
         // Se o usuário começar a digitar letras numa etapa de moeda/cpf/cep/data (ex: fazendo uma pergunta), não bloqueia!
-        if (/[a-zA-Z?]/.test(val) && maskMode !== 'email' && maskMode !== 'text') {
+        if (/[a-zA-Z?]/.test(val) && maskMode !== 'email' && maskMode !== 'text' && !val.startsWith('R$')) {
           return;
         }
 
@@ -3347,40 +3636,47 @@
           const digits = val.replace(/\D/g, '');
           if (!digits) {
             e.target.value = '';
+            updateClearBtnVisibility();
             return;
           }
-          const num = parseInt(digits, 10) / 100;
-          e.target.value = formatBRL(num);
+          // Formata em Reais inteiros (ex: digitar 10000 -> R$ 10.000) sem casas de centavos que confundem no celular!
+          const num = parseInt(digits.slice(0, 9), 10);
+          e.target.value = formatWholeBRL(num);
         } else if (maskMode === 'phone') {
-          let d = val.replace(/\D/g, '');
-          if (d.startsWith('55') && d.length > 11) d = d.slice(2);
-          if (d.length > 11) d = d.slice(0, 11);
+          // Sem prefixo +55 dentro do input para nunca travar o Backspace ao apagar!
+          let d = val.replace(/\D/g, '').slice(0, 11);
           if (d.length === 0) {
             e.target.value = '';
           } else if (d.length <= 2) {
-            e.target.value = `+55 (${d}`;
-          } else if (d.length <= 7) {
-            e.target.value = `+55 (${d.slice(0, 2)}) ${d.slice(2)}`;
+            e.target.value = isDeleting ? d : `(${d}`;
+          } else if (d.length <= 6) {
+            e.target.value = `(${d.slice(0, 2)}) ${d.slice(2)}`;
+          } else if (d.length <= 10) {
+            e.target.value = `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
           } else {
-            e.target.value = `+55 (${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+            e.target.value = `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
           }
         } else if (maskMode === 'cpf') {
-          let d = val.replace(/\D/g, '');
-          if (d.length > 14) d = d.slice(0, 14);
-          if (d.length <= 11) {
+          let d = val.replace(/\D/g, '').slice(0, 14);
+          if (d.length === 0) {
+            e.target.value = '';
+          } else if (d.length <= 11) {
             d = d.replace(/(\d{3})(\d)/, '$1.$2');
             d = d.replace(/(\d{3})(\d)/, '$1.$2');
             d = d.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            e.target.value = d;
           } else {
             d = d.replace(/^(\d{2})(\d)/, '$1.$2');
             d = d.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
             d = d.replace(/\.(\d{3})(\d)/, '.$1/$2');
             d = d.replace(/(\d{4})(\d)/, '$1-$2');
+            e.target.value = d;
           }
-          e.target.value = d;
         } else if (maskMode === 'cep') {
           let d = val.replace(/\D/g, '').slice(0, 8);
-          if (d.length > 5) {
+          if (d.length === 0) {
+            e.target.value = '';
+          } else if (d.length > 5) {
             e.target.value = `${d.slice(0, 2)}.${d.slice(2, 5)}-${d.slice(5)}`;
           } else if (d.length > 2) {
             e.target.value = `${d.slice(0, 2)}.${d.slice(2)}`;
@@ -3389,7 +3685,9 @@
           }
         } else if (maskMode === 'date') {
           let d = val.replace(/\D/g, '').slice(0, 8);
-          if (d.length > 4) {
+          if (d.length === 0) {
+            e.target.value = '';
+          } else if (d.length > 4) {
             e.target.value = `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`;
           } else if (d.length > 2) {
             e.target.value = `${d.slice(0, 2)}/${d.slice(2)}`;
@@ -3397,6 +3695,7 @@
             e.target.value = d;
           }
         }
+        updateClearBtnVisibility();
       });
     }
 
@@ -3484,20 +3783,14 @@
           }
 
           case 'CREDIT': {
-            let num = parseDigitsToNumber(rawText);
-            if (num < 1000 && /\d+/.test(rawText)) {
-              num = parseInt(rawText.replace(/\D/g, ''), 10);
-            }
+            let num = parseWholeReaisToNumber(rawText);
             if (!num || num <= 0) num = 30000;
             handleCreditSubmission(num);
             break;
           }
 
           case 'INCOME': {
-            let inc = parseDigitsToNumber(rawText);
-            if (inc < 500 && /\d+/.test(rawText)) {
-              inc = parseInt(rawText.replace(/\D/g, ''), 10);
-            }
+            let inc = parseWholeReaisToNumber(rawText);
             if (!inc || inc <= 0) inc = 5000;
             handleIncomeSubmission(inc);
             break;
@@ -3517,15 +3810,20 @@
           }
 
           case 'PHONE': {
-            appendUserMessage(rawText);
-            const digits = rawText.replace(/\D/g, '');
+            let digits = rawText.replace(/\D/g, '');
+            if (digits.startsWith('55') && digits.length > 11) digits = digits.slice(2);
             if (digits.length < 10) {
+              appendUserMessage(rawText);
               await appendBotMessagesGroup([
                 `Por favor, informe o número do seu <strong>celular com o DDD</strong> (ex: (21) 99999-9999):`
               ], 320);
               return;
             }
-            chatState.telefone = rawText;
+            const formattedPhone = digits.length === 11
+              ? `+55 (${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+              : `+55 (${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+            appendUserMessage(formattedPhone);
+            chatState.telefone = formattedPhone;
             promptPlanSelectionStep();
             break;
           }
@@ -3612,6 +3910,8 @@
     }
 
     // Controles de Tela Cheia, Reiniciar, Dúvidas e Botão Flutuante C7
+    const floatingLauncherWrap = document.querySelector('.c7-floating-launcher-wrap');
+
     const toggleChatFullscreen = (forceState = null) => {
       if (!chatShell) return;
       const isFull = forceState !== null ? forceState : !chatShell.classList.contains('fullscreen-mode');
@@ -3620,8 +3920,11 @@
       if (textFullscreen) {
         textFullscreen.textContent = isFull ? 'Minimizar' : 'Tela Cheia';
       }
+      if (floatingLauncherWrap) {
+        floatingLauncherWrap.classList.toggle('hidden-near-chat', isFull);
+      }
       scrollToBottom();
-      if (chatInput) chatInput.focus();
+      focusInputIfDesktop();
     };
 
     if (btnFullscreen) {
@@ -3644,7 +3947,7 @@
         if (chatSection) {
           chatSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
           setTimeout(() => {
-            if (chatInput) chatInput.focus();
+            focusInputIfDesktop();
           }, 450);
         }
       });
@@ -3662,6 +3965,18 @@
       floatingCallout.addEventListener('click', () => {
         toggleChatFullscreen(true);
       });
+    }
+
+    // Oculta o botão flutuante C7 quando o próprio bloco do chat já está visível na tela (evita sobrepor o botão Enviar no celular)
+    if (chatSection && floatingLauncherWrap && 'IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!chatShell.classList.contains('fullscreen-mode')) {
+            floatingLauncherWrap.classList.toggle('hidden-near-chat', entry.isIntersecting);
+          }
+        });
+      }, { threshold: 0.25 });
+      observer.observe(chatSection);
     }
 
     // Modal do Regulamento Geral
