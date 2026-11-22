@@ -2555,7 +2555,7 @@
         id: 'contempladas',
         title: 'Cartas Já Contempladas',
         question: 'Como funcionam as Cartas Já Contempladas?',
-        answer: 'Se você precisa do crédito <strong>imediatamente</strong> para comprar seu imóvel ou veículo sem aguardar sorteio ou assembleia, a C7 Contempla possui um catálogo exclusivo com mais de <strong>1.700 cotas já contempladas</strong> das maiores administradoras (Itaú, Bradesco, Porto Seguro, Caixa, Embracon), prontas para transferência e faturamento.'
+        answer: 'Se você precisa do crédito <strong>imediatamente</strong> para comprar seu imóvel ou veículo sem aguardar sorteio ou assembleia, a C7 Contempla possui um catálogo exclusivo com mais de <strong>1.700 cotas já contempladas</strong> das principais administradoras credenciadas pelo Banco Central, prontas para análise e transferência (sujeitas à consulta de disponibilidade).'
       },
       {
         id: 'exterior_leilao',
@@ -3206,7 +3206,8 @@
         {
           id: 'plan-1',
           badge: 'Plano Econômico C7',
-          administradora: 'C7 Contempla / Porto Seguro',
+          administradora: 'Consórcio Multimarcas C7 (Sujeito a consulta)',
+          modalidadeLabel: 'Grupo Multimarcas • Integral',
           tipo: 'Integral',
           credito: altCred,
           prazo: p1Prazo,
@@ -3218,7 +3219,8 @@
         {
           id: 'plan-2',
           badge: 'Mais Escolhido',
-          administradora: 'Itaú Consórcios / C7',
+          administradora: 'Consórcio Multimarcas C7 (Sujeito a consulta)',
+          modalidadeLabel: 'Grupo Multimarcas • Integral',
           tipo: 'Integral',
           credito: baseCred,
           prazo: p2Prazo,
@@ -3230,7 +3232,8 @@
         {
           id: 'plan-3',
           badge: 'Menor Parcela Integral',
-          administradora: 'Consórcio Caixa / Bradesco',
+          administradora: 'Consórcio Multimarcas C7 (Sujeito a consulta)',
+          modalidadeLabel: 'Grupo Multimarcas • Prazo Estendido',
           tipo: 'Integral',
           credito: baseCred,
           prazo: p3Prazo,
@@ -3241,9 +3244,10 @@
         },
         {
           id: 'plan-4',
-          badge: 'Parcela Reduzida (Paga Metade)',
-          administradora: 'Embracon / Sicoob C7',
-          tipo: 'Paga Metade',
+          badge: 'Parcela Reduzida (Meia Parcela)',
+          administradora: 'Consórcio Multimarcas C7 (Sujeito a consulta)',
+          modalidadeLabel: 'Grupo Multimarcas • Meia Parcela',
+          tipo: 'Meia Parcela',
           credito: baseCred,
           prazo: p4Prazo,
           parcela: p4Parcela,
@@ -3256,7 +3260,7 @@
       await appendBotMessagesGroup([
         `Obrigado!`,
         `${chatState.apelido}, selecionei os <strong>melhores planos de ${catConf.labelLower}</strong> disponíveis pra você (com economia estimada de <strong>${formatBRL(economiaTotal)}</strong> em comparação ao financiamento bancário):`,
-        `Escolha o valor de parcela que mais se adapta ao seu orçamento para ver mais detalhes.`
+        `Escolha o valor de parcela que mais se adapta ao seu orçamento para ver mais detalhes <span style="color:#64748b; font-size:0.84rem;">(valores simulados na média dos grupos parceiros, sujeitos à consulta e disponibilidade)</span>.`
       ], 480);
 
       const gridWrap = document.createElement('div');
@@ -3271,7 +3275,7 @@
           <div class="c7-plan-option-credit">${formatBRL(plan.credito)}</div>
           <div class="c7-plan-option-installment">em ${plan.prazo} parcelas de <strong>${formatBRL(plan.parcela)}</strong></div>
           <div class="c7-plan-option-meta">
-            <span>${plan.administradora}</span>
+            <span>${plan.modalidadeLabel}</span>
             <span>Taxa: ${String(plan.taxaMensal).replace('.', ',')}% a.m.</span>
           </div>
         `;
@@ -3432,7 +3436,7 @@
         parcela: ((chatState.valorCredito || 30000) * 1.1299) / (catConf.defaultPrazo || 60),
         taxaMensal: catConf.taxaMensal,
         taxaTotal: catConf.taxaTotal,
-        administradora: 'C7 Contempla Multimarcas',
+        administradora: 'Consórcio Multimarcas C7 (Sujeito a consulta)',
         grupo: catConf.grupo
       };
 
@@ -3454,27 +3458,22 @@
         `,
         `<strong>Elegível para participação na assembleia do dia ${nextAssemblyDate}</strong>`,
         `
-          Para finalizar, preciso que você <strong>leia</strong> e <strong>aceite</strong> os termos do Regulamento Geral do Consórcio.<br><br>
-          <a href="#regulamento" class="c7-open-regulamento-link" style="color:#2563eb; font-weight:700; text-decoration:underline;">Regulamento Geral do Consórcio</a>
+          Para finalizar, preciso que você <strong>leia</strong> e <strong>aceite</strong> os termos do Regulamento Geral do Consórcio (ABAC / BACEN Lei nº 11.795/2008).<br><br>
+          <a href="https://abac.org.br/consumidor/consorcio/consorcio-e-seguro/" target="_blank" rel="noopener noreferrer" style="color:#2563eb; font-weight:700; text-decoration:underline; display:inline-flex; align-items:center; gap:0.3rem;">
+            Regulamento Geral do Consórcio (Site Oficial ABAC)
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
         `,
         `
           <div style="display:flex; flex-direction:column; gap:0.2rem;">
             <div style="font-weight:800; font-size:0.98rem; margin-bottom:0.35rem;">Consórcio para ${catConf.label.toUpperCase()}</div>
-            <div><strong>Administradora:</strong> ${plan.administradora}</div>
+            <div><strong>Modalidade:</strong> Consórcio Multimarcas C7 (Sujeito a consulta)</div>
             <div><strong>Tipo:</strong> ${plan.tipo}</div>
             <div><strong>Plano:</strong> ${formatBRL(plan.credito)}<br>em ${plan.prazo} parcelas de ${formatBRL(plan.parcela)}</div>
             <div><strong>Taxa mensal:</strong> ${taxaMensalFormatted}%</div>
           </div>
         `
       ], 500);
-
-      // Vincular clique no link do Regulamento Geral
-      chatStream.querySelectorAll('.c7-open-regulamento-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          if (regulamentoModal) regulamentoModal.classList.add('active');
-        });
-      });
 
       // Botões: DETALHES DO PLANO (igual ao vídeo 00:24) ou CONFIRMAR DIRETO
       appendActionButtons([
@@ -3699,26 +3698,80 @@
       });
     }
 
-    // Motor NLU para responder dúvidas digitadas livremente em qualquer etapa
+    // Detector de Saudações e Abordagem Humanizada (evita responder "Excelente pergunta!" para "Boa tarde", "Bom dia", "Oi", etc.)
+    const detectGreetingNLU = (rawInput) => {
+      const norm = rawInput.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+      const words = norm.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+
+      const isGreetingOnly = 
+        /^(bom dia|boa tarde|boa noite|ola|oi|opa|e ai|eai|fala|alo|hey|hello|tudo bem|tudo bom|como vai)(\s+pessoal|\s+amigo|\s+tudo bem|\s+tudo bom|\s+como vai)?[!?.]*$/i.test(norm) ||
+        (words.length <= 4 && (
+          norm.includes('bom dia') ||
+          norm.includes('boa tarde') ||
+          norm.includes('boa noite') ||
+          words[0] === 'oi' ||
+          words[0] === 'ola' ||
+          words[0] === 'opa'
+        ));
+
+      if (!isGreetingOnly) return null;
+
+      let greetingPrefix = 'Olá!';
+      if (norm.includes('boa tarde')) {
+        greetingPrefix = 'Boa tarde!';
+      } else if (norm.includes('bom dia')) {
+        greetingPrefix = 'Bom dia!';
+      } else if (norm.includes('boa noite')) {
+        greetingPrefix = 'Boa noite!';
+      } else {
+        const hour = new Date().getHours();
+        if (hour >= 5 && hour < 12) greetingPrefix = 'Bom dia!';
+        else if (hour >= 12 && hour < 18) greetingPrefix = 'Boa tarde!';
+        else greetingPrefix = 'Boa noite!';
+      }
+
+      return `${greetingPrefix} Tudo ótimo por aqui, e com você? 😊 É um prazer receber você na <strong>C7 Contempla</strong>!`;
+    };
+
+    // Motor NLU Consultivo para responder dúvidas digitadas livremente em qualquer etapa
     const checkFreeQuestionNLU = (rawInput) => {
-      const norm = rawInput.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      if (norm.includes('financiamento') || norm.includes('juros') || norm.includes('banco')) {
+      const norm = rawInput.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+
+      if (norm.includes('financiamento') || norm.includes('juros') || norm.includes('banco') || norm.includes('cet')) {
         return FAQ_TOPICS[0].answer;
       }
-      if (norm.includes('fgts') || norm.includes('lance') || norm.includes('embutido')) {
+      if (norm.includes('fgts') || norm.includes('lance') || norm.includes('embutido') || norm.includes('oferta')) {
         return FAQ_TOPICS[1].answer;
       }
-      if (norm.includes('contemplada') || norm.includes('imediato') || norm.includes('ja contemplado')) {
+      if (norm.includes('contemplada') || norm.includes('imediato') || norm.includes('ja contemplado') || norm.includes('carta pronta')) {
         return FAQ_TOPICS[2].answer;
       }
-      if (norm.includes('exterior') || norm.includes('fora do brasil') || norm.includes('leilao')) {
+      if (norm.includes('exterior') || norm.includes('fora do brasil') || norm.includes('leilao') || norm.includes('arremat')) {
         return FAQ_TOPICS[3].answer;
       }
-      if (norm.includes('rapido') || norm.includes('sorteio') || norm.includes('assembleia') || norm.includes('demora')) {
+      if (norm.includes('rapido') || norm.includes('sorteio') || norm.includes('assembleia') || norm.includes('demora') || norm.includes('prazo para contemplar')) {
         return FAQ_TOPICS[4].answer;
       }
       if (norm.includes('adesao') || norm.includes('taxa')) {
-        return 'Na <strong>C7 Contempla</strong> trabalhamos com planos <strong>sem taxa de adesão</strong> (onde você paga apenas a 1ª parcela na contratação) e taxas administrativas reduzidas a partir de 0,07% ao mês!';
+        return 'Na <strong>C7 Contempla</strong> trabalhamos com planos <strong>sem taxa de adesão</strong> (onde você paga apenas a 1ª parcela na contratação) e taxas administrativas reduzidas a partir de 0,07% ao mês, diluídas em todo o prazo do plano!';
+      }
+      if (norm.includes('negativado') || norm.includes('spc') || norm.includes('serasa') || norm.includes('restricao') || norm.includes('nome sujo') || norm.includes('score')) {
+        return 'Para <strong>iniciar e participar</strong> das assembleias mensais do consórcio não há impedimento por restrição cadastral! A análise de crédito e comprovação de renda só ocorrem no momento da <strong>liberação do crédito (após a contemplação)</strong>, dando tempo para você se organizar ou apresentar garantias complementares.';
+      }
+      if (norm.includes('documento') || norm.includes('comprovar renda') || norm.includes('autonomo') || norm.includes('mei') || norm.includes('holerite') || norm.includes('extrato')) {
+        return 'A contratação inicial é 100% digital e descomplicada (basta documento de identificação/CPF). Para a liberação do crédito na contemplação, aceitamos diversas formas de comprovação de renda: <strong>holerite (CLT), extratos bancários, Imposto de Renda, Decore ou faturamento para autônomos, MEI e empresários (PJ)</strong>.';
+      }
+      if (norm.includes('reforma') || norm.includes('construir') || norm.includes('construcao') || norm.includes('terreno') || norm.includes('quitar')) {
+        return 'Com a carta de crédito de <strong>Imóveis</strong> você tem total liberdade: pode comprar imóvel residencial ou comercial (novo, usado ou na planta), comprar <strong>terreno</strong>, <strong>construir ou reformar</strong>, e até <strong>quitar um financiamento imobiliário</strong> existente para sair dos juros bancários!';
+      }
+      if (norm.includes('usado') || norm.includes('seminovo') || norm.includes('ano do carro') || norm.includes('trocar de carro')) {
+        return 'Com o consórcio de <strong>Veículos</strong> você pode adquirir carros ou motos <strong>0km ou seminovos/usados</strong> de qualquer marca e modelo (em concessionária ou de particular), além de poder usar seu veículo atual na negociação!';
+      }
+      if (norm.includes('seguro') || norm.includes('confiavel') || norm.includes('bacen') || norm.includes('banco central') || norm.includes('abac') || norm.includes('garantia')) {
+        return 'Totalmente seguro! Todos os grupos intermediados pela <strong>C7 Contempla</strong> são operados por administradoras autorizadas e fiscalizadas pelo <strong>Banco Central do Brasil (BACEN)</strong> e seguem rigorosamente a <strong>Lei do Consórcio (Lei nº 11.795/2008)</strong> e as diretrizes da <strong>ABAC</strong>.';
+      }
+      if (norm.includes('meia parcela') || norm.includes('reduzida') || norm.includes('metade')) {
+        return 'A modalidade de <strong>Parcela Reduzida (Meia Parcela)</strong> permite que você pague parcelas menores até o momento da contemplação (ou por período determinado em contrato), facilitando o fluxo de caixa enquanto você planeja seus lances. Após a contemplação, o saldo é recalculado nas parcelas restantes.';
       }
       return null;
     };
@@ -3730,11 +3783,27 @@
         if (!rawText) return;
 
         chatInput.value = '';
+        updateClearBtnVisibility();
 
-        // Verifica se o visitante digitou uma dúvida durante qualquer etapa
+        // 1. Verifica se o visitante enviou uma saudação ("Boa tarde", "Bom dia", "Oi", "Tudo bem", etc.)
+        const greetingReply = detectGreetingNLU(rawText);
+        if (greetingReply && ['WELCOME', 'FAQ_MODE', 'CATEGORY', 'COMPLETED'].includes(chatState.step)) {
+          appendUserMessage(rawText);
+          setChatProgress(20, 'Selecione a categoria desejada ou digite sua dúvida abaixo', 'Digite sua dúvida ou escolha uma categoria acima...', 'text');
+          await appendBotMessagesGroup([
+            greetingReply,
+            `Estou aqui para te ajudar a planejar sua conquista <strong>100% sem juros</strong> ou esclarecer qualquer dúvida com total transparência.`,
+            `Para começarmos o seu atendimento personalizado, escolha abaixo o que <strong>você deseja conquistar</strong> (ou pode digitar sua dúvida aqui):`
+          ], 380);
+          showCategoryButtonsOnly();
+          return;
+        }
+
+        // 2. Verifica se o visitante digitou uma dúvida durante qualquer etapa
         const faqMatch = checkFreeQuestionNLU(rawText);
         if (faqMatch && (rawText.includes('?') || ['WELCOME', 'FAQ_MODE', 'CATEGORY', 'COMPLETED'].includes(chatState.step))) {
           appendUserMessage(rawText);
+          setChatProgress(20, 'Selecione a categoria desejada ou digite outra dúvida', 'Digite outra dúvida ou escolha uma categoria acima...', 'text');
           await appendBotMessagesGroup([
             faqMatch,
             chatState.apelido
@@ -3747,15 +3816,39 @@
           return;
         }
 
-        // Processamento de acordo com a etapa atual do funil
+        // 3. Processamento de acordo com a etapa atual do funil
         switch (chatState.step) {
           case 'WELCOME':
           case 'FAQ_MODE': {
+            const norm = rawText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            // Se o usuário já escreveu o que deseja conquistar (ex: "quero um imóvel", "carro", "moto", "serviço")
+            if (norm.includes('imov') || norm.includes('casa') || norm.includes('apart') || norm.includes('terreno')) {
+              selectCategory('IMOVEL', 'Imóveis');
+              return;
+            }
+            if (norm.includes('carro') || norm.includes('auto') || norm.includes('veicul')) {
+              selectCategory('AUTOMOVEL', 'Automóveis');
+              return;
+            }
+            if (norm.includes('moto')) {
+              selectCategory('MOTOCICLETA', 'Motocicletas');
+              return;
+            }
+            if (norm.includes('serv')) {
+              selectCategory('SERVICO', 'Serviços');
+              return;
+            }
+
             appendUserMessage(rawText);
-            const answer = faqMatch || 'Excelente pergunta! Na <strong>C7 Contempla</strong> você conta com assessoria completa e planos 100% sem juros fiscalizados pelo Banco Central.';
+            const isInterrogative = rawText.includes('?') || /^(como|qual|quais|quanto|quando|onde|por que|porque|posso|consigo|existe|tem|quem|o que)\b/i.test(norm);
+            const answer = faqMatch || (isInterrogative
+              ? `Ótima questão! Na <strong>C7 Contempla</strong> nossa consultoria avalia os melhores grupos multimarcas sem juros, todos autorizados pelo Banco Central e alinhados às normas da ABAC, para encontrar a condição mais vantajosa para o seu objetivo.`
+              : `Perfeito! Aqui na <strong>C7 Contempla</strong> nós estruturamos o plano ideal para o seu momento financeiro, 100% sem juros e com acompanhamento especializado do início à contemplação.`);
+
+            setChatProgress(20, 'Selecione a categoria do bem que deseja conquistar', 'Escolha: Imóveis, Automóveis, Motocicletas ou Serviços...', 'text');
             await appendBotMessagesGroup([
               answer,
-              `Para eu calcular as parcelas ideais para o seu perfil, escolha o que <strong>você deseja conquistar</strong>:`
+              `Para eu calcular as parcelas ideais para o seu perfil agora mesmo, escolha o que <strong>você deseja conquistar</strong>:`
             ], 400);
             showCategoryButtonsOnly();
             break;
