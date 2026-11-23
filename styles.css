@@ -3498,23 +3498,30 @@ button:focus, input:focus, select:focus {
    ========================================================================== */
 .wizard-modal-container {
   max-width: 780px !important;
+  max-height: 90vh !important;
   padding: 0 !important;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .wizard-layout {
   display: flex;
-  min-height: 520px;
+  flex: 1;
+  min-height: 0;
+  max-height: 90vh;
+  overflow: hidden;
 }
 
 .wizard-steps-sidebar {
-  width: 220px;
+  width: 210px;
   background: rgba(8, 12, 20, 0.95);
   border-right: 1px solid var(--border-color);
-  padding: 1.75rem 1.25rem;
+  padding: 1.5rem 1.15rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.1rem;
+  flex-shrink: 0;
 }
 
 .wizard-step-item {
@@ -3563,10 +3570,12 @@ button:focus, input:focus, select:focus {
 
 .wizard-content-pane {
   flex: 1;
-  padding: 2rem;
+  min-height: 0;
+  padding: 1.5rem 1.75rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow: hidden;
 }
 
 .wizard-step-content {
@@ -3575,32 +3584,36 @@ button:focus, input:focus, select:focus {
 
 .wizard-step-content.active {
   display: block;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 0.25rem;
 }
 
 .wizard-step-content h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  margin-bottom: 0.35rem;
 }
 
 .wizard-step-content p {
   color: var(--text-muted);
-  font-size: 0.88rem;
-  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
 }
 
 /* Cards de Escolha de Origem de Leads (Página 2 do PDF) */
 .leads-source-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
 }
 
 .source-choice-card {
   background: rgba(255, 255, 255, 0.03);
   border: 1.5px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 1.25rem;
+  padding: 0.95rem 1.1rem;
   cursor: pointer;
   transition: all var(--transition-fast);
   text-align: left;
@@ -3619,26 +3632,27 @@ button:focus, input:focus, select:focus {
 }
 
 .source-card-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 10px;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 9px;
   background: rgba(14, 165, 233, 0.15);
   color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.6rem;
 }
 
 .source-choice-card h4 {
-  font-size: 0.95rem;
-  margin-bottom: 0.35rem;
+  font-size: 0.92rem;
+  margin-bottom: 0.25rem;
 }
 
 .source-choice-card p {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: var(--text-muted);
   margin-bottom: 0;
+  line-height: 1.35;
 }
 
 /* Dropzone de CSV (Página 3 do PDF) */
@@ -3646,11 +3660,11 @@ button:focus, input:focus, select:focus {
   border: 2px dashed rgba(14, 165, 233, 0.35);
   background: rgba(14, 165, 233, 0.04);
   border-radius: var(--radius-md);
-  padding: 2.5rem 1.5rem;
+  padding: 1.15rem 1.25rem;
   text-align: center;
   cursor: pointer;
   transition: all var(--transition-fast);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .csv-dropzone:hover, .csv-dropzone.dragover {
@@ -3659,20 +3673,20 @@ button:focus, input:focus, select:focus {
 }
 
 .csv-dropzone-icon {
-  font-size: 2rem;
+  font-size: 1.65rem;
   color: var(--primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
 }
 
 .toggle-switch-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.85rem 1rem;
+  padding: 0.65rem 0.9rem;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.85rem;
 }
 
 .toggle-switch-info h5 {
@@ -3803,8 +3817,10 @@ input:checked + .slider-switch:before {
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid var(--border-color);
-  padding-top: 1.25rem;
-  margin-top: 1.5rem;
+  padding-top: 0.95rem;
+  margin-top: 0.85rem;
+  flex-shrink: 0;
+  background: inherit;
 }
 
 /* Responsividade do Novo Menu e Telas */
