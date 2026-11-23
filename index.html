@@ -8,7 +8,15 @@
   <meta http-equiv="Expires" content="0">
   <title>C7 Contempla | Simulação e Contratação 100% Digital</title>
   <meta name="description" content="Centralize e automatize a jornada de venda e atendimento de consórcios multimarcas com Inteligência Artificial.">
-  <link rel="stylesheet" href="styles.css?v=20261123_v110">
+  <meta name="robots" id="meta-robots-tag" content="index, follow">
+  <script>
+    // Proteção OSINT / SEO: Impede indexação em subdomínios de homologação/staging (.netlify.app / .vercel.app / homolog)
+    if (/homolog|staging|test|netlify\.app|vercel\.app|localhost/i.test(window.location.hostname)) {
+      var robotsMeta = document.getElementById('meta-robots-tag');
+      if (robotsMeta) robotsMeta.setAttribute('content', 'noindex, nofollow');
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css?v=20261123_v111">
   <style>
     /* Estilos extras específicos da Landing Page */
     .landing-header {
@@ -1514,6 +1522,7 @@
                 id="c7-chat-input" 
                 class="c7-chat-main-input" 
                 placeholder="Digite aqui sua resposta ou dúvida..." 
+                maxlength="160"
                 autocomplete="off"
               >
               <button type="button" id="c7-chat-clear-btn" class="c7-chat-clear-btn" title="Limpar campo" aria-label="Limpar campo">&times;</button>
@@ -1827,10 +1836,21 @@
   <!-- RODAPÉ -->
   <footer style="margin-top: 4rem;">
     <div class="container">
-      <p>&copy; 2026 Todos os direitos reservados. Plataforma de consórcios multimarcas com Inteligência Artificial.</p>
-      <p style="font-size:0.75rem; margin-top:0.5rem; color:var(--text-muted);">Administradora oficial vinculada ao regulamento geral de consórcios sob supervisão do BACEN.</p>
+      <p>&copy; 2026 <strong>C7 Contempla Consultoria e Planejamento Financeiro</strong> &bull; Todos os direitos reservados.</p>
+      <p style="font-size:0.76rem; margin-top:0.5rem; color:var(--text-muted); max-width: 820px; margin-inline: auto; line-height: 1.55;">
+        Consultoria e plataforma digital multimarcas especializada na intermediação de cotas de consórcio junto a administradoras parceiras devidamente autorizadas e supervisionadas pelo Banco Central do Brasil (BACEN), nos termos da Lei nº 11.795/2008. As simulações apresentadas têm caráter informativo e estão sujeitas à disponibilidade de vagas nos grupos e aprovação cadastral.
+      </p>
+      <div style="margin-top: 0.75rem; display: flex; justify-content: center; align-items: center; gap: 1.25rem; flex-wrap: wrap; font-size: 0.78rem;">
+        <a href="#privacidade" id="btn-open-lgpd-modal" style="color: #38bdf8; text-decoration: underline; cursor: pointer;">Política de Privacidade &amp; LGPD</a>
+        <span style="color: var(--border-color);">|</span>
+        <a href="#termos" id="btn-open-termos-modal" style="color: #38bdf8; text-decoration: underline; cursor: pointer;">Termos de Uso &amp; Aviso Regulatório</a>
+        <span style="color: var(--border-color);">|</span>
+        <a href="https://abac.org.br/consumidor/consorcio/consorcio-e-seguro/" target="_blank" rel="noopener noreferrer" style="color: #94a3b8; text-decoration: underline;">Diretrizes ABAC / BACEN</a>
+        <span style="color: var(--border-color);">|</span>
+        <span style="color: var(--text-muted);">DPO / Privacidade: privacidade@c7contempla.com.br</span>
+      </div>
       <div style="margin-top: 0.9rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
-        <span class="badge-version" id="landing-version-badge" style="font-size: 0.76rem; padding: 0.2rem 0.65rem;">Versão V 1.1.0 &bull; Build 23/11/2026</span>
+        <span class="badge-version" id="landing-version-badge" style="font-size: 0.76rem; padding: 0.2rem 0.65rem;">Versão V 1.1.1 &bull; Build 23/11/2026</span>
       </div>
     </div>
   </footer>
@@ -1903,11 +1923,11 @@
           <div class="rules-list">
             <div class="rule-item" id="rule-min-length">
               <span class="rule-icon">○</span>
-              <span>Mínimo de 6 caracteres (obrigatório)</span>
+              <span>Mínimo de 8 caracteres (obrigatório - padrão OWASP)</span>
             </div>
             <div class="rule-item" id="rule-letters-numbers">
               <span class="rule-icon">○</span>
-              <span>Conter letras e números</span>
+              <span>Conter letras e números (obrigatório)</span>
             </div>
             <div class="rule-item" id="rule-matches">
               <span class="rule-icon">○</span>
@@ -1945,19 +1965,20 @@
     </div>
   </div>
 
-  <!-- MODAL DO REGULAMENTO GERAL DO CONSÓRCIO -->
+  <!-- MODAL DO REGULAMENTO GERAL DO CONSÓRCIO & POLÍTICA DE PRIVACIDADE LGPD -->
   <div class="modal-overlay" id="regulamento-modal" style="z-index: 10002;">
-    <div class="modal-content" style="background: #0f172a; padding: 2rem; border-radius: 16px; width: 100%; max-width: 640px; border: 1px solid rgba(14, 165, 233, 0.35); position: relative; max-height: 85vh; overflow-y: auto;">
+    <div class="modal-content" style="background: #0f172a; padding: 2rem; border-radius: 16px; width: 100%; max-width: 680px; border: 1px solid rgba(14, 165, 233, 0.35); position: relative; max-height: 85vh; overflow-y: auto;">
       <button type="button" id="close-regulamento-modal" style="position:absolute; top:1rem; right:1rem; background:none; border:none; color:#94a3b8; cursor:pointer; font-size:1.5rem;" title="Fechar">&times;</button>
-      <h3 style="margin-bottom: 0.75rem; font-family: var(--font-title); color: #fff; font-size: 1.35rem;">Regulamento Geral do Consórcio &bull; C7 Contempla</h3>
-      <p style="font-size: 0.85rem; color: #38bdf8; margin-bottom: 1.25rem; font-weight: 600;">Regido pela Lei nº 11.795/2008 e normativos do Banco Central do Brasil (BACEN)</p>
-      <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65; display: flex; flex-direction: column; gap: 0.85rem;">
-        <p><strong>1. Do Objeto e Constituição do Grupo:</strong> O consórcio é a reunião de pessoas naturais e jurídicas em grupo fechado, promovida pela Administradora parceira credenciada pelo Banco Central do Brasil, com a finalidade de propiciar a seus integrantes, de forma isonômica, a aquisição de bens ou serviços por meio de autofinanciamento sem juros.</p>
-        <p><strong>2. Das Contribuições Mensais e Taxa de Administração:</strong> Nas parcelas mensais incidem exclusivamente o Fundo Comum (destinado à formação do crédito), a Taxa de Administração diluída no prazo do plano e, quando aplicável, o Fundo de Reserva e Seguro Prestamista/Quebra de Garantia conforme condições do grupo.</p>
-        <p><strong>3. Das Assembleias e Formas de Contemplação:</strong> A contemplação ocorre mensalmente mediante <strong>Sorteio</strong> (em igualdade de condições para todos os consorciados adimplentes) e por <strong>Lance</strong> (Lance Livre de até 99% do crédito ou Lance Fixo de 30% do crédito), sendo permitido o uso de até 30% do próprio crédito (Lance Embutido) e recursos do FGTS nos grupos imobiliários elegíveis.</p>
-        <p><strong>4. Da Proteção de Dados (LGPD - Lei nº 13.709/2018):</strong> Os dados pessoais informados nesta simulação (nome, apelido, CPF/CNPJ, data de nascimento, endereço/CEP, renda, telefone e e-mail) são utilizados exclusivamente para análise de elegibilidade, geração da proposta de adesão e atendimento consultivo pela equipe C7 Contempla.</p>
+      <h3 style="margin-bottom: 0.75rem; font-family: var(--font-title); color: #fff; font-size: 1.35rem;">Política de Privacidade (LGPD), Termos de Uso &amp; Regulamento &bull; C7 Contempla</h3>
+      <p style="font-size: 0.85rem; color: #38bdf8; margin-bottom: 1.25rem; font-weight: 600;">Em conformidade com a Lei nº 13.709/2018 (LGPD), Lei nº 11.795/2008 e normativos do BACEN</p>
+      <div style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.65; display: flex; flex-direction: column; gap: 0.85rem;">
+        <p><strong>1. Enquadramento Regulatório e Natureza do Serviço:</strong> A <strong>C7 Contempla</strong> atua como consultoria e plataforma digital multimarcas voltada à simulação, planejamento financeiro e intermediação comercial de cotas de consórcio novas e contempladas junto a Administradoras de Consórcio parceiras devidamente autorizadas e supervisionadas pelo <strong>Banco Central do Brasil (BACEN)</strong>, nos termos da Lei nº 11.795/2008 e diretrizes da <strong>ABAC</strong>.</p>
+        <p><strong>2. Das Simulações, Taxas e Condições Comerciais:</strong> Os valores de crédito, prazos, parcelas e taxas de administração exibidos no simulador e no assistente virtual possuem caráter estritamente informativo e preliminar, baseados na média praticada pelos grupos multimarcas parceiros, não configurando promessa unilateral de contratação ou aprovação automática de crédito, estando sujeitos à disponibilidade de vagas no grupo e à análise cadastral pela administradora escolhida.</p>
+        <p><strong>3. Proteção de Dados Pessoais (LGPD - Lei nº 13.709/2018):</strong> Os dados pessoais fornecidos voluntariamente pelo titular durante a simulação ou atendimento (nome, apelido, CPF/CNPJ, data de nascimento, CEP/endereço, renda declarada, telefone/WhatsApp e e-mail) são coletados sob as bases legais de execução de procedimentos preliminares relacionados a contrato (Art. 7º, V da LGPD) e consentimento do titular (Art. 7º, I da LGPD), com a finalidade exclusiva de análise de perfil, elaboração de proposta de consórcio e contato consultivo.</p>
+        <p><strong>4. Direitos do Titular e Contato do Encarregado (DPO):</strong> O titular pode solicitar, a qualquer momento, a confirmação da existência de tratamento, acesso, correção, anonimização, portabilidade ou eliminação de seus dados pessoais (Art. 18 da LGPD) por meio do nosso canal oficial de Privacidade e Proteção de Dados (DPO): <strong>privacidade@c7contempla.com.br</strong>.</p>
       </div>
-      <div style="margin-top: 1.5rem; text-align: right;">
+      <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <a href="https://abac.org.br/consumidor/consorcio/consorcio-e-seguro/" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; font-size: 0.82rem; font-weight: 600; text-decoration: underline;">Consultar Portal Oficial da ABAC &rarr;</a>
         <button type="button" id="btn-ok-regulamento" class="btn-login" style="display: inline-flex; padding: 0.65rem 1.5rem;">Li e Compreendi os Termos</button>
       </div>
     </div>
@@ -2066,14 +2087,14 @@
     setupPasswordToggle('toggle-auth-password', 'auth-password');
     setupPasswordToggle('toggle-auth-password-confirm', 'auth-password-confirm');
 
-    // Validação dinâmica das regras de senha em tempo real
+    // Validação dinâmica das regras de senha em tempo real (Padrão OWASP ASVS: mín. 8 caracteres + letras e números)
     function validatePasswordRules() {
       const pwd = passInput.value || '';
       const confirmPwd = passConfirmInput.value || '';
 
-      const hasMinLength = pwd.length >= 6;
+      const hasMinLength = pwd.length >= 8;
       const hasLetterAndNumber = /[a-zA-Z]/.test(pwd) && /[0-9]/.test(pwd);
-      const isConfirmed = pwd.length >= 6 && pwd === confirmPwd;
+      const isConfirmed = pwd.length >= 8 && pwd === confirmPwd;
 
       // Atualiza regras visuais
       updateRuleState(ruleMinLength, hasMinLength);
@@ -2082,9 +2103,9 @@
 
       // Calcula indicador de força
       let score = 0;
-      if (pwd.length >= 6) score++;
+      if (pwd.length >= 8) score++;
       if (hasLetterAndNumber) score++;
-      if (pwd.length >= 8 && /[!@#$%^&*(),.?":{}|<>]/.test(pwd)) score++;
+      if (pwd.length >= 10 && /[!@#$%^&*(),.?":{}|<>_-]/.test(pwd)) score++;
 
       if (pwd.length === 0) {
         strengthMeterFill.style.width = '0%';
@@ -2157,9 +2178,21 @@
       if (e.target === modal) closeModal();
     });
 
+    // Rate Limiting contra Brute Force / Credential Stuffing na sessão de autenticação
+    let loginFailedAttempts = parseInt(sessionStorage.getItem('c7_auth_fails') || '0', 10);
+    let loginLockUntil = parseInt(sessionStorage.getItem('c7_auth_lock_until') || '0', 10);
+
     // Login com E-mail e Senha
     btnLoginEmail.addEventListener('click', async () => {
       clearNotice();
+
+      const nowMs = Date.now();
+      if (loginLockUntil > nowMs) {
+        const waitSec = Math.ceil((loginLockUntil - nowMs) / 1000);
+        showNotice(`Muitas tentativas seguidas. Por segurança, aguarde <strong>${waitSec}s</strong> antes de tentar novamente.`, "warning");
+        return;
+      }
+
       const email = emailInput.value.trim();
       const password = passInput.value;
 
@@ -2179,6 +2212,8 @@
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
+        sessionStorage.removeItem('c7_auth_fails');
+        sessionStorage.removeItem('c7_auth_lock_until');
         const targetUrl = sessionStorage.getItem('redirect_after_login') || 'app.html';
         sessionStorage.removeItem('redirect_after_login');
         window.location.href = targetUrl;
@@ -2186,6 +2221,13 @@
         console.error("Erro no login:", error);
         btnLoginEmail.disabled = false;
         btnLoginEmail.style.opacity = '1';
+
+        loginFailedAttempts++;
+        sessionStorage.setItem('c7_auth_fails', String(loginFailedAttempts));
+        if (loginFailedAttempts >= 5) {
+          loginLockUntil = Date.now() + 60000; // Bloqueio de 60 segundos após 5 falhas
+          sessionStorage.setItem('c7_auth_lock_until', String(loginLockUntil));
+        }
 
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
           showNotice(`E-mail ou senha incorretos.<br><span style="font-size:0.78rem; opacity:0.9;">Caso tenha esquecido sua senha, use a opção "Esqueci minha senha" acima.</span>`, "error");
@@ -2199,12 +2241,11 @@
       }
     });
 
-    // Criar Conta com E-mail e Senha
+    // Criar Conta com E-mail e Senha (Política OWASP ASVS: mín. 8 caracteres + letras e números)
     btnRegisterEmail.addEventListener('click', async () => {
       clearNotice();
       const email = emailInput.value.trim();
       const password = passInput.value;
-      const confirmPassword = passConfirmInput.value;
 
       if (!email) {
         showNotice("Por favor, preencha o campo de e-mail.", "warning");
@@ -2212,10 +2253,16 @@
         return;
       }
 
-      const { hasMinLength, isConfirmed } = validatePasswordRules();
+      const { hasMinLength, hasLetterAndNumber, isConfirmed } = validatePasswordRules();
 
       if (!hasMinLength) {
-        showNotice("A senha deve ter pelo menos 6 caracteres conforme as regras visíveis.", "warning");
+        showNotice("A senha deve ter pelo menos 8 caracteres conforme a política de segurança.", "warning");
+        passInput.focus();
+        return;
+      }
+
+      if (!hasLetterAndNumber) {
+        showNotice("A senha deve combinar letras e números para sua segurança.", "warning");
         passInput.focus();
         return;
       }
@@ -2826,17 +2873,29 @@
       });
     };
 
+    // Sanitização contra XSS nas entradas do usuário
+    const sanitizeChatHtml = (str) => {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/&lt;br&gt;/gi, '<br>');
+    };
+
     // Renderiza mensagem do Usuário (alinhada à direita)
     const appendUserMessage = (text) => {
       // Remove botões de escolha anteriores ativos para manter fluxo limpo como no vídeo
       chatStream.querySelectorAll('.c7-interactive-slot').forEach(el => el.remove());
 
+      const safeHtml = sanitizeChatHtml(text);
       const row = document.createElement('div');
       row.className = 'c7-msg-row user';
-      row.innerHTML = `<div class="c7-bubble-user">${text}</div>`;
+      row.innerHTML = `<div class="c7-bubble-user">${safeHtml}</div>`;
       chatStream.appendChild(row);
 
-      chatState.chatHistory.push({ remetente: 'CLIENTE', conteudo: text });
+      chatState.chatHistory.push({ remetente: 'CLIENTE', conteudo: safeHtml.replace(/<br>/g, ' ') });
       scrollToBottom();
     };
 
@@ -3779,14 +3838,48 @@
       return null;
     };
 
+    // Proteção do Chat IA: Rate Limiting por sessão e Filtro Anti-Prompt Injection / Anti-Alucinação Contratual
+    let chatMsgTimestamps = [];
+    let lastChatMsgTime = 0;
+
+    const isChatRateLimited = () => {
+      const now = Date.now();
+      if (now - lastChatMsgTime < 600) return true; // Anti-flood (mín. 600ms entre envios)
+      chatMsgTimestamps = chatMsgTimestamps.filter(ts => now - ts < 30000);
+      if (chatMsgTimestamps.length >= 12) return true; // Máx. 12 mensagens a cada 30 segundos por sessão
+      chatMsgTimestamps.push(now);
+      lastChatMsgTime = now;
+      return false;
+    };
+
+    const detectPromptInjectionAttempt = (rawInput) => {
+      const norm = rawInput.toLowerCase();
+      return /ignore previous|ignore all|system prompt|instrucoes internas|esqueça as instrucoes|esqueca as instrucoes|modo desenvolvedor|jailbreak|<script|javascript:|select\s+\*\s+from|drop\s+table/i.test(norm);
+    };
+
     if (chatForm) {
       chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const rawText = (chatInput.value || '').trim();
+        const rawText = (chatInput.value || '').trim().slice(0, 160);
         if (!rawText) return;
+
+        if (isChatRateLimited()) {
+          await appendBotMessagesGroup([
+            `⏳ Por segurança, aguarde alguns instantes antes de enviar novas mensagens em sequência.`
+          ], 200);
+          return;
+        }
 
         chatInput.value = '';
         updateClearBtnVisibility();
+
+        if (detectPromptInjectionAttempt(rawText)) {
+          appendUserMessage(rawText);
+          await appendBotMessagesGroup([
+            `Sou o assistente virtual oficial da <strong>C7 Contempla</strong> e atuo exclusivamente com informações regulamentadas sobre consórcios multimarcas (Lei nº 11.795/2008 e diretrizes BACEN/ABAC). Como posso ajudar na sua simulação hoje?`
+          ], 350);
+          return;
+        }
 
         // 1. Verifica se o visitante enviou uma saudação ("Boa tarde", "Bom dia", "Oi", "Tudo bem", etc.)
         const greetingReply = detectGreetingNLU(rawText);
@@ -4075,7 +4168,21 @@
       observer.observe(chatSection);
     }
 
-    // Modal do Regulamento Geral
+    // Modal do Regulamento Geral, Política de Privacidade (LGPD) e Termos de Uso
+    const btnOpenLgpdModal = document.getElementById('btn-open-lgpd-modal');
+    const btnOpenTermosModal = document.getElementById('btn-open-termos-modal');
+    if (btnOpenLgpdModal && regulamentoModal) {
+      btnOpenLgpdModal.addEventListener('click', (e) => {
+        e.preventDefault();
+        regulamentoModal.classList.add('active');
+      });
+    }
+    if (btnOpenTermosModal && regulamentoModal) {
+      btnOpenTermosModal.addEventListener('click', (e) => {
+        e.preventDefault();
+        regulamentoModal.classList.add('active');
+      });
+    }
     if (closeRegulamentoBtn && regulamentoModal) {
       closeRegulamentoBtn.addEventListener('click', () => regulamentoModal.classList.remove('active'));
     }
