@@ -3604,16 +3604,16 @@ button:focus, input:focus, select:focus {
 /* Cards de Escolha de Origem de Leads (Página 2 do PDF) */
 .leads-source-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.85rem;
-  margin-bottom: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
 }
 
 .source-choice-card {
   background: rgba(255, 255, 255, 0.03);
   border: 1.5px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 0.95rem 1.1rem;
+  padding: 0.85rem 0.95rem;
   cursor: pointer;
   transition: all var(--transition-fast);
   text-align: left;
@@ -3632,27 +3632,110 @@ button:focus, input:focus, select:focus {
 }
 
 .source-card-icon {
-  width: 2.2rem;
-  height: 2.2rem;
-  border-radius: 9px;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 8px;
   background: rgba(14, 165, 233, 0.15);
   color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
 }
 
 .source-choice-card h4 {
-  font-size: 0.92rem;
-  margin-bottom: 0.25rem;
+  font-size: 0.86rem;
+  margin-bottom: 0.22rem;
 }
 
 .source-choice-card p {
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
   margin-bottom: 0;
-  line-height: 1.35;
+  line-height: 1.32;
+}
+
+/* Preview de Contatos Extraídos do Print (OCR IA) */
+.print-contacts-preview-wrap {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.8rem;
+  margin-top: 0.55rem;
+}
+
+.print-contacts-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.print-contacts-scroll {
+  max-height: 135px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-right: 0.25rem;
+}
+
+.print-contact-row {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr auto auto;
+  gap: 0.4rem;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 0.3rem 0.45rem;
+}
+
+.print-contact-input {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  color: var(--text-main);
+  font-size: 0.76rem;
+  padding: 0.28rem 0.45rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.print-contact-input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.print-zero-val-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.18rem 0.45rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.print-contact-del-btn {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #ef4444;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.print-contact-del-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
 }
 
 /* Dropzone de CSV (Página 3 do PDF) */

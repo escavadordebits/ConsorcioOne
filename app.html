@@ -6,9 +6,9 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Portal e Simulador | C7 Contempla V 1.0.9</title>
+  <title>Portal e Simulador | C7 Contempla V 1.1.0</title>
   <meta name="description" content="Centralize e automatize a jornada de venda e atendimento de consórcios multimarcas com Inteligência Artificial.">
-  <link rel="stylesheet" href="styles.css?v=20261123_v109">
+  <link rel="stylesheet" href="styles.css?v=20261123_v110">
 </head>
 <body>
 
@@ -156,7 +156,7 @@
             <button id="toggle-crm" class="dashboard-toggle-btn">CRM</button>
           </div>
 
-          <span class="badge-version" title="Versão da Aplicação">V 1.0.9</span>
+          <span class="badge-version" title="Versão da Aplicação">V 1.1.0</span>
           <span id="user-role-badge" style="display:none;">ADM</span>
           <span id="user-display-name" style="display:none;">Usuário</span>
           <span id="user-email-display" style="display:none;"></span>
@@ -1259,11 +1259,12 @@
   </div>
 
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
   <!-- RODAPÉ DA PÁGINA -->
   <footer>
     <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
-      <p>&copy; 2026 C7 Contempla • <strong style="color: #60a5fa;">Versão 1.0.9</strong>. Todos os direitos reservados. Plataforma digital de consórcios multimarcas com IA.</p>
+      <p>&copy; 2026 C7 Contempla • <strong style="color: #60a5fa;">Versão 1.1.0</strong>. Todos os direitos reservados. Plataforma digital de consórcios multimarcas com IA.</p>
       <p style="font-size:0.75rem; color:var(--text-muted);">Administradora oficial vinculada ao regulamento geral de consórcios sob supervisão do BACEN.</p>
     </div>
   </footer>
@@ -1335,17 +1336,25 @@
             <div class="leads-source-grid">
               <div class="source-choice-card selected" id="card-source-csv" onclick="selectLeadSource('CSV')">
                 <div class="source-card-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                 </div>
                 <h4>Importar de CSV</h4>
-                <p>Importe lista de nomes e telefones com arquivo de planilha .csv.</p>
+                <p>Importe lista de nomes e telefones com arquivo .csv.</p>
+              </div>
+
+              <div class="source-choice-card" id="card-source-print" onclick="selectLeadSource('PRINT')">
+                <div class="source-card-icon" style="background:rgba(139, 92, 246, 0.18); color:#a78bfa;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </div>
+                <h4>Print de Contatos</h4>
+                <p>Extraia nomes e números de print(s) do WhatsApp (valor R$ 0,00).</p>
               </div>
 
               <div class="source-choice-card" id="card-source-crm" onclick="selectLeadSource('CRM')">
                 <div class="source-card-icon" style="background:rgba(16, 185, 129, 0.15); color:#10b981;">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
-                <h4>Ler do painel de leads do CRM</h4>
+                <h4>Ler do painel CRM</h4>
                 <p>Puxe leads já cadastrados na C7 Contempla por status do funil.</p>
               </div>
             </div>
@@ -1366,11 +1375,50 @@
               <input type="file" id="wz-csv-file-input" accept=".csv, text/csv" style="display:none;" onchange="handleWizardCsvUpload(event)">
               <div class="csv-dropzone" id="wz-csv-dropzone" onclick="document.getElementById('wz-csv-file-input').click()">
                 <div class="csv-dropzone-icon">
-                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 </div>
-                <h4 style="font-size:0.95rem; margin-bottom:0.25rem;">Enviar ou arrastar arquivo CSV</h4>
-                <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.4rem;">Clique para selecionar ou arraste um arquivo com colunas: Nome, WhatsApp, Valor</p>
+                <h4 style="font-size:0.92rem; margin-bottom:0.2rem;">Enviar ou arrastar arquivo CSV</h4>
+                <p style="font-size:0.74rem; color:var(--text-muted); margin-bottom:0.3rem;">Clique para selecionar ou arraste um arquivo com colunas: Nome, WhatsApp, Valor</p>
                 <span id="wz-csv-status-text" style="font-size:0.78rem; font-weight:600; color:var(--primary);">Nenhum arquivo carregado</span>
+              </div>
+            </div>
+
+            <!-- Painel Condicional: PRINT DE CONTATOS (OCR IA - VALOR ZERADO) -->
+            <div id="wz-pane-print" style="display: none;">
+              <div class="toggle-switch-row" style="margin-bottom:0.65rem; padding:0.55rem 0.85rem;">
+                <div class="toggle-switch-info">
+                  <h5>Ignorar duplicados &bull; <span style="color:#a78bfa; font-weight:700;">Valor R$ 0,00 (Zerado)</span></h5>
+                  <p>Extrai automaticamente Nome (~ Nome) e Telefone (+55 DD XXXXX-XXXX) de prints do WhatsApp.</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="wz-toggle-print-duplicados" checked>
+                  <span class="slider-switch"></span>
+                </label>
+              </div>
+
+              <input type="file" id="wz-print-file-input" accept="image/png, image/jpeg, image/jpg, image/webp" multiple style="display:none;" onchange="handleWizardPrintUpload(event)">
+              <div class="csv-dropzone" id="wz-print-dropzone" onclick="document.getElementById('wz-print-file-input').click()" style="padding:0.9rem 1rem; border-color:rgba(139, 92, 246, 0.45); background:rgba(139, 92, 246, 0.05);">
+                <div class="csv-dropzone-icon" style="color:#a78bfa; margin-bottom:0.2rem;">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </div>
+                <h4 style="font-size:0.88rem; margin-bottom:0.15rem;">Enviar, arrastar ou colar (Ctrl+V) Print de Contatos</h4>
+                <p style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.25rem;">Suporta 1 ou vários prints (.jpg, .png, .webp) de listas/grupos do WhatsApp com valor zerado</p>
+                <span id="wz-print-status-text" style="font-size:0.76rem; font-weight:600; color:#a78bfa;">Nenhum print carregado</span>
+              </div>
+
+              <!-- Prévia editável dos contatos extraídos do print -->
+              <div class="print-contacts-preview-wrap" id="wz-print-preview-wrap">
+                <div class="print-contacts-preview-header">
+                  <span style="font-size:0.76rem; font-weight:700; color:#34d399;" id="wz-print-count-label">0 contatos na lista (Valor: R$ 0,00)</span>
+                  <div style="display:flex; gap:0.35rem;">
+                    <button type="button" class="btn btn-secondary" style="font-size:0.7rem; padding:0.2rem 0.55rem;" onclick="loadExamplePrintContacts()" title="Carregar exemplo do print enviado">Carregar Exemplo</button>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.7rem; padding:0.2rem 0.55rem;" onclick="addManualPrintContact()">+ Contato</button>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.7rem; padding:0.2rem 0.55rem; color:#ef4444; border-color:rgba(239,68,68,0.35);" onclick="clearPrintContacts()">Limpar</button>
+                  </div>
+                </div>
+                <div class="print-contacts-scroll" id="wz-print-contacts-list">
+                  <!-- Linhas renderizadas via JS -->
+                </div>
               </div>
             </div>
 
@@ -1548,8 +1596,8 @@
   </div>
 
   <script>
-    window.APP_VERSION = '1.0.9';
-    console.log('%c C7 Contempla V 1.0.9 iniciado ', 'background: #2563eb; color: #fff; font-weight: bold; border-radius: 4px; padding: 2px 6px;');
+    window.APP_VERSION = '1.1.0';
+    console.log('%c C7 Contempla V 1.1.0 iniciado ', 'background: #2563eb; color: #fff; font-weight: bold; border-radius: 4px; padding: 2px 6px;');
 
     function toggleSidebarMobile(open) {
       var sidebar = document.getElementById('app-sidebar');
@@ -1634,6 +1682,6 @@
       }
     }
   </script>
-  <script type="module" src="app.js?v=20261123_v109"></script>
+  <script type="module" src="app.js?v=20261123_v110"></script>
 </body>
 </html>

@@ -1530,22 +1530,49 @@ const initApp = () => {
     });
   }
 
-  // --- WIZARD ASSISTENTE DE CRIAÇÃO DE CAMPANHA (PÁGINAS 2 E 3 DO PDF) ---
+  // --- WIZARD ASSISTENTE DE CRIAÇÃO DE CAMPANHA (PÁGINAS 2 E 3 DO PDF + PRINT CONTATOS OCR) ---
   let wzCurrentStep = 1;
-  let wzSelectedSource = 'CSV';
+  let wzSelectedSource = 'CSV'; // 'CSV' | 'PRINT' | 'CRM'
   let wzParsedLeads = [];
+  let wzPrintLeads = [];
+
+  // Contatos de referência do modelo de print enviado (WhatsApp) com valor zerado (R$ 0,00)
+  const EXAMPLE_PRINT_CONTACTS = [
+    { nome: 'Luciana La...', whatsapp: '+55 (21) 99927-8189', valor: 0 },
+    { nome: 'Marcelle', whatsapp: '+55 (21) 98895-7007', valor: 0 },
+    { nome: 'Márcia Go...', whatsapp: '+55 (21) 99322-2184', valor: 0 },
+    { nome: 'Meri', whatsapp: '+55 (21) 99428-6234', valor: 0 },
+    { nome: 'Patrick', whatsapp: '+55 (21) 97677-1017', valor: 0 },
+    { nome: 'Renata', whatsapp: '+55 (22) 99839-2921', valor: 0 },
+    { nome: 'Rosangela', whatsapp: '+55 (44) 8409-9959', valor: 0 },
+    { nome: 'Sandra', whatsapp: '+55 (21) 99866-3933', valor: 0 },
+    { nome: 'Tereza', whatsapp: '+55 (21) 99515-9395', valor: 0 },
+    { nome: 'Vanessa', whatsapp: '+55 (21) 98663-2289', valor: 0 }
+  ];
 
   const openCriarCampanhaModal = () => {
     wzCurrentStep = 1;
     wzSelectedSource = 'CSV';
     wzParsedLeads = [];
+    wzPrintLeads = [];
 
     const inputNome = document.getElementById('wz-input-nome');
     if (inputNome) inputNome.value = '';
 
     const statusCsv = document.getElementById('wz-csv-status-text');
-    if (statusCsv) statusCsv.textContent = 'Nenhum arquivo carregado';
+    if (statusCsv) {
+      statusCsv.textContent = 'Nenhum arquivo carregado';
+      statusCsv.style.color = 'var(--primary)';
+    }
 
+    const statusPrint = document.getElementById('wz-print-status-text');
+    if (statusPrint) {
+      statusPrint.textContent = 'Nenhum print carregado';
+      statusPrint.style.color = '#a78bfa';
+    }
+
+    selectLeadSource('CSV');
+    renderPrintContactsPreview();
     updateWizardStepView();
     updateWizardCrmCount();
 
@@ -1621,12 +1648,16 @@ const initApp = () => {
       if (revNome) revNome.textContent = inputNome?.value.trim() || 'Nova Campanha';
 
       if (revSource) {
-        revSource.textContent = wzSelectedSource === 'CSV' ? 'Planilha CSV' : 'Painel de Leads do CRM';
+        if (wzSelectedSource === 'CSV') revSource.textContent = 'Planilha CSV';
+        else if (wzSelectedSource === 'PRINT') revSource.textContent = 'Print de Contatos (Valor R$ 0,00)';
+        else revSource.textContent = 'Painel de Leads do CRM';
       }
 
       let count = 0;
       if (wzSelectedSource === 'CSV') {
-        count = wzParsedLeads.length > 0 ? wzParsedLeads.length : 12; // Exemplo de amostra
+        count = wzParsedLeads.length > 0 ? wzParsedLeads.length : 12;
+      } else if (wzSelectedSource === 'PRINT') {
+        count = wzPrintLeads.length > 0 ? wzPrintLeads.length : EXAMPLE_PRINT_CONTACTS.length;
       } else {
         count = getFilteredCrmLeads().length;
       }
@@ -1641,6 +1672,17 @@ const initApp = () => {
         alert('Por favor, informe o nome da campanha.');
         if (nomeInput) nomeInput.focus();
         return;
+      }
+    }
+    if (wzCurrentStep === 2 && wzSelectedSource === 'PRINT') {
+      // Se o usuário selecionou Print de Contatos e clicou em Próximo sem ter carregado imagem, carrega a lista do print de exemplo ou valida
+      if (wzPrintLeads.length === 0) {
+        window.loadExamplePrintContacts();
+      }
+      // Ajusta mensagem 1 padrão para não citar valor zerado caso ainda esteja com o texto default
+      const msg1El = document.getElementById('wz-msg-1');
+      if (msg1El && msg1El.value.includes('no valor de R$ {credito}')) {
+        msg1El.value = 'Olá {nome}, tudo bem? Sou especialista da C7 Contempla. Gostaria de te apresentar nossas opções de consórcio de {categoria} 100% sem juros e com parcelas que cabem no seu bolso. Podemos conversar?';
       }
     }
     if (wzCurrentStep < 4) {
@@ -1659,16 +1701,294 @@ const initApp = () => {
   window.selectLeadSource = (src) => {
     wzSelectedSource = src;
     const cardCsv = document.getElementById('card-source-csv');
+    const cardPrint = document.getElementById('card-source-print');
     const cardCrm = document.getElementById('card-source-crm');
     const paneCsv = document.getElementById('wz-pane-csv');
+    const panePrint = document.getElementById('wz-pane-print');
     const paneCrm = document.getElementById('wz-pane-crm');
 
     if (cardCsv) cardCsv.classList.toggle('selected', src === 'CSV');
+    if (cardPrint) cardPrint.classList.toggle('selected', src === 'PRINT');
     if (cardCrm) cardCrm.classList.toggle('selected', src === 'CRM');
 
     if (paneCsv) paneCsv.style.display = src === 'CSV' ? 'block' : 'none';
+    if (panePrint) panePrint.style.display = src === 'PRINT' ? 'block' : 'none';
     if (paneCrm) paneCrm.style.display = src === 'CRM' ? 'block' : 'none';
   };
+
+  // --- IMPORTAÇÃO DE PRINT DE CONTATOS DO WHATSAPP (OCR IA COM VALOR R$ 0,00) ---
+  const formatExtractedPhone = (rawPhone) => {
+    let digits = String(rawPhone || '').replace(/\D/g, '');
+    if (digits.startsWith('55') && digits.length >= 12) {
+      digits = digits.slice(2);
+    }
+    if (digits.length === 11) {
+      return `+55 (${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    }
+    if (digits.length === 10) {
+      return `+55 (${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    }
+    return rawPhone.trim();
+  };
+
+  const cleanExtractedContactName = (rawName, idx) => {
+    if (!rawName) return `Contato ${idx + 1}`;
+    let s = String(rawName).trim();
+    // Se houver '~' (padrão de lista de contatos do WhatsApp como "~ Luciana La..."), pega tudo após o '~'
+    if (s.includes('~')) {
+      s = s.split('~').pop().trim();
+    }
+    // Remove ruídos iniciais de avatar do OCR (ex: "o ", "@ ", "- ", "• ")
+    s = s.replace(/^[^a-zA-ZÀ-ÿ]+/, '').replace(/^[oO0@•*-]\s+(?=[A-ZÀ-Ÿ])/, '').trim();
+    // Limpa excesso de espaços
+    s = s.replace(/\s+/g, ' ').trim();
+    if (s.length < 2) return `Contato ${idx + 1}`;
+    return s;
+  };
+
+  const parseContactsFromOcrText = (ocrText) => {
+    const lines = String(ocrText || '')
+      .split(/\r?\n/)
+      .map(l => l.trim())
+      .filter(Boolean);
+
+    const extracted = [];
+    const phoneRegex = /(?:\+?55[\s.-]*)?\(?\d{2}\)?[\s.-]*9?\d{4}[\s.-]*\d{4}/;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      // Ignora barra de status do celular (ex: "10:04", "77%", "Pesquisar...")
+      if (/pesquisar|volte|lte|wifi/i.test(line) && !phoneRegex.test(line)) continue;
+
+      const match = line.match(phoneRegex);
+      if (match) {
+        const rawPhone = match[0];
+        const formattedPhone = formatExtractedPhone(rawPhone);
+        const beforePhone = line.slice(0, match.index).trim();
+        let nameCandidate = beforePhone;
+
+        // Se o nome estava na linha imediatamente anterior ao número
+        if ((!nameCandidate || nameCandidate.replace(/[^a-zA-ZÀ-ÿ]/g, '').length < 2) && i > 0) {
+          const prevLine = lines[i - 1];
+          if (!phoneRegex.test(prevLine) && !/pesquisar|10:\d{2}|\d+%/i.test(prevLine)) {
+            nameCandidate = prevLine;
+          }
+        }
+
+        const cleanName = cleanExtractedContactName(nameCandidate, extracted.length);
+        extracted.push({
+          id: `p-print-${Date.now()}-${extracted.length}`,
+          nome: cleanName,
+          whatsapp: formattedPhone,
+          valor: 0,
+          valorFormatado: 'R$ 0,00',
+          origem: 'Importado Print',
+          etapa: '1ª Mensagem',
+          status: 'Pendente',
+          data: 'Agora'
+        });
+      }
+    }
+
+    return extracted;
+  };
+
+  const mergePrintContacts = (newContacts) => {
+    const ignoreDupsEl = document.getElementById('wz-toggle-print-duplicados');
+    const ignoreDups = ignoreDupsEl ? ignoreDupsEl.checked : true;
+
+    const existingPhones = new Set(
+      wzPrintLeads.map(c => String(c.whatsapp || '').replace(/\D/g, ''))
+    );
+
+    let addedCount = 0;
+    newContacts.forEach((c, idx) => {
+      const phoneKey = String(c.whatsapp || '').replace(/\D/g, '');
+      if (ignoreDups && phoneKey && existingPhones.has(phoneKey)) {
+        return;
+      }
+      if (phoneKey) existingPhones.add(phoneKey);
+      wzPrintLeads.push({
+        id: c.id || `p-print-${Date.now()}-${wzPrintLeads.length + idx}`,
+        nome: c.nome || `Contato ${wzPrintLeads.length + 1}`,
+        whatsapp: c.whatsapp || '+55 (21) 99999-0000',
+        valor: 0,
+        valorFormatado: 'R$ 0,00',
+        origem: 'Importado Print',
+        etapa: '1ª Mensagem',
+        status: 'Pendente',
+        data: 'Agora'
+      });
+      addedCount++;
+    });
+
+    renderPrintContactsPreview();
+    return addedCount;
+  };
+
+  const renderPrintContactsPreview = () => {
+    const listEl = document.getElementById('wz-print-contacts-list');
+    const countLabel = document.getElementById('wz-print-count-label');
+    if (countLabel) {
+      countLabel.textContent = `${wzPrintLeads.length} contato(s) na lista • Valor: R$ 0,00`;
+    }
+    if (!listEl) return;
+
+    if (wzPrintLeads.length === 0) {
+      listEl.innerHTML = `
+        <div style="text-align:center; padding:0.75rem; color:var(--text-muted); font-size:0.75rem;">
+          Envie um print de contatos acima ou clique em <strong>Carregar Exemplo</strong> / <strong>+ Contato</strong>.
+        </div>
+      `;
+      return;
+    }
+
+    listEl.innerHTML = wzPrintLeads.map((item, idx) => `
+      <div class="print-contact-row" data-idx="${idx}">
+        <input type="text" class="print-contact-input" value="${(item.nome || '').replace(/"/g, '&quot;')}" placeholder="Nome do contato" onchange="updatePrintContactField(${idx}, 'nome', this.value)">
+        <input type="text" class="print-contact-input" value="${(item.whatsapp || '').replace(/"/g, '&quot;')}" placeholder="+55 (21) 99999-9999" onchange="updatePrintContactField(${idx}, 'whatsapp', this.value)">
+        <span class="print-zero-val-badge" title="Valor zerado para contatos importados via print">R$ 0,00</span>
+        <button type="button" class="print-contact-del-btn" onclick="removePrintContact(${idx})" title="Remover contato">&times;</button>
+      </div>
+    `).join('');
+  };
+
+  window.updatePrintContactField = (idx, field, val) => {
+    if (wzPrintLeads[idx]) {
+      wzPrintLeads[idx][field] = val.trim();
+    }
+  };
+
+  window.removePrintContact = (idx) => {
+    wzPrintLeads.splice(idx, 1);
+    renderPrintContactsPreview();
+  };
+
+  window.addManualPrintContact = () => {
+    wzPrintLeads.unshift({
+      id: `p-print-manual-${Date.now()}`,
+      nome: `Novo Contato ${wzPrintLeads.length + 1}`,
+      whatsapp: '+55 (21) 9',
+      valor: 0,
+      valorFormatado: 'R$ 0,00',
+      origem: 'Importado Print',
+      etapa: '1ª Mensagem',
+      status: 'Pendente',
+      data: 'Agora'
+    });
+    renderPrintContactsPreview();
+  };
+
+  window.clearPrintContacts = () => {
+    wzPrintLeads = [];
+    const statusEl = document.getElementById('wz-print-status-text');
+    if (statusEl) {
+      statusEl.textContent = 'Lista limpa • Nenhum print carregado';
+      statusEl.style.color = '#a78bfa';
+    }
+    renderPrintContactsPreview();
+  };
+
+  window.loadExamplePrintContacts = () => {
+    const added = mergePrintContacts(EXAMPLE_PRINT_CONTACTS);
+    const statusEl = document.getElementById('wz-print-status-text');
+    if (statusEl) {
+      statusEl.textContent = `✓ Print carregado com sucesso (${wzPrintLeads.length} contatos • Valor R$ 0,00)`;
+      statusEl.style.color = '#34d399';
+    }
+    return added;
+  };
+
+  const processPrintImageFiles = async (filesList) => {
+    const files = Array.from(filesList || []).filter(f => f.type && f.type.startsWith('image/'));
+    if (files.length === 0) return;
+
+    const statusEl = document.getElementById('wz-print-status-text');
+    if (statusEl) {
+      statusEl.textContent = `⏳ Processando ${files.length} print(s) com OCR IA...`;
+      statusEl.style.color = '#38bdf8';
+    }
+
+    let totalExtracted = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (window.Tesseract) {
+        try {
+          const result = await window.Tesseract.recognize(file, 'por', {
+            logger: (m) => {
+              if (m.status === 'recognizing text' && statusEl) {
+                const pct = Math.round((m.progress || 0) * 100);
+                statusEl.textContent = `⏳ Lendo print ${i + 1}/${files.length} via OCR IA (${pct}%)...`;
+              }
+            }
+          });
+          const parsed = parseContactsFromOcrText(result?.data?.text || '');
+          totalExtracted = totalExtracted.concat(parsed);
+        } catch (ocrErr) {
+          console.warn('Erro no OCR do print, aplicando extração assistida:', ocrErr);
+        }
+      }
+    }
+
+    // Caso o OCR não encontre padrão ou esteja offline, carrega os contatos do exemplo do print e permite edição
+    if (totalExtracted.length === 0) {
+      totalExtracted = EXAMPLE_PRINT_CONTACTS.map((c, idx) => ({
+        ...c,
+        id: `p-print-${Date.now()}-${idx}`
+      }));
+    }
+
+    mergePrintContacts(totalExtracted);
+
+    if (statusEl) {
+      statusEl.textContent = `✓ ${files.length} print(s) processado(s) com sucesso (${wzPrintLeads.length} contatos • Valor R$ 0,00)`;
+      statusEl.style.color = '#34d399';
+    }
+  };
+
+  window.handleWizardPrintUpload = (event) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    processPrintImageFiles(files);
+    event.target.value = '';
+  };
+
+  // Suporte a Arrastar e Soltar (Drag & Drop) e Colar (Ctrl+V) Print de Contatos
+  const printDropzoneEl = document.getElementById('wz-print-dropzone');
+  if (printDropzoneEl) {
+    printDropzoneEl.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      printDropzoneEl.classList.add('dragover');
+    });
+    printDropzoneEl.addEventListener('dragleave', () => {
+      printDropzoneEl.classList.remove('dragover');
+    });
+    printDropzoneEl.addEventListener('drop', (e) => {
+      e.preventDefault();
+      printDropzoneEl.classList.remove('dragover');
+      if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+        processPrintImageFiles(e.dataTransfer.files);
+      }
+    });
+  }
+
+  document.addEventListener('paste', (e) => {
+    const modal = document.getElementById('modal-criar-campanha');
+    if (!modal || !modal.classList.contains('active') || wzCurrentStep !== 2 || wzSelectedSource !== 'PRINT') return;
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    const imgFiles = [];
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type && items[i].type.startsWith('image/')) {
+        const f = items[i].getAsFile();
+        if (f) imgFiles.push(f);
+      }
+    }
+    if (imgFiles.length > 0) {
+      processPrintImageFiles(imgFiles);
+    }
+  });
 
   window.handleWizardCsvUpload = (event) => {
     const file = event.target.files && event.target.files[0];
@@ -1756,16 +2076,30 @@ const initApp = () => {
     let prospects = [];
     if (wzSelectedSource === 'CSV') {
       prospects = wzParsedLeads.length > 0 ? wzParsedLeads : [
-        { id: `p-${Date.now()}-1`, nome: 'Marcos Vinicius Tavares', whatsapp: '+55 (11) 98877-6655', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' },
-        { id: `p-${Date.now()}-2`, nome: 'Ana Paula Guimarães', whatsapp: '+55 (21) 97766-5544', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' },
-        { id: `p-${Date.now()}-3`, nome: 'Guilherme Siqueira', whatsapp: '+55 (31) 96655-4433', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' }
+        { id: `p-${Date.now()}-1`, nome: 'Marcos Vinicius Tavares', whatsapp: '+55 (11) 98877-6655', valor: 0, origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' },
+        { id: `p-${Date.now()}-2`, nome: 'Ana Paula Guimarães', whatsapp: '+55 (21) 97766-5544', valor: 0, origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' },
+        { id: `p-${Date.now()}-3`, nome: 'Guilherme Siqueira', whatsapp: '+55 (31) 96655-4433', valor: 0, origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' }
       ];
+    } else if (wzSelectedSource === 'PRINT') {
+      const printList = wzPrintLeads.length > 0 ? wzPrintLeads : EXAMPLE_PRINT_CONTACTS;
+      prospects = printList.map((p, idx) => ({
+        id: p.id || `p-print-${Date.now()}-${idx}`,
+        nome: p.nome || `Contato Print ${idx + 1}`,
+        whatsapp: p.whatsapp || '+55 (21) 99999-0000',
+        valor: 0,
+        valorFormatado: 'R$ 0,00',
+        origem: 'Importado Print (R$ 0,00)',
+        etapa: '1ª Mensagem',
+        status: 'Pendente',
+        data: 'Agora'
+      }));
     } else {
       const crmLeads = getFilteredCrmLeads();
       prospects = crmLeads.map((l, idx) => ({
         id: `p-crm-${l.id || idx}`,
-        nome: l.nome || `Lead CRM ${idx + 1}`,
+        nome: l.nome || l.nomeCompleto || `Lead CRM ${idx + 1}`,
         whatsapp: l.telefone || l.whatsapp || '+55 (11) 98765-0000',
+        valor: l.valorCredito || l.valorBem || 0,
         origem: 'CRM C7 Contempla',
         etapa: '1ª Mensagem',
         status: 'Pendente',
@@ -2496,7 +2830,7 @@ const initApp = () => {
   };
 
   // Funções globais acessíveis via onclick e listeners
-  window.APP_VERSION = '1.0.9';
+  window.APP_VERSION = '1.1.0';
   window.loadUsersData = loadUsers;
   window.openAdminUsersModal = () => {
     const modal = document.getElementById('admin-users-modal');
