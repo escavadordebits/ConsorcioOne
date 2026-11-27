@@ -1698,6 +1698,12 @@ const initApp = () => {
       return;
     }
 
+    if (apiUrl.includes('netlify.app')) {
+      alert('Atenção: A URL informada (' + apiUrl + ') é o endereço do próprio site no Netlify, e não do servidor da Evolution API.\n\nInforme a URL do servidor de WhatsApp (ex: a URL HTTPS do ngrok fornecida ou http://localhost:8080 se rodando local).');
+      if (inputUrl) inputUrl.focus();
+      return;
+    }
+
     if (btnTest) {
       btnTest.disabled = true;
       btnTest.textContent = 'Testando...';
@@ -1706,7 +1712,10 @@ const initApp = () => {
     try {
       const resp = await fetch(`${apiUrl}/instance/connectionState/${encodeURIComponent(instance)}`, {
         method: 'GET',
-        headers: { 'apikey': apiKey }
+        headers: {
+          'apikey': apiKey,
+          'ngrok-skip-browser-warning': 'true'
+        }
       });
 
       if (!resp.ok) {
@@ -1763,7 +1772,10 @@ const initApp = () => {
     try {
       const resp = await fetch(`${apiUrl}/instance/connect/${encodeURIComponent(instance)}`, {
         method: 'GET',
-        headers: { 'apikey': apiKey }
+        headers: {
+          'apikey': apiKey,
+          'ngrok-skip-browser-warning': 'true'
+        }
       });
 
       if (!resp.ok) {
@@ -1809,7 +1821,8 @@ const initApp = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': cfg.apiKey
+          'apikey': cfg.apiKey,
+          'ngrok-skip-browser-warning': 'true'
         },
         body: JSON.stringify({
           number: cleanPhone,
