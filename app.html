@@ -1548,49 +1548,74 @@
     </div>
   </div>
 
-  <!-- MODAL: CONEXÃO WHATSAPP & CONFIGURAÇÕES -->
+  <!-- MODAL: CONEXÃO WHATSAPP & CONFIGURAÇÕES (EVOLUTION API) -->
   <div class="modal-overlay" id="modal-whatsapp-config">
-    <div class="modal-content" style="max-width:520px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.5rem;">
+    <div class="modal-content" style="max-width:540px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.5rem;">
       <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
         <div style="display:flex; align-items:center; gap:0.65rem;">
           <div style="width:2.2rem; height:2.2rem; border-radius:8px; background:rgba(16, 185, 129, 0.15); color:#10b981; display:flex; align-items:center; justify-content:center;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           </div>
           <div>
-            <h3 style="font-size:1.1rem; color:var(--text-main); margin:0;">Conexão WhatsApp Business</h3>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">Status do Bot e integração de disparos</p>
+            <h3 style="font-size:1.1rem; color:var(--text-main); margin:0;">Conexão WhatsApp (Evolution API)</h3>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">Status da Instância e disparos reais</p>
           </div>
         </div>
         <button class="modal-close" onclick="closeWhatsAppConfigModal()" style="background:transparent; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:1.25rem;">
-        <div style="background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.25); border-radius:var(--radius-md); padding:1rem; display:flex; align-items:center; gap:0.85rem;">
-          <div style="width:10px; height:10px; border-radius:50%; background:#10b981; box-shadow:0 0 10px #10b981; flex-shrink:0;"></div>
+      <div style="display:flex; flex-direction:column; gap:1.1rem;">
+        <!-- Banner de Status da Conexão -->
+        <div id="wa-status-card" style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.25); border-radius:var(--radius-md); padding:0.9rem; display:flex; align-items:center; gap:0.85rem;">
+          <div id="wa-status-dot" style="width:10px; height:10px; border-radius:50%; background:#ef4444; box-shadow:0 0 8px #ef4444; flex-shrink:0;"></div>
           <div style="flex:1;">
-            <strong style="color:#34d399; font-size:0.9rem;">Instância Conectada e Operacional</strong>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin:0.15rem 0 0;">Número Oficial: +55 (21) 99822-8936</p>
+            <strong id="wa-status-title" style="color:#f87171; font-size:0.88rem;">Instância Desconectada</strong>
+            <p id="wa-status-desc" style="font-size:0.75rem; color:var(--text-muted); margin:0.15rem 0 0;">Configure a URL e a Chave da Evolution API abaixo para conectar.</p>
           </div>
-          <span style="font-size:0.7rem; background:#10b981; color:white; padding:0.15rem 0.5rem; border-radius:9999px; font-weight:700;">Ativo</span>
+          <span id="wa-status-badge" style="font-size:0.7rem; background:#ef4444; color:white; padding:0.15rem 0.55rem; border-radius:9999px; font-weight:700;">Inativo</span>
         </div>
 
-        <div class="form-group">
+        <!-- Área de Exibição de QR Code (quando gerado) -->
+        <div id="wa-qrcode-container" style="display:none; text-align:center; padding:1rem; background:rgba(0,0,0,0.3); border:1px dashed #38bdf8; border-radius:var(--radius-md);">
+          <p style="font-size:0.82rem; color:#38bdf8; font-weight:600; margin-bottom:0.75rem;">Escaneie o QR Code no seu WhatsApp (Aparelhos Conectados):</p>
+          <img id="wa-qrcode-img" src="" alt="QR Code WhatsApp" style="max-width:200px; max-height:200px; border-radius:8px; background:white; padding:8px; margin:0 auto; display:block;">
+          <p style="font-size:0.72rem; color:var(--text-muted); margin-top:0.6rem;">Aguardando leitura do QR Code pelo celular...</p>
+        </div>
+
+        <!-- Campos de Configuração da Evolution API -->
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:0.82rem; font-weight:600; color:var(--text-main); margin-bottom:0.35rem; display:block;">URL do Servidor Evolution API</label>
+          <input type="url" id="wa-input-api-url" class="form-control" placeholder="Ex: http://localhost:8080 ou https://evolution.seudominio.com" style="width:100%; padding:0.6rem 0.85rem; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.84rem; outline:none;">
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:0.82rem; font-weight:600; color:var(--text-main); margin-bottom:0.35rem; display:block;">Nome da Instância</label>
+            <input type="text" id="wa-input-instance" class="form-control" placeholder="Ex: c7contempla" style="width:100%; padding:0.6rem 0.85rem; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.84rem; outline:none;">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:0.82rem; font-weight:600; color:var(--text-main); margin-bottom:0.35rem; display:block;">API Key (Global ou da Instância)</label>
+            <input type="password" id="wa-input-apikey" class="form-control" placeholder="Chave de autenticação" style="width:100%; padding:0.6rem 0.85rem; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.84rem; outline:none;">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
           <label style="font-size:0.82rem; font-weight:600; color:var(--text-main); margin-bottom:0.35rem; display:block;">Intervalo Anti-Ban entre Disparos</label>
-          <select id="select-antiban-interval" class="form-control" style="width:100%; padding:0.6rem 0.85rem; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
+          <select id="select-antiban-interval" class="form-control" style="width:100%; padding:0.6rem 0.85rem; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main); outline:none; font-size:0.84rem;">
             <option value="15-30" selected>15 a 30 segundos (Recomendado para campanhas médias)</option>
             <option value="30-60">30 a 60 segundos (Máxima segurança)</option>
             <option value="5-15">5 a 15 segundos (Disparos rápidos)</option>
           </select>
         </div>
 
-        <div class="form-group">
-          <label style="font-size:0.82rem; font-weight:600; color:var(--text-main); margin-bottom:0.35rem; display:block;">Webhook de Resposta dos Clientes</label>
-          <input type="text" class="form-control" value="https://consorcioone.netlify.app/api/whatsapp-webhook" readonly style="width:100%; padding:0.6rem 0.85rem; font-size:0.8rem; color:var(--text-muted); background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:var(--radius-sm);">
-        </div>
-
-        <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.5rem;">
-          <button type="button" class="btn btn-secondary" onclick="closeWhatsAppConfigModal()">Fechar</button>
-          <button type="button" class="btn btn-primary" onclick="alert('Conexão com WhatsApp testada com sucesso!'); closeWhatsAppConfigModal();">Testar Conexão</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-top:0.35rem;">
+          <button type="button" class="btn btn-secondary" id="btn-wa-qrcode" onclick="gerarQrCodeWhatsApp()" style="font-size:0.82rem; padding:0.55rem 0.9rem;">
+            📷 Gerar QR Code
+          </button>
+          <div style="display:flex; gap:0.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="closeWhatsAppConfigModal()" style="font-size:0.82rem; padding:0.55rem 0.9rem;">Fechar</button>
+            <button type="button" class="btn btn-primary" id="btn-wa-test" onclick="salvarETestarEvolutionApi()" style="font-size:0.82rem; padding:0.55rem 1rem;">Salvar & Testar</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1683,6 +1708,6 @@
       }
     }
   </script>
-  <script type="module" src="app.js?v=20261127_v112"></script>
+  <script type="module" src="app.js?v=20261127_v113"></script>
 </body>
 </html>

@@ -1598,15 +1598,237 @@ const initApp = () => {
     if (modal) modal.classList.remove('active');
   };
 
+  // --- INTEGRAÇÃO REAL COM A EVOLUTION API (WHATSAPP BUSINESS) ---
+  const getWhatsAppConfig = () => {
+    try {
+      const saved = localStorage.getItem('consorcio_evolution_config');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {
+      apiUrl: '',
+      instance: 'c7contempla',
+      apiKey: '',
+      connected: false,
+      number: ''
+    };
+  };
+
+  const saveWhatsAppConfig = (cfg) => {
+    try {
+      localStorage.setItem('consorcio_evolution_config', JSON.stringify(cfg));
+    } catch (e) {}
+  };
+
+  const updateWhatsAppStatusUI = (status, number = '') => {
+    const card = document.getElementById('wa-status-card');
+    const dot = document.getElementById('wa-status-dot');
+    const title = document.getElementById('wa-status-title');
+    const desc = document.getElementById('wa-status-desc');
+    const badge = document.getElementById('wa-status-badge');
+    const qrContainer = document.getElementById('wa-qrcode-container');
+
+    if (!card) return;
+
+    if (status === 'connected') {
+      card.style.background = 'rgba(16, 185, 129, 0.08)';
+      card.style.borderColor = 'rgba(16, 185, 129, 0.25)';
+      if (dot) { dot.style.background = '#10b981'; dot.style.boxShadow = '0 0 10px #10b981'; }
+      if (title) { title.style.color = '#34d399'; title.textContent = 'Instância Conectada e Operacional'; }
+      if (desc) { desc.textContent = number ? `Número Oficial: +${number}` : 'Pronto para disparos automáticos e mensagens reais.'; }
+      if (badge) { badge.style.background = '#10b981'; badge.textContent = 'Ativo'; }
+      if (qrContainer) qrContainer.style.display = 'none';
+    } else if (status === 'connecting') {
+      card.style.background = 'rgba(234, 179, 8, 0.08)';
+      card.style.borderColor = 'rgba(234, 179, 8, 0.25)';
+      if (dot) { dot.style.background = '#eab308'; dot.style.boxShadow = '0 0 10px #eab308'; }
+      if (title) { title.style.color = '#facc15'; title.textContent = 'Aguardando Leitura do QR Code'; }
+      if (desc) { desc.textContent = 'Escaneie o código com o WhatsApp do seu celular.'; }
+      if (badge) { badge.style.background = '#eab308'; badge.textContent = 'Conectando'; }
+    } else {
+      card.style.background = 'rgba(239, 68, 68, 0.08)';
+      card.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+      if (dot) { dot.style.background = '#ef4444'; dot.style.boxShadow = '0 0 8px #ef4444'; }
+      if (title) { title.style.color = '#f87171'; title.textContent = 'Instância Desconectada'; }
+      if (desc) { desc.textContent = 'Preencha os dados da Evolution API abaixo e clique em Salvar & Testar.'; }
+      if (badge) { badge.style.background = '#ef4444'; badge.textContent = 'Inativo'; }
+    }
+  };
+
   window.openWhatsAppConfigModal = (event) => {
     if (event) { event.preventDefault(); event.stopPropagation(); }
     const modal = document.getElementById('modal-whatsapp-config');
-    if (modal) modal.classList.add('active');
+    if (!modal) return;
+
+    const cfg = getWhatsAppConfig();
+    const inputUrl = document.getElementById('wa-input-api-url');
+    const inputInst = document.getElementById('wa-input-instance');
+    const inputKey = document.getElementById('wa-input-apikey');
+
+    if (inputUrl) inputUrl.value = cfg.apiUrl || '';
+    if (inputInst) inputInst.value = cfg.instance || 'c7contempla';
+    if (inputKey) inputKey.value = cfg.apiKey || '';
+
+    updateWhatsAppStatusUI(cfg.connected ? 'connected' : 'disconnected', cfg.number);
+    modal.classList.add('active');
   };
 
   window.closeWhatsAppConfigModal = () => {
     const modal = document.getElementById('modal-whatsapp-config');
     if (modal) modal.classList.remove('active');
+  };
+
+  window.salvarETestarEvolutionApi = async () => {
+    const inputUrl = document.getElementById('wa-input-api-url');
+    const inputInst = document.getElementById('wa-input-instance');
+    const inputKey = document.getElementById('wa-input-apikey');
+    const btnTest = document.getElementById('btn-wa-test');
+
+    const apiUrl = (inputUrl?.value || '').trim().replace(/\/$/, '');
+    const instance = (inputInst?.value || '').trim();
+    const apiKey = (inputKey?.value || '').trim();
+
+    if (!apiUrl) {
+      alert('Por favor, informe a URL do servidor da Evolution API (ex: http://localhost:8080 ou https://evolution.seudominio.com).');
+      if (inputUrl) inputUrl.focus();
+      return;
+    }
+    if (!instance) {
+      alert('Por favor, informe o nome da instância (ex: c7contempla).');
+      if (inputInst) inputInst.focus();
+      return;
+    }
+
+    if (btnTest) {
+      btnTest.disabled = true;
+      btnTest.textContent = 'Testando...';
+    }
+
+    try {
+      const resp = await fetch(`${apiUrl}/instance/connectionState/${encodeURIComponent(instance)}`, {
+        method: 'GET',
+        headers: { 'apikey': apiKey }
+      });
+
+      if (!resp.ok) {
+        throw new Error(`Servidor respondeu com status ${resp.status} (${resp.statusText})`);
+      }
+
+      const data = await resp.json();
+      const state = (data?.instance?.state || data?.state || '').toLowerCase();
+
+      if (state === 'open' || state === 'connected') {
+        const ownerPhone = data?.instance?.owner || data?.owner || '';
+        const cfg = { apiUrl, instance, apiKey, connected: true, number: ownerPhone };
+        saveWhatsAppConfig(cfg);
+        updateWhatsAppStatusUI('connected', cfg.number);
+        alert(`✓ Conexão bem-sucedida com a Evolution API!\nInstância "${instance}" conectada e pronta para disparos reais.`);
+      } else {
+        const cfg = { apiUrl, instance, apiKey, connected: false, number: '' };
+        saveWhatsAppConfig(cfg);
+        updateWhatsAppStatusUI('disconnected');
+        alert(`Instância "${instance}" encontrada, porém está desconectada (Status: ${state || 'fechada'}). Clique no botão "Gerar QR Code" para ler com o WhatsApp do seu celular.`);
+      }
+    } catch (err) {
+      alert(`Erro ao conectar com a Evolution API:\n${err.message}\n\nVerifique se a URL está correta e se o servidor está acessível.`);
+    } finally {
+      if (btnTest) {
+        btnTest.disabled = false;
+        btnTest.textContent = 'Salvar & Testar';
+      }
+    }
+  };
+
+  window.gerarQrCodeWhatsApp = async () => {
+    const inputUrl = document.getElementById('wa-input-api-url');
+    const inputInst = document.getElementById('wa-input-instance');
+    const inputKey = document.getElementById('wa-input-apikey');
+    const qrContainer = document.getElementById('wa-qrcode-container');
+    const qrImg = document.getElementById('wa-qrcode-img');
+    const btnQr = document.getElementById('btn-wa-qrcode');
+
+    const apiUrl = (inputUrl?.value || '').trim().replace(/\/$/, '');
+    const instance = (inputInst?.value || '').trim();
+    const apiKey = (inputKey?.value || '').trim();
+
+    if (!apiUrl || !instance) {
+      alert('Preencha a URL e a Instância da Evolution API antes de gerar o QR Code.');
+      return;
+    }
+
+    if (btnQr) {
+      btnQr.disabled = true;
+      btnQr.textContent = 'Gerando QR...';
+    }
+
+    try {
+      const resp = await fetch(`${apiUrl}/instance/connect/${encodeURIComponent(instance)}`, {
+        method: 'GET',
+        headers: { 'apikey': apiKey }
+      });
+
+      if (!resp.ok) {
+        throw new Error(`Falha ao obter QR Code (${resp.status}): ${await resp.text()}`);
+      }
+
+      const data = await resp.json();
+      const b64 = data?.base64 || data?.qrcode?.base64 || data?.code;
+
+      if (b64 && qrImg && qrContainer) {
+        qrImg.src = b64.startsWith('data:') ? b64 : `data:image/png;base64,${b64}`;
+        qrContainer.style.display = 'block';
+        updateWhatsAppStatusUI('connecting');
+      } else {
+        alert('Instância já está conectada ou não retornou imagem de QR Code.');
+      }
+    } catch (err) {
+      alert(`Não foi possível gerar o QR Code:\n${err.message}`);
+    } finally {
+      if (btnQr) {
+        btnQr.disabled = false;
+        btnQr.textContent = '📷 Gerar QR Code';
+      }
+    }
+  };
+
+  // Envio de mensagem de texto via Evolution API
+  const sendWhatsAppMessageApi = async (phone, text) => {
+    const cfg = getWhatsAppConfig();
+    if (!cfg.apiUrl || !cfg.instance || !cfg.apiKey) {
+      return { success: false, reason: 'unconfigured' };
+    }
+
+    let cleanPhone = String(phone || '').replace(/\D/g, '');
+    if (!cleanPhone) return { success: false, reason: 'invalid_phone' };
+    if (!cleanPhone.startsWith('55') && cleanPhone.length <= 11) {
+      cleanPhone = '55' + cleanPhone;
+    }
+
+    const endpoint = `${cfg.apiUrl.replace(/\/$/, '')}/message/sendText/${encodeURIComponent(cfg.instance)}`;
+    try {
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': cfg.apiKey
+        },
+        body: JSON.stringify({
+          number: cleanPhone,
+          text: text
+        })
+      });
+
+      if (resp.ok) {
+        const resData = await resp.json();
+        return { success: true, data: resData };
+      } else {
+        const errText = await resp.text();
+        console.error('Erro Evolution API:', resp.status, errText);
+        return { success: false, error: errText, status: resp.status };
+      }
+    } catch (err) {
+      console.error('Falha de rede Evolution API:', err);
+      return { success: false, error: err.message };
+    }
   };
 
   // Fechar modals ao clicar no backdrop (fora do conteúdo)
@@ -2191,23 +2413,44 @@ const initApp = () => {
     return msg;
   };
 
-  // Disparo automático e sincronização de mensagens iniciais da campanha
-  const triggerCampaignDispatch = (camp) => {
+  // Disparo automático e sincronização de mensagens iniciais da campanha (com Evolution API)
+  const triggerCampaignDispatch = async (camp) => {
     if (!camp || camp.status !== 'ATIVA' || !camp.prospects || camp.prospects.length === 0) return;
 
     const pendentes = camp.prospects.filter(p => p.status === 'Pendente');
     if (pendentes.length === 0) return;
 
+    const cfg = getWhatsAppConfig();
+    const isApiActive = cfg.apiUrl && cfg.instance && cfg.apiKey;
+
+    if (!isApiActive) {
+      console.warn("Evolution API não configurada. As mensagens serão simuladas internamente na Caixa de Entrada.");
+      setTimeout(() => {
+        alert("⚠️ Atenção: A Evolution API não está configurada no sistema.\n\nAs mensagens foram geradas na Caixa de Entrada interna, mas NÃO foram entregues ao celular real dos clientes.\n\nPara disparar de verdade para o WhatsApp dos contatos, configure a Evolution API no menu lateral 'Conexão WhatsApp'.");
+      }, 500);
+    }
+
     const templateMsg = camp.mensagem1 || 'Olá {nome}, tudo bem? Sou especialista da C7 Contempla. Vi seu interesse em uma cota de {categoria} no valor de R$ {credito}. Posso te apresentar opções sem juros?';
 
     pendentes.forEach((p, idx) => {
-      setTimeout(() => {
+      setTimeout(async () => {
         if (camp.status !== 'ATIVA') return;
 
         const texto = formatCampaignMessage(templateMsg, p, camp);
         const cleanNome = p.nome.includes(';') ? p.nome.split(';')[0].trim() : p.nome.trim();
 
-        // Cria ou atualiza a conversa na Caixa de Entrada com a 1ª mensagem real
+        // 1. Tenta envio real via Evolution API se configurada
+        let envioReal = false;
+        if (isApiActive) {
+          const resApi = await sendWhatsAppMessageApi(p.whatsapp, texto);
+          if (resApi.success) {
+            envioReal = true;
+          } else {
+            console.error(`Falha no envio para ${p.whatsapp} via Evolution API:`, resApi.error);
+          }
+        }
+
+        // 2. Cria ou atualiza a conversa na Caixa de Entrada
         let conv = conversasData.find(c => c.whatsapp === p.whatsapp);
         const parts = cleanNome.split(' ');
         const initials = parts.length > 1 ? (parts[0][0] + parts[1][0]) : cleanNome.substring(0, 2);
@@ -2227,7 +2470,6 @@ const initApp = () => {
           };
           conversasData.unshift(conv);
         } else {
-          // Substitui mensagem genérica de fallback se for a única da conversa
           if (conv.mensagens.length === 1 && conv.mensagens[0].texto.includes('como posso te ajudar hoje na C7 Contempla')) {
             conv.mensagens[0].texto = texto;
             conv.nome = cleanNome;
@@ -2235,17 +2477,17 @@ const initApp = () => {
         }
         saveConversasData();
 
-        // Atualiza status do prospect
+        // 3. Atualiza status do prospect
         p.etapa = '1ª Mensagem';
-        p.status = 'Entregue';
+        p.status = envioReal ? 'Entregue' : (isApiActive ? 'Erro Envio' : 'Entregue');
         p.data = 'Agora';
 
-        // Atualiza contadores da campanha
+        // 4. Atualiza contadores da campanha
         camp.entregues = (camp.entregues || 0) + 1;
         saveCampanhasData();
         renderCampanhas();
         renderInbox();
-      }, (idx + 1) * 800);
+      }, (idx + 1) * 1200);
     });
   };
 
@@ -2538,7 +2780,7 @@ const initApp = () => {
     switchAppView('inbox');
   };
 
-  const sendInboxMessage = () => {
+  const sendInboxMessage = async () => {
     const input = document.getElementById('inbox-chat-input');
     if (!input || !input.value.trim() || !activeConversaId) return;
 
@@ -2547,10 +2789,11 @@ const initApp = () => {
 
     const now = new Date();
     const hora = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const texto = input.value.trim();
 
     conv.mensagens.push({
       id: `m-${Date.now()}`,
-      texto: input.value.trim(),
+      texto: texto,
       remetente: 'agente',
       hora: hora
     });
@@ -2559,20 +2802,32 @@ const initApp = () => {
     saveConversasData();
     renderInbox();
 
-    // Simulação interativa de resposta do lead após 2.5s (demonstração dinâmica)
-    setTimeout(() => {
-      const currentConv = conversasData.find(c => c.id === activeConversaId);
-      if (currentConv) {
-        currentConv.mensagens.push({
-          id: `m-reply-${Date.now()}`,
-          texto: 'Recebido! Poderia me enviar a proposta detalhada com a taxa de administração e o lance embutido?',
-          remetente: 'cliente',
-          hora: hora
-        });
-        saveConversasData();
-        renderInbox();
+    // 1. Envio real via Evolution API se estiver configurada
+    const cfg = getWhatsAppConfig();
+    const isApiActive = cfg.apiUrl && cfg.instance && cfg.apiKey;
+
+    if (isApiActive) {
+      const res = await sendWhatsAppMessageApi(conv.whatsapp, texto);
+      if (!res.success) {
+        console.error(`Erro ao enviar mensagem via Evolution API para ${conv.whatsapp}:`, res.error);
+        alert(`Aviso: Falha ao entregar mensagem para o WhatsApp (${conv.whatsapp}):\n${res.error || 'Verifique a conexão da Evolution API'}`);
       }
-    }, 2500);
+    } else {
+      // Demonstração dinâmica em modo offline sem API conectada
+      setTimeout(() => {
+        const currentConv = conversasData.find(c => c.id === activeConversaId);
+        if (currentConv) {
+          currentConv.mensagens.push({
+            id: `m-reply-${Date.now()}`,
+            texto: 'Recebido! Poderia me enviar a proposta detalhada com a taxa de administração e o lance embutido?',
+            remetente: 'cliente',
+            hora: hora
+          });
+          saveConversasData();
+          renderInbox();
+        }
+      }, 2500);
+    }
   };
 
   const btnInboxSend = document.getElementById('btn-inbox-send');
