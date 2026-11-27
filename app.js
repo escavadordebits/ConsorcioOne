@@ -1270,63 +1270,22 @@ const initApp = () => {
   };
 
   // --- MÓDULO DE CAMPANHAS WHATSAPP (BOLTFLOW / DINBOTFLOW - PÁGINAS 1, 2 E 3) ---
-  const defaultCampanhas = [
-    {
-      id: 'camp-1',
-      nome: 'Campanha WhatsApp 01 - Consórcio Imóveis SP',
-      segmento: 'IMOVEL',
-      status: 'ATIVA',
-      disparos: 286,
-      entregues: 270,
-      respostas: 48,
-      conversoes: 14,
-      prospects: [
-        { id: 'p1', nome: 'Eduardo Silveira Ramos', whatsapp: '+55 (11) 98123-4567', origem: 'CRM C7 Contempla', etapa: 'Respondeu', status: 'Respondeu', data: 'Hoje às 11:42' },
-        { id: 'p2', nome: 'Fabiana Cristina Araújo', whatsapp: '+55 (11) 97234-5678', origem: 'Importado CSV', etapa: 'Respondeu', status: 'Respondeu', data: 'Hoje às 10:15' },
-        { id: 'p3', nome: 'Ricardo Magalhães Soares', whatsapp: '+55 (11) 96345-6789', origem: 'CRM C7 Contempla', etapa: '2ª Mensagem', status: 'Entregue', data: 'Ontem às 18:30' },
-        { id: 'p4', nome: 'Samuel Oliveira Mendes', whatsapp: '+55 (21) 99456-7890', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Enviado', data: 'Ontem às 14:10' },
-        { id: 'p5', nome: 'José Mauricio Franklin de Miranda', whatsapp: '+55 (31) 98567-8901', origem: 'CRM C7 Contempla', etapa: 'Respondeu', status: 'Respondeu', data: '21/10 às 16:55' },
-        { id: 'p6', nome: 'Filipe Villarman Prado', whatsapp: '+55 (41) 97678-9012', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: '20/10 às 09:20' }
-      ]
-    },
-    {
-      id: 'camp-2',
-      nome: 'Campanha Cartas Contempladas - Investidores',
-      segmento: 'IMOVEL',
-      status: 'ATIVA',
-      disparos: 140,
-      entregues: 135,
-      respostas: 32,
-      conversoes: 9,
-      prospects: [
-        { id: 'p7', nome: 'Juliana Beatriz Costa', whatsapp: '+55 (11) 99887-1122', origem: 'CRM C7 Contempla', etapa: 'Respondeu', status: 'Respondeu', data: 'Hoje às 08:30' },
-        { id: 'p8', nome: 'Marcelo Pimentel', whatsapp: '+55 (21) 98776-3344', origem: 'Importado CSV', etapa: '2ª Mensagem', status: 'Entregue', data: 'Ontem às 17:00' }
-      ]
-    },
-    {
-      id: 'camp-3',
-      nome: 'Reativação Leads Frios CRM',
-      segmento: 'AUTOMOVEL',
-      status: 'PAUSADA',
-      disparos: 95,
-      entregues: 91,
-      respostas: 12,
-      conversoes: 3,
-      prospects: [
-        { id: 'p9', nome: 'Lucas de Andrade', whatsapp: '+55 (19) 97654-2211', origem: 'CRM C7 Contempla', etapa: '1ª Mensagem', status: 'Pendente', data: '19/10 às 15:00' }
-      ]
-    }
-  ];
+  const defaultCampanhas = [];
 
   let campanhasData = [];
   try {
     const saved = localStorage.getItem('consorcio_campanhas');
-    campanhasData = saved ? JSON.parse(saved) : defaultCampanhas;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Remove campanhas mockadas de teste usadas no desenvolvimento ('camp-1', 'camp-2', 'camp-3')
+      campanhasData = (Array.isArray(parsed) ? parsed : []).filter(c => c.id !== 'camp-1' && c.id !== 'camp-2' && c.id !== 'camp-3');
+      localStorage.setItem('consorcio_campanhas', JSON.stringify(campanhasData));
+    }
   } catch (e) {
-    campanhasData = defaultCampanhas;
+    campanhasData = [];
   }
 
-  let activeCampanhaId = campanhasData[0]?.id || 'camp-1';
+  let activeCampanhaId = campanhasData[0]?.id || null;
   let prospectsFilterStatus = 'TODOS';
   let prospectsSearchQuery = '';
 
@@ -1337,25 +1296,72 @@ const initApp = () => {
   };
 
   const getActiveCampanha = () => {
-    return campanhasData.find(c => c.id === activeCampanhaId) || campanhasData[0];
+    return campanhasData.find(c => c.id === activeCampanhaId) || campanhasData[0] || null;
   };
 
   const renderCampanhas = () => {
     const activeCamp = getActiveCampanha();
-    if (!activeCamp) return;
 
-    // Preenche seletor de campanhas
+    // Seletor de campanhas
     const selectEl = document.getElementById('select-campanha-ativa');
     if (selectEl) {
-      selectEl.innerHTML = campanhasData.map(c => `
-        <option value="${c.id}" ${c.id === activeCamp.id ? 'selected' : ''}>${c.nome}</option>
-      `).join('');
+      if (campanhasData.length === 0) {
+        selectEl.innerHTML = '<option value="">Nenhuma campanha cadastrada</option>';
+      } else {
+        selectEl.innerHTML = campanhasData.map(c => `
+          <option value="${c.id}" ${activeCamp && c.id === activeCamp.id ? 'selected' : ''}>${c.nome}</option>
+        `).join('');
+      }
     }
 
     // Atualiza status badge
     const badgeEl = document.getElementById('badge-campanha-status');
-    const textStatusEl = document.getElementById('text-campanha-status');
     const pauseBtnText = document.getElementById('btn-pause-text');
+
+    if (!activeCamp) {
+      if (badgeEl) {
+        badgeEl.className = 'campanha-status-badge paused';
+        badgeEl.innerHTML = `
+          <span style="width:7px; height:7px; border-radius:50%; background:#94a3b8;"></span>
+          <span>Sem Campanha</span>
+        `;
+      }
+      if (pauseBtnText) pauseBtnText.textContent = 'Pausar';
+
+      // Zera KPIs
+      ['kpi-campanha-disparos', 'kpi-campanha-entregues', 'kpi-campanha-respostas', 'kpi-campanha-conversoes'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '0';
+      });
+      ['pct-campanha-disparos', 'pct-campanha-entregues', 'pct-campanha-respostas', 'pct-campanha-conversoes'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '0%';
+      });
+      ['bar-campanha-disparos', 'bar-campanha-entregues', 'bar-campanha-respostas', 'bar-campanha-conversoes'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.width = '0%';
+      });
+      ['count-prospects-todos', 'count-prospects-resp', 'count-prospects-env', 'count-prospects-pend'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '0';
+      });
+
+      const tbody = document.getElementById('prospects-table-body');
+      if (tbody) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 3rem 1.5rem; color: var(--text-muted);">
+              <div style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.5rem; color: #cbd5e1;">Nenhuma campanha criada ainda</div>
+              <div style="font-size: 0.85rem; margin-bottom: 1.25rem;">Clique no botão abaixo para criar sua primeira campanha e iniciar os disparos no WhatsApp.</div>
+              <button type="button" class="btn btn-primary" onclick="openCriarCampanhaModal()" style="font-size: 0.85rem; padding: 0.55rem 1.25rem;">
+                + Criar Campanha
+              </button>
+            </td>
+          </tr>
+        `;
+      }
+      return;
+    }
 
     const isAtiva = activeCamp.status === 'ATIVA';
     if (badgeEl) {
@@ -1995,6 +2001,33 @@ const initApp = () => {
     }
   });
 
+  // Parser robusto de valor monetário para CSV (preserva decimais como 9,99 sem arredondar para 10)
+  const parseValorMonetarioCsv = (valRaw, cols, delimiter) => {
+    // Se o delimitador foi vírgula e partiu o número (ex: cols[2]='9', cols[3]='99')
+    if (delimiter === ',' && cols && cols.length >= 4) {
+      if (/^\d+$/.test(cols[2]) && /^\d{1,2}$/.test(cols[3])) {
+        valRaw = `${cols[2]}.${cols[3]}`;
+      }
+    }
+    if (valRaw === null || valRaw === undefined) return 0;
+    if (typeof valRaw === 'number') return isNaN(valRaw) ? 0 : valRaw;
+    let str = String(valRaw).trim().replace(/R\$/gi, '').replace(/\s+/g, '');
+    if (!str) return 0;
+
+    if (str.includes(',') && str.includes('.')) {
+      if (str.lastIndexOf(',') > str.lastIndexOf('.')) {
+        str = str.replace(/\./g, '').replace(',', '.');
+      } else {
+        str = str.replace(/,/g, '');
+      }
+    } else if (str.includes(',')) {
+      str = str.replace(',', '.');
+    }
+    str = str.replace(/[^\d.-]/g, '');
+    const num = parseFloat(str);
+    return isNaN(num) ? 0 : num;
+  };
+
   window.handleWizardCsvUpload = (event) => {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
@@ -2009,6 +2042,21 @@ const initApp = () => {
       const firstLine = lines[0] || '';
       const hasHeader = /nome|whatsapp|telefone|fone|valor|credito/i.test(firstLine);
       const dataLines = hasHeader ? lines.slice(1) : lines;
+
+      // Controle de duplicidade: por padrão verifica número de WhatsApp (somente dígitos)
+      const ignoreDupsToggle = document.getElementById('wz-toggle-duplicados');
+      const ignoreDups = ignoreDupsToggle ? ignoreDupsToggle.checked : true;
+
+      const existingPhones = new Set();
+      if (ignoreDups) {
+        // Puxa telefones de campanhas já criadas
+        campanhasData.forEach(camp => {
+          (camp.prospects || []).forEach(p => {
+            const ph = String(p.whatsapp || '').replace(/\D/g, '');
+            if (ph) existingPhones.add(ph);
+          });
+        });
+      }
 
       dataLines.forEach((line, idx) => {
         if (!line.trim()) return;
@@ -2031,7 +2079,16 @@ const initApp = () => {
 
         nomeRaw = nomeRaw.trim();
         const formattedPhone = formatExtractedPhone(phoneRaw) || phoneRaw;
-        const valNum = parseFloat(String(valRaw).replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+        const phoneKey = String(formattedPhone || phoneRaw).replace(/\D/g, '');
+
+        // Verificação de duplicidade: baseada no TELEFONE/WHATSAPP (não no nome)
+        // Assim, "amigo" com 21 992789269 e "amigo" com 21 997445985 são mantidos (ambos válidos)
+        if (ignoreDups && phoneKey && existingPhones.has(phoneKey)) {
+          return;
+        }
+        if (phoneKey) existingPhones.add(phoneKey);
+
+        const valNum = parseValorMonetarioCsv(valRaw, cols, delimiter);
 
         if (nomeRaw || phoneRaw) {
           leads.push({
@@ -2039,7 +2096,7 @@ const initApp = () => {
             nome: nomeRaw || `Lead ${idx + 1}`,
             whatsapp: formattedPhone || '+55 (11) 9' + Math.floor(10000000 + Math.random() * 90000000),
             valor: valNum,
-            valorFormatado: valNum > 0 ? `R$ ${valNum.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00',
+            valorFormatado: valNum > 0 ? `R$ ${valNum.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'R$ 0,00',
             origem: 'Importado CSV',
             etapa: '1ª Mensagem',
             status: 'Pendente',
@@ -2270,67 +2327,19 @@ const initApp = () => {
   };
 
   // --- CAIXA DE ENTRADA (INBOX WHATSAPP - PÁGINAS 1 E 2 DO PDF) ---
-  const defaultConversas = [
-    {
-      id: 'conv-1',
-      nome: 'Eduardo Silveira Ramos',
-      whatsapp: '+55 (11) 98123-4567',
-      campanha: 'Campanha WhatsApp 01 - Consórcio Imóveis SP',
-      avatar: 'ES',
-      online: true,
-      naoLida: true,
-      mensagens: [
-        { id: 'm1', texto: 'Olá Eduardo, tudo bem? Sou especialista da C7 Contempla. Vi seu interesse em uma cota de Imóvel no valor de R$ 300.000. Posso te apresentar opções sem juros?', remetente: 'agente', hora: '11:30' },
-        { id: 'm2', texto: 'Olá! Sim, gostaria de saber qual o valor da parcela para 180 meses.', remetente: 'cliente', hora: '11:42' }
-      ]
-    },
-    {
-      id: 'conv-2',
-      nome: 'Fabiana Cristina Araújo',
-      whatsapp: '+55 (11) 97234-5678',
-      campanha: 'Campanha WhatsApp 01 - Consórcio Imóveis SP',
-      avatar: 'FA',
-      online: true,
-      naoLida: true,
-      mensagens: [
-        { id: 'm3', texto: 'Olá Fabiana, vi seu interesse em planejamento imobiliário sem juros. Tem preferência por imóvel pronto ou na planta?', remetente: 'agente', hora: '10:05' },
-        { id: 'm4', texto: 'Bom dia! Gostaria de comprar um apartamento pronto em São Paulo. Vocês têm cotas contempladas?', remetente: 'cliente', hora: '10:15' }
-      ]
-    },
-    {
-      id: 'conv-3',
-      nome: 'José Mauricio Franklin de Miranda',
-      whatsapp: '+55 (31) 98567-8901',
-      campanha: 'Campanha WhatsApp 01 - Consórcio Imóveis SP',
-      avatar: 'JM',
-      online: false,
-      naoLida: true,
-      mensagens: [
-        { id: 'm5', texto: 'José, consegui simular duas administradoras com taxas administrativas promocionais. Deseja que envie a tabela comparativa?', remetente: 'agente', hora: '21/10 16:40' },
-        { id: 'm6', texto: 'Pode me mandar em PDF por gentileza?', remetente: 'cliente', hora: '21/10 16:55' }
-      ]
-    },
-    {
-      id: 'conv-4',
-      nome: 'Juliana Beatriz Costa',
-      whatsapp: '+55 (11) 99887-1122',
-      campanha: 'Campanha Cartas Contempladas - Investidores',
-      avatar: 'JC',
-      online: false,
-      naoLida: false,
-      mensagens: [
-        { id: 'm7', texto: 'Olá Juliana, temos 3 cartas contempladas de imóvel com crédito de 400 mil e entrada facilitada.', remetente: 'agente', hora: 'Ontem 17:15' },
-        { id: 'm8', texto: 'Perfeito, me passa a administradora e o prazo restante.', remetente: 'cliente', hora: 'Hoje 08:30' }
-      ]
-    }
-  ];
+  const defaultConversas = [];
 
   let conversasData = [];
   try {
     const saved = localStorage.getItem('consorcio_inbox');
-    conversasData = saved ? JSON.parse(saved) : defaultConversas;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Remove conversas mockadas antigas do desenvolvimento
+      conversasData = (Array.isArray(parsed) ? parsed : []).filter(c => !['conv-1', 'conv-2', 'conv-3', 'conv-4'].includes(c.id));
+      localStorage.setItem('consorcio_inbox', JSON.stringify(conversasData));
+    }
   } catch (e) {
-    conversasData = defaultConversas;
+    conversasData = [];
   }
 
   let activeConversaId = null;
