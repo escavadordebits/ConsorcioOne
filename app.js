@@ -1503,6 +1503,11 @@ const initApp = () => {
       activeCamp.status = activeCamp.status === 'ATIVA' ? 'PAUSADA' : 'ATIVA';
       saveCampanhasData();
       renderCampanhas();
+
+      // Se foi retomada para ATIVA, dispara as mensagens iniciais dos pendentes
+      if (activeCamp.status === 'ATIVA') {
+        triggerCampaignDispatch(activeCamp);
+      }
     });
   }
 
@@ -1997,16 +2002,44 @@ const initApp = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target.result;
-      const lines = text.split('\n').filter(l => l.trim().length > 0);
+      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
       const leads = [];
 
-      lines.slice(1).forEach((line, idx) => {
-        const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
-        if (cols[0]) {
+      // Detecta se a primeira linha é cabeçalho
+      const firstLine = lines[0] || '';
+      const hasHeader = /nome|whatsapp|telefone|fone|valor|credito/i.test(firstLine);
+      const dataLines = hasHeader ? lines.slice(1) : lines;
+
+      dataLines.forEach((line, idx) => {
+        if (!line.trim()) return;
+
+        // Detecta delimitador: ponto e vírgula, vírgula ou tab
+        const delimiter = line.includes(';') ? ';' : (line.includes('\t') ? '\t' : ',');
+        const cols = line.split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
+
+        let nomeRaw = cols[0] || `Lead ${idx + 1}`;
+        let phoneRaw = cols[1] || '';
+        let valRaw = cols[2] || 0;
+
+        // Limpeza defensiva caso venha formato "nome;telefone;valor" dentro da primeira coluna
+        if (nomeRaw.includes(';')) {
+          const sub = nomeRaw.split(';');
+          nomeRaw = sub[0];
+          if (!phoneRaw && sub[1]) phoneRaw = sub[1];
+          if (!valRaw && sub[2]) valRaw = sub[2];
+        }
+
+        nomeRaw = nomeRaw.trim();
+        const formattedPhone = formatExtractedPhone(phoneRaw) || phoneRaw;
+        const valNum = parseFloat(String(valRaw).replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+
+        if (nomeRaw || phoneRaw) {
           leads.push({
             id: `p-csv-${Date.now()}-${idx}`,
-            nome: cols[0] || `Lead ${idx + 1}`,
-            whatsapp: cols[1] || '+55 (11) 9' + Math.floor(10000000 + Math.random() * 90000000),
+            nome: nomeRaw || `Lead ${idx + 1}`,
+            whatsapp: formattedPhone || '+55 (11) 9' + Math.floor(10000000 + Math.random() * 90000000),
+            valor: valNum,
+            valorFormatado: valNum > 0 ? `R$ ${valNum.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00',
             origem: 'Importado CSV',
             etapa: '1ª Mensagem',
             status: 'Pendente',
@@ -2018,8 +2051,8 @@ const initApp = () => {
       if (leads.length === 0) {
         // Fallback para arquivo vazio com leads modelo
         wzParsedLeads = [
-          { id: `p-${Date.now()}-1`, nome: 'Marcos Vinicius Tavares', whatsapp: '+55 (11) 98877-6655', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' },
-          { id: `p-${Date.now()}-2`, nome: 'Ana Paula Guimarães', whatsapp: '+55 (21) 97766-5544', origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' }
+          { id: `p-${Date.now()}-1`, nome: 'Marcos Vinicius Tavares', whatsapp: '+55 (11) 98877-6655', valor: 0, origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' },
+          { id: `p-${Date.now()}-2`, nome: 'Ana Paula Guimarães', whatsapp: '+55 (21) 97766-5544', valor: 0, origem: 'Importado CSV', etapa: '1ª Mensagem', status: 'Pendente', data: 'Agora' }
         ];
       } else {
         wzParsedLeads = leads;
@@ -2067,11 +2100,112 @@ const initApp = () => {
     textarea.selectionStart = textarea.selectionEnd = start + tag.length;
   };
 
+  // Formata mensagens da régua substituindo tags {nome}, {categoria}, {credito}
+  const formatCampaignMessage = (template, prospect, camp) => {
+    let msg = template || 'Olá {nome}, tudo bem? Sou especialista da C7 Contempla. Vi seu interesse em uma cota de {categoria}. Posso te apresentar opções sem juros?';
+
+    // 1. Nome limpo
+    let rawNome = prospect?.nome || 'Cliente';
+    if (rawNome.includes(';')) rawNome = rawNome.split(';')[0];
+    rawNome = rawNome.trim();
+    if (rawNome.length > 0) {
+      rawNome = rawNome.charAt(0).toUpperCase() + rawNome.slice(1);
+    }
+    msg = msg.replace(/\{nome\}/gi, rawNome || 'Cliente');
+
+    // 2. Categoria / Segmento
+    let cat = 'Consórcio';
+    if (camp?.segmento === 'IMOVEL') cat = 'Imóvel';
+    else if (camp?.segmento === 'AUTOMOVEL') cat = 'Automóvel';
+    else if (camp?.segmento === 'PESADOS') cat = 'Veículos Pesados';
+    msg = msg.replace(/\{categoria\}/gi, cat);
+
+    // 3. Crédito / Valor
+    const val = Number(prospect?.valor) || 0;
+    if (val > 0) {
+      const valFmt = val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      msg = msg.replace(/\{credito\}/gi, valFmt);
+    } else {
+      msg = msg.replace(/no valor de R\$\s*\{credito\}/gi, 'com parcelas reduzidas e sem juros')
+               .replace(/R\$\s*\{credito\}/gi, 'crédito sob medida')
+               .replace(/\{credito\}/gi, 'crédito sob medida');
+    }
+
+    return msg;
+  };
+
+  // Disparo automático e sincronização de mensagens iniciais da campanha
+  const triggerCampaignDispatch = (camp) => {
+    if (!camp || camp.status !== 'ATIVA' || !camp.prospects || camp.prospects.length === 0) return;
+
+    const pendentes = camp.prospects.filter(p => p.status === 'Pendente');
+    if (pendentes.length === 0) return;
+
+    const templateMsg = camp.mensagem1 || 'Olá {nome}, tudo bem? Sou especialista da C7 Contempla. Vi seu interesse em uma cota de {categoria} no valor de R$ {credito}. Posso te apresentar opções sem juros?';
+
+    pendentes.forEach((p, idx) => {
+      setTimeout(() => {
+        if (camp.status !== 'ATIVA') return;
+
+        const texto = formatCampaignMessage(templateMsg, p, camp);
+        const cleanNome = p.nome.includes(';') ? p.nome.split(';')[0].trim() : p.nome.trim();
+
+        // Cria ou atualiza a conversa na Caixa de Entrada com a 1ª mensagem real
+        let conv = conversasData.find(c => c.whatsapp === p.whatsapp);
+        const parts = cleanNome.split(' ');
+        const initials = parts.length > 1 ? (parts[0][0] + parts[1][0]) : cleanNome.substring(0, 2);
+
+        if (!conv) {
+          conv = {
+            id: `conv-${Date.now()}-${idx}`,
+            nome: cleanNome,
+            whatsapp: p.whatsapp,
+            campanha: camp.nome,
+            avatar: initials.toUpperCase(),
+            online: true,
+            naoLida: false,
+            mensagens: [
+              { id: `m-${Date.now()}`, texto: texto, remetente: 'agente', hora: 'Agora' }
+            ]
+          };
+          conversasData.unshift(conv);
+        } else {
+          // Substitui mensagem genérica de fallback se for a única da conversa
+          if (conv.mensagens.length === 1 && conv.mensagens[0].texto.includes('como posso te ajudar hoje na C7 Contempla')) {
+            conv.mensagens[0].texto = texto;
+            conv.nome = cleanNome;
+          }
+        }
+        saveConversasData();
+
+        // Atualiza status do prospect
+        p.etapa = '1ª Mensagem';
+        p.status = 'Entregue';
+        p.data = 'Agora';
+
+        // Atualiza contadores da campanha
+        camp.entregues = (camp.entregues || 0) + 1;
+        saveCampanhasData();
+        renderCampanhas();
+        renderInbox();
+      }, (idx + 1) * 800);
+    });
+  };
+
   window.concluirCriacaoCampanha = () => {
     const inputNome = document.getElementById('wz-input-nome');
     const selectCat = document.getElementById('wz-select-categoria');
     const nome = inputNome ? inputNome.value.trim() : 'Nova Campanha';
     const segmento = selectCat ? selectCat.value : 'IMOVEL';
+
+    // Captura as mensagens configuradas no Passo 3 do assistente
+    const msg1Input = document.getElementById('wz-msg-1');
+    const msg2Input = document.getElementById('wz-msg-2');
+    const msg3Input = document.getElementById('wz-msg-3');
+
+    const mensagem1 = msg1Input ? msg1Input.value.trim() : 'Olá {nome}, tudo bem? Sou especialista da C7 Contempla. Vi seu interesse em uma cota de {categoria} no valor de R$ {credito}. Posso te apresentar opções sem juros?';
+    const mensagem2 = msg2Input ? msg2Input.value.trim() : '{nome}, consegui simular duas administradoras com taxas administrativas promocionais para o seu perfil. Deseja que eu envie a tabela comparativa aqui no WhatsApp?';
+    const mensagem3 = msg3Input ? msg3Input.value.trim() : '';
 
     let prospects = [];
     if (wzSelectedSource === 'CSV') {
@@ -2112,6 +2246,9 @@ const initApp = () => {
       nome: nome,
       segmento: segmento,
       status: 'ATIVA',
+      mensagem1: mensagem1,
+      mensagem2: mensagem2,
+      mensagem3: mensagem3,
       disparos: prospects.length,
       entregues: 0,
       respostas: 0,
@@ -2125,7 +2262,11 @@ const initApp = () => {
 
     closeCriarCampanhaModal();
     switchAppView('campanhas');
-    alert(`Campanha "${nome}" criada com sucesso! Disparos iniciados com intervalo de segurança anti-ban.`);
+
+    // Inicia os disparos da mensagem inicial da campanha
+    triggerCampaignDispatch(newCamp);
+
+    alert(`Campanha "${nome}" criada com sucesso! 1ª Mensagem configurada e disparos iniciados.`);
   };
 
   // --- CAIXA DE ENTRADA (INBOX WHATSAPP - PÁGINAS 1 E 2 DO PDF) ---
@@ -2352,23 +2493,37 @@ const initApp = () => {
 
   window.openInboxForProspect = (whatsapp, nome, campanhaNome) => {
     let conv = conversasData.find(c => c.whatsapp === whatsapp);
+    const activeCamp = getActiveCampanha();
+    const prospect = activeCamp?.prospects?.find(p => p.whatsapp === whatsapp) || { nome, whatsapp, valor: 0 };
+
+    const templateMsg = activeCamp?.mensagem1 || 'Olá {nome}, tudo bem? Sou especialista da C7 Contempla. Vi seu interesse em uma cota de {categoria} no valor de R$ {credito}. Posso te apresentar opções sem juros?';
+    const textoMensagemInicial = formatCampaignMessage(templateMsg, prospect, activeCamp);
+    const cleanNome = nome.includes(';') ? nome.split(';')[0].trim() : nome.trim();
+
     if (!conv) {
-      const parts = nome.split(' ');
-      const initials = parts.length > 1 ? (parts[0][0] + parts[1][0]) : nome.substring(0, 2);
+      const parts = cleanNome.split(' ');
+      const initials = parts.length > 1 ? (parts[0][0] + parts[1][0]) : cleanNome.substring(0, 2);
       conv = {
         id: `conv-${Date.now()}`,
-        nome: nome,
+        nome: cleanNome,
         whatsapp: whatsapp,
-        campanha: campanhaNome || 'Campanha WhatsApp',
+        campanha: campanhaNome || activeCamp?.nome || 'Campanha WhatsApp',
         avatar: initials.toUpperCase(),
         online: true,
         naoLida: false,
         mensagens: [
-          { id: `m-${Date.now()}`, texto: `Olá ${nome}, como posso te ajudar hoje na C7 Contempla?`, remetente: 'agente', hora: 'Agora' }
+          { id: `m-${Date.now()}`, texto: textoMensagemInicial, remetente: 'agente', hora: 'Agora' }
         ]
       };
       conversasData.unshift(conv);
       saveConversasData();
+    } else {
+      // Se a conversa tinha a mensagem genérica de fallback 'como posso te ajudar hoje', atualiza para a 1ª mensagem real da campanha
+      if (conv.mensagens && conv.mensagens.length === 1 && conv.mensagens[0].texto.includes('como posso te ajudar hoje na C7 Contempla')) {
+        conv.mensagens[0].texto = textoMensagemInicial;
+        conv.nome = cleanNome;
+        saveConversasData();
+      }
     }
     activeConversaId = conv.id;
     switchAppView('inbox');
