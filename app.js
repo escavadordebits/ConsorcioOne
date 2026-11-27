@@ -1605,9 +1605,9 @@ const initApp = () => {
       if (saved) return JSON.parse(saved);
     } catch (e) {}
     return {
-      apiUrl: '',
+      apiUrl: 'http://localhost:8080',
       instance: 'c7contempla',
-      apiKey: '',
+      apiKey: 'c7contempla_secret_key',
       connected: false,
       number: ''
     };

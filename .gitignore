@@ -1,5 +1,7 @@
 .DS_Store
 node_modules/
+whatsapp-gateway/node_modules/
+whatsapp-gateway/sessions/
 .vscode/
 .idea/
 dist/
